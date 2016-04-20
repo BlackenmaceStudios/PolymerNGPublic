@@ -1,0 +1,542 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Common">
+      <UniqueIdentifier>c5bf6c98-f5e1-4053-ae43-05201dbde3d2</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets">
+      <UniqueIdentifier>a2d326b6-a150-48e4-843f-eaa82ff1178f</UniqueIdentifier>
+      <Extensions>bmp;fbx;gif;jpg;jpeg;tga;tiff;tif;png</Extensions>
+    </Filter>
+    <ClInclude Include="Common\DirectXHelper.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\StepTimer.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\DeviceResources.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClCompile Include="Common\DeviceResources.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClInclude Include="Content\Sample3DSceneRenderer.h">
+      <Filter>Deprecated</Filter>
+    </ClInclude>
+    <ClInclude Include="Content\SampleFpsTextRenderer.h">
+      <Filter>Deprecated</Filter>
+    </ClInclude>
+    <ClInclude Include="Content\ShaderStructures.h">
+      <Filter>Deprecated</Filter>
+    </ClInclude>
+    <ClCompile Include="Content\Sample3DSceneRenderer.cpp">
+      <Filter>Deprecated</Filter>
+    </ClCompile>
+    <ClCompile Include="Content\SampleFpsTextRenderer.cpp">
+      <Filter>Deprecated</Filter>
+    </ClCompile>
+    <FxCompile Include="Content\SamplePixelShader.hlsl">
+      <Filter>Deprecated</Filter>
+    </FxCompile>
+    <FxCompile Include="Content\SampleVertexShader.hlsl">
+      <Filter>Deprecated</Filter>
+    </FxCompile>
+    <Image Include="Assets\LockScreenLogo.scale-200.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\SplashScreen.scale-200.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Square150x150Logo.scale-200.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Square44x44Logo.scale-200.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Wide310x150Logo.scale-200.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Filter Include="Assets\DukeData">
+      <UniqueIdentifier>{7bfb2b30-6423-4ac8-b045-23fb48e73643}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Deprecated">
+      <UniqueIdentifier>4c1d6018-6f60-417a-8ff9-5cadae54ec4d</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game">
+      <UniqueIdentifier>{19cd18b7-a038-44d9-985c-f93dcf4ec501}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{25798611-dd31-4edd-8166-39a2c01f1091}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="App.cpp" />
+    <ClCompile Include="DukeNukemMain.cpp" />
+    <ClCompile Include="pch.cpp" />
+    <ClCompile Include="Game\actors.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\actors_inline.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\anim.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\animsounds.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\animvpx.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\common.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\config.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\demo.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\game.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\game_inline.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\gamedef.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\gameexec.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\gamevars.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\global.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\grpscan.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\input.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\m32common.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\m32def.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\m32exec.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\m32vars.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\mdump.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\menus.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\midi.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\mpu401.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\music.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\namesdyn.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\net.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\osdcmds.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\osdfuncs.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\player.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\premap.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\rev.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\rts.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\savegame.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\sector.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\sector_inline.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\sounds.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\soundsdyn.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\startwin.game.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\winbits.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="App.h" />
+    <ClInclude Include="DukeNukemMain.h" />
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="Game\_functio.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\_midi.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\_rts.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\actors.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\actors_inline.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\android.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\anim.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\animsounds.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\animvpx.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\common_game.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\config.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\demo.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\duke3d.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\events_defs.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\function.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\game.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\game_inline.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\gamedef.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\gamedefs.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\gameexec.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\GameListSource.game.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\gamevars.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\global.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\GrpFile.game.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\grpscan.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\input.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\keys.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\m32def.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\macros.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\mapster32.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\mdump.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\menus.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\midi.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\mpu401.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\names.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\namesdyn.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\net.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\osdcmds.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\osdfuncs.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\player.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\premap.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\quotes.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\rts.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\savegame.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\sector.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\sector_inline.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\soundefs.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\sounds.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\sounds_common.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\sounds_mapster32.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\soundsdyn.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\standard.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\startwin.game.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\GraphicsContext.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Assets\StoreLogo.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\SplashScreen.scale-400.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\SplashScreen.scale-150.png">
+      <Filter>Assets</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <AppxManifest Include="Package.appxmanifest" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="DukeNukem_TemporaryKey.pfx" />
+    <None Include="Assets\dukedata\duke3d.cfg">
+      <Filter>Assets\DukeData</Filter>
+    </None>
+    <None Include="Assets\dukedata\duke3d.grp">
+      <Filter>Assets\DukeData</Filter>
+    </None>
+    <None Include="Shaders\guishader.hlsli">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\AlbedoSimple.hlsli">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Assets\dukedata\233c.ogg">
+      <Filter>Assets\DukeData</Filter>
+    </None>
+    <None Include="Assets\dukedata\ahgeez.ogg">
+      <Filter>Assets\DukeData</Filter>
+    </None>
+    <None Include="Assets\dukedata\alfredh.ogg">
+      <Filter>Assets\DukeData</Filter>
+    </None>
+    <None Include="Assets\dukedata\alienz.ogg">
+      <Filter>Assets\DukeData</Filter>
+    </None>
+    <None Include="Assets\dukedata\bakedgds.ogg">
+      <Filter>Assets\DukeData</Filter>
+    </None>
+    <None Include="Assets\dukedata\briefing.ogg">
+      <Filter>Assets\DukeData</Filter>
+    </None>
+    <None Include="Assets\dukedata\cf.ogg">
+      <Filter>Assets\DukeData</Filter>
+    </None>
+    <None Include="Assets\dukedata\depart.ogg">
+      <Filter>Assets\DukeData</Filter>
+    </None>
+    <None Include="Assets\dukedata\dethtoll.ogg">
+      <Filter>Assets\DukeData</Filter>
+    </None>
+    <None Include="Assets\dukedata\fatcmdr.ogg">
+      <Filter>Assets\DukeData</Filter>
+    </None>
+    <None Include="Assets\dukedata\floghorn.ogg">
+      <Filter>Assets\DukeData</Filter>
+    </None>
+    <None Include="Assets\dukedata\futurmil.ogg">
+      <Filter>Assets\DukeData</Filter>
+    </None>
+    <None Include="Assets\dukedata\gloomy.ogg">
+      <Filter>Assets\DukeData</Filter>
+    </None>
+    <None Include="Assets\dukedata\gotham.ogg">
+      <Filter>Assets\DukeData</Filter>
+    </None>
+    <None Include="Assets\dukedata\grabbag.ogg">
+      <Filter>Assets\DukeData</Filter>
+    </None>
+    <None Include="Assets\dukedata\gutwrnch.ogg">
+      <Filter>Assets\DukeData</Filter>
+    </None>
+    <None Include="Assets\dukedata\intents.ogg">
+      <Filter>Assets\DukeData</Filter>
+    </None>
+    <None Include="Assets\dukedata\invader.ogg">
+      <Filter>Assets\DukeData</Filter>
+    </None>
+    <None Include="Assets\dukedata\layers.ogg">
+      <Filter>Assets\DukeData</Filter>
+    </None>
+    <None Include="Assets\dukedata\lemchill.ogg">
+      <Filter>Assets\DukeData</Filter>
+    </None>
+    <None Include="Assets\dukedata\lordofla.ogg">
+      <Filter>Assets\DukeData</Filter>
+    </None>
+    <None Include="Assets\dukedata\missimp.ogg">
+      <Filter>Assets\DukeData</Filter>
+    </None>
+    <None Include="Assets\dukedata\names.ogg">
+      <Filter>Assets\DukeData</Filter>
+    </None>
+    <None Include="Assets\dukedata\pizzed.ogg">
+      <Filter>Assets\DukeData</Filter>
+    </None>
+    <None Include="Assets\dukedata\pob.ogg">
+      <Filter>Assets\DukeData</Filter>
+    </None>
+    <None Include="Assets\dukedata\prepd.ogg">
+      <Filter>Assets\DukeData</Filter>
+    </None>
+    <None Include="Assets\dukedata\restrict.ogg">
+      <Filter>Assets\DukeData</Filter>
+    </None>
+    <None Include="Assets\dukedata\robocrep.ogg">
+      <Filter>Assets\DukeData</Filter>
+    </None>
+    <None Include="Assets\dukedata\snake1.ogg">
+      <Filter>Assets\DukeData</Filter>
+    </None>
+    <None Include="Assets\dukedata\spook.ogg">
+      <Filter>Assets\DukeData</Filter>
+    </None>
+    <None Include="Assets\dukedata\stalag.ogg">
+      <Filter>Assets\DukeData</Filter>
+    </None>
+    <None Include="Assets\dukedata\stalker.ogg">
+      <Filter>Assets\DukeData</Filter>
+    </None>
+    <None Include="Assets\dukedata\storm.ogg">
+      <Filter>Assets\DukeData</Filter>
+    </None>
+    <None Include="Assets\dukedata\streets.ogg">
+      <Filter>Assets\DukeData</Filter>
+    </None>
+    <None Include="Assets\dukedata\subway.ogg">
+      <Filter>Assets\DukeData</Filter>
+    </None>
+    <None Include="Assets\dukedata\thecall.ogg">
+      <Filter>Assets\DukeData</Filter>
+    </None>
+    <None Include="Assets\dukedata\urban.ogg">
+      <Filter>Assets\DukeData</Filter>
+    </None>
+    <None Include="Assets\dukedata\warehaus.ogg">
+      <Filter>Assets\DukeData</Filter>
+    </None>
+    <None Include="Assets\dukedata\watrwld1.ogg">
+      <Filter>Assets\DukeData</Filter>
+    </None>
+    <None Include="Assets\dukedata\whomp.ogg">
+      <Filter>Assets\DukeData</Filter>
+    </None>
+    <None Include="Assets\dukedata\xplasma.ogg">
+      <Filter>Assets\DukeData</Filter>
+    </None>
+    <None Include="Assets\dukedata\inhiding.ogg">
+      <Filter>Assets\DukeData</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Shaders\guishader_vertex.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\guishader_pixel.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\AlbedoSimple_vertex.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\SpriteSimple_pixel.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\SpriteSimple_vertex.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\AlbedoSimple_pixel.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+  </ItemGroup>
+</Project>

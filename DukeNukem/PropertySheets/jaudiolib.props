@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <OutDir>$(SolutionDir)$(Platform)\jaudiolib\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\jaudiolib\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>./Third-Party/SDL/SDL_mixer/external/libogg-1.3.1/include;./Third-Party/SDL/SDL_mixer/external/libogg-1.3.1/include;source/jaudiolib/third-party/common/include;%(PreprocessorDefinitions);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;NOASM;RENDERTYPEWIN=1;MIXERTYPEWIN=1;SDL_FRAMEWORK;SDL_TARGET=2;HAVE_DS=0;HAVE_SDL=1;HAVE_VORBIS=1%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup />
+</Project>

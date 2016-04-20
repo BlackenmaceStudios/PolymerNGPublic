@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <OutDir>$(SolutionDir)$(Platform)\BuileEngine\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\BuileEngine\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <PreprocessorDefinitions>BUILD_NEXTGEN;BUILD_D3D12;_CRT_SECURE_NO_WARNINGS;NOASM;USE_LIBVPX;RENDERTYPEWIN=1;MIXERTYPEWIN=1;SDL_FRAMEWORK;SDL_TARGET=2;HAVE_DS=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>%DXSDK_DIR%\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup />
+</Project>
