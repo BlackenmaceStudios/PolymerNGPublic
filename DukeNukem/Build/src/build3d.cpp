@@ -817,11 +817,6 @@ bool Build3DBoard::initsector(int16_t sectnum)
 	s->ceil.vertcount = sec->wallnum;
 	s->flags.empty = 1; // let updatesector know that everything needs to go
 
-	if (sectnum == 147)
-	{
-		initprintf("test me");
-	}
-
 	prsectors[sectnum] = s;
 
 	return true;
@@ -937,11 +932,6 @@ bool Build3DBoard::updatesector(int16_t sectnum)
 	secangcos = secangsin = 2;
 
 	needfloor = wallinvalidate = 0;
-
-	if (sectnum == 147)
-	{
-		initprintf("test me");
-	}
 
 	// geometry
 	wal = &wall[sec->wallptr];
