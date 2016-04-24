@@ -1,6 +1,6 @@
 //-------------------------------------------------------------------------
 /*
-Copyright (C) 2010 EDuke32 developers and contributors
+Copyright (C) 2016 EDuke32 developers and contributors
 
 This file is part of EDuke32.
 
@@ -21,14 +21,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 #include "pch.h"
 #include "duke3d.h"
-#include "game.h"
-#include "common_game.h"
-#include "osd.h"
-#include "gamedef.h"
-#include "premap.h"
-#include "sounds.h"
-#include "fx_man.h"
-#include "gameexec.h"
 #include "anim.h"
 #include "menus.h"
 #include "demo.h"
@@ -280,25 +272,18 @@ static void G_PrecacheSprites(void)
 // FIXME: this function is a piece of shit, needs specific sounds listed
 static int32_t G_CacheSound(uint32_t num)
 {
-    int16_t fp = -1;
-    int32_t   l;
-
     if (num >= MAXSOUNDS || !ud.config.SoundToggle) return 0;
 
     if (EDUKE32_PREDICT_FALSE(!g_sounds[num].filename)) return 0;
 
-#if defined HAVE_FLAC || defined HAVE_VORBIS
-    fp = S_UpgradeFormat(g_sounds[num].filename, g_loadFromGroupOnly);
-    if (fp == -1)
-#endif
-        fp = kopen4loadfrommod(g_sounds[num].filename,g_loadFromGroupOnly);
-    if (fp == -1)
+    int32_t fp = S_OpenAudio(g_sounds[num].filename, g_loadFromGroupOnly, 0);
+    if (EDUKE32_PREDICT_FALSE(fp == -1))
     {
 //        OSD_Printf(OSDTEXT_RED "Sound %s(#%d) not found!\n",g_sounds[num].filename,num);
         return 0;
     }
 
-    l = kfilelength(fp);
+    int32_t l = kfilelength(fp);
     g_sounds[num].soundsiz = l;
 
     if ((ud.level_number == 0 && ud.volume_number == 0 && (num == 189 || num == 232 || num == 99 || num == 233 || num == 17)) ||
@@ -519,7 +504,7 @@ void G_CacheMapData(void)
                                 polymost_precache(i,k,type);
                         }
 
-#ifndef EDUKE32_GLES
+#ifdef USE_GLEXT
                         if (r_detailmapping && !KB_KeyPressed(sc_Space))
                             polymost_precache(i,DETAILPAL,type);
                         if (r_glowmapping && !KB_KeyPressed(sc_Space))
@@ -990,7 +975,7 @@ static void G_SetupRotfixedSprites(void)
                 // too useful with moving sectors anyway
                 if ((ROTFIXSPR_STATNUMP(spr->statnum) && spr->picnum!=TRIPBOMB) ||
                     ((spr->statnum==STAT_ACTOR || spr->statnum==STAT_ZOMBIEACTOR) &&
-                     A_CheckSpriteTileFlags(spr->picnum, SFLAG_ROTFIXED)))
+                     A_CheckSpriteFlags(j, SFLAG_ROTFIXED)))
                 {
                     int32_t pivot = i;
 
@@ -1402,19 +1387,19 @@ void G_NewGame(int32_t vn, int32_t ln, int32_t sk)
         clearview(0L);
         nextpage();
 
-        i = G_PlayAnim("vol41a.anm");
+        i = Anim_Play("vol41a.anm");
         clearview(0L);
         nextpage();
         if (i)
             goto end_vol4a;
 
-        i = G_PlayAnim("vol42a.anm");
+        i = Anim_Play("vol42a.anm");
         clearview(0L);
         nextpage();
         if (i)
             goto end_vol4a;
 
-        G_PlayAnim("vol43a.anm");
+        Anim_Play("vol43a.anm");
         clearview(0L);
         nextpage();
 
@@ -1761,7 +1746,8 @@ static void G_LoadMapHack(char *outbuf, const char *filename)
 // levnamebuf should have at least size BMAX_PATH
 void G_SetupFilenameBasedMusic(char *levnamebuf, const char *boardfilename, int32_t level_number)
 {
-    char *p, *exts[] = {
+    char *p;
+    char const *exts [] ={
 #ifdef HAVE_FLAC
                  "flac",
 #endif
@@ -1936,7 +1922,7 @@ int32_t G_EnterLevel(int32_t g)
     G_AlignWarpElevators();
     resetpspritevars(g);
 
-    ud.playerbest = CONFIG_GetMapBestTime(MapInfo[mii].filename);
+    ud.playerbest = CONFIG_GetMapBestTime(G_HaveUserMap() ? boardfilename : MapInfo[mii].filename, g_loadedMapHack.md4);
 
     G_FadeLoad(0,0,0, 252,0, -28, 4, -1);
     G_CacheMapData();
@@ -2007,12 +1993,6 @@ int32_t G_EnterLevel(int32_t g)
 
     for (i=g_numInterpolations-1; i>=0; i--) bakipos[i] = *curipos[i];
 
-    g_restorePalette = -1;
-
-    G_UpdateScreenArea();
-    clearview(0L);
-    G_DrawBackground();
-    G_DrawRooms(myconnectindex,65536);
 
     g_player[myconnectindex].ps->over_shoulder_on = 0;
 
@@ -2035,6 +2015,13 @@ int32_t G_EnterLevel(int32_t g)
 
     OSD_Printf(OSDTEXT_YELLOW "E%dL%d: %s\n", ud.volume_number+1, ud.level_number+1,
                MapInfo[mii].name);
+
+    g_restorePalette = -1;
+
+    G_UpdateScreenArea();
+    clearview(0L);
+    G_DrawBackground();
+    G_DrawRooms(myconnectindex,65536);
 
     Net_WaitForServer();
     return 0;

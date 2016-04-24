@@ -371,10 +371,10 @@ bool Build3DBoard::updatewall(int16_t wallnum)
 		//		Bmemcpy(&w->wall.buffer[1], &s->floor.buffer[wal->point2 - sec->wallptr], sizeof(GLfloat) * 3);
 		//		Bmemcpy(&w->wall.buffer[2], &s->ceil.buffer[wal->point2 - sec->wallptr], sizeof(GLfloat) * 3);
 		//		Bmemcpy(&w->wall.buffer[3], &s->ceil.buffer[wallnum - sec->wallptr], sizeof(GLfloat) * 3);
-		w->wall.buffer[0] = s->floor.buffer[wallnum - sec->wallptr];
-		w->wall.buffer[1] = s->floor.buffer[wal->point2 - sec->wallptr];
-		w->wall.buffer[2] = s->ceil.buffer[wal->point2 - sec->wallptr];
-		w->wall.buffer[3] = s->ceil.buffer[wallnum - sec->wallptr];
+		w->wall.buffer[0].position = s->floor.buffer[wallnum - sec->wallptr].position;
+		w->wall.buffer[1].position = s->floor.buffer[wal->point2 - sec->wallptr].position;
+		w->wall.buffer[2].position = s->ceil.buffer[wal->point2 - sec->wallptr].position;
+		w->wall.buffer[3].position = s->ceil.buffer[wallnum - sec->wallptr].position;
 		// jmarshall end
 
 		if (wal->nextsector < 0)
@@ -708,43 +708,52 @@ bool Build3DBoard::updatewall(int16_t wallnum)
 	}
 	else
 	{
-
+		w->wall.isDynamicPlane = true;
+		model->UpdateBuffer(w->wall.vbo_offset, 4, w->wall.buffer);
 	}
 
-	if (w->over.buffer && w->over.vbo_offset == -1)
+	if (w->over.buffer)
 	{
-		w->over.tileNum = wal->overpicnum; // is this right?
-		if (w->over.tileNum == 0)
+		if (w->over.vbo_offset == -1)
 		{
-			w->over.tileNum = wal->picnum;
+			w->over.tileNum = wal->overpicnum; // is this right?
+			if (w->over.tileNum == 0)
+			{
+				w->over.tileNum = wal->picnum;
+			}
+			w->over.vbo_offset = model->AddVertexesToBuffer(4, w->over.buffer);
+			unsigned short indexes[6] = { 0, 1, 2, 3, 0, 2 };
+			w->over.indices = new unsigned short[6];
+			memcpy(&w->over.indices[0], &indexes[0], sizeof(unsigned short) * 6);
+			w->over.ibo_offset = model->AddIndexesToBuffer(6, indexes);
+			w->over.indicescount = 6;
+			//	newBoardPlanes.push_back(&w->over);
 		}
-		w->over.vbo_offset = model->AddVertexesToBuffer(4, w->over.buffer);
-		unsigned short indexes[6] = { 0, 1, 2, 3, 0, 2 };
-		w->over.indices = new unsigned short[6];
-		memcpy(&w->over.indices[0], &indexes[0], sizeof(unsigned short) * 6);
-		w->over.ibo_offset = model->AddIndexesToBuffer(6, indexes);
-		w->over.indicescount = 6;
-		//	newBoardPlanes.push_back(&w->over);
-	}
-	else
-	{
-
+		else
+		{
+			w->over.isDynamicPlane = true;
+			model->UpdateBuffer(w->over.vbo_offset, 4, w->over.buffer);
+		}
 	}
 
-	if (w->mask.vbo_offset == -1)
+	if (w->mask.buffer)
 	{
-		w->mask.tileNum = wal->picnum; // wrong?
-		w->mask.vbo_offset = model->AddVertexesToBuffer(4, w->mask.buffer);
-		//newBoardPlanes.push_back(&w->mask);
-		unsigned short indexes[6] = { 0, 1, 2, 3, 0, 2 };
-		w->mask.indices = new unsigned short[6];
-		memcpy(&w->mask.indices[0], &indexes[0], sizeof(unsigned short) * 6);
-		w->mask.ibo_offset = model->AddIndexesToBuffer(6, indexes);
-		w->mask.indicescount = 6;
-	}
-	else
-	{
-
+		if (w->mask.vbo_offset == -1)
+		{
+			w->mask.tileNum = wal->picnum; // wrong?
+			w->mask.vbo_offset = model->AddVertexesToBuffer(4, w->mask.buffer);
+			//newBoardPlanes.push_back(&w->mask);
+			unsigned short indexes[6] = { 0, 1, 2, 3, 0, 2 };
+			w->mask.indices = new unsigned short[6];
+			memcpy(&w->mask.indices[0], &indexes[0], sizeof(unsigned short) * 6);
+			w->mask.ibo_offset = model->AddIndexesToBuffer(6, indexes);
+			w->mask.indicescount = 6;
+		}
+		else
+		{
+			w->mask.isDynamicPlane = true;
+			model->UpdateBuffer(w->mask.vbo_offset, 4, w->mask.buffer);
+		}
 	}
 
 	//if ((pr_vbos > 0))
@@ -801,12 +810,17 @@ bool Build3DBoard::initsector(int16_t sectnum)
 	s = new Build3DSector();
 	//s = (_prsector *)Xcalloc(1, sizeof(_prsector));
 
-	s->verts = new double[6 * sec->wallnum]; // jmarshall: changed this to 6 x wallnum, this is a hack!!! fixme!!!
+	s->verts = (double *)Xcalloc(sec->wallnum, sizeof(double) * 3);
 	s->floor.buffer = new Build3DVertex[sec->wallnum];
 	s->floor.vertcount = sec->wallnum;
 	s->ceil.buffer = new Build3DVertex[sec->wallnum];
 	s->ceil.vertcount = sec->wallnum;
 	s->flags.empty = 1; // let updatesector know that everything needs to go
+
+	if (sectnum == 147)
+	{
+		initprintf("test me");
+	}
 
 	prsectors[sectnum] = s;
 
@@ -924,6 +938,11 @@ bool Build3DBoard::updatesector(int16_t sectnum)
 
 	needfloor = wallinvalidate = 0;
 
+	if (sectnum == 147)
+	{
+		initprintf("test me");
+	}
+
 	// geometry
 	wal = &wall[sec->wallptr];
 	i = 0;
@@ -977,7 +996,10 @@ bool Build3DBoard::updatesector(int16_t sectnum)
 		s->ceilingheinum = sec->ceilingheinum;
 	}
 	else if (sec->visibility != s->visibility)
-		wallinvalidate = 1;
+	{
+		//wallinvalidate = 1; jmarshall: there is no reason visibility changes should cause a geo update...right?
+		s->visibility = sec->visibility;
+	}
 
 	floorpicnum = sec->floorpicnum;
 	DO_TILE_ANIM(floorpicnum, sectnum);
@@ -1090,7 +1112,7 @@ bool Build3DBoard::updatesector(int16_t sectnum)
 	i = -1;
 
 attributes:
-	if (((i == -1) || (wallinvalidate)))
+	if (wallinvalidate)
 	{
 		if (s->floor.vbo_offset == -1)
 		{
@@ -1100,7 +1122,8 @@ attributes:
 		}
 		else
 		{
-
+			s->floor.isDynamicPlane = true;
+			model->UpdateBuffer(s->floor.vbo_offset, sec->wallnum, s->floor.buffer);
 		}
 
 		if (s->ceil.vbo_offset == -1)
@@ -1111,7 +1134,8 @@ attributes:
 		}
 		else
 		{
-
+			s->ceil.isDynamicPlane = true;
+			model->UpdateBuffer(s->ceil.vbo_offset, sec->wallnum, s->ceil.buffer);
 		}
 	}
 
@@ -1178,7 +1202,9 @@ attributes:
 	s->flags.invalidtex = 0;
 
 	// copy ceilingstat through visibility members
-	Bmemcpy(&s->ceilingstat, &sec->ceilingstat, offsetof(sectortype, visibility) - offsetof(sectortype, ceilingstat));
+	s->ceilingstat = sec->ceilingstat;
+	s->floorstat = sec->floorstat;
+	//Bmemcpy(&s->ceilingstat, &sec->ceilingstat, offsetof(sectortype, visibility) - offsetof(sectortype, ceilingstat));
 	s->floorpicnum_anim = floorpicnum;
 	s->ceilingpicnum_anim = ceilingpicnum;
 

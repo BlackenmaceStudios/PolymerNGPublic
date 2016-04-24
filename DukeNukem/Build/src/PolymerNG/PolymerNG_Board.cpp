@@ -5,6 +5,7 @@
 #include "Renderer/Renderer.h"
 
 #include "../engine_priv.h"
+#include "Models/Models.h"
 
 /*
 =============
@@ -46,12 +47,59 @@ BuildImage	 *PolymerNGBoard::LoadImageDeferred(int tileNum)
 
 /*
 =============
+PolymerNGBoard::FindMapSky
+=============
+*/
+void PolymerNGBoard::FindMapSky()
+{
+	#define DEFAULT_ARTSKY_ANGDIV 4.3027f
+
+	// This is the same logic as in polymer, this can fix easily enough but for now I'm going to leave as is.
+	for (int i = 0; i < numsectors; i++)
+	{
+		if (sector[i].ceilingstat & 1)
+		{
+			int32_t horizfrac;
+			
+			//curskypal = sector[i].ceilingpal;
+			//cursky = sector[i].ceilingpicnum;
+			//curskyshade = sector[i].ceilingshade;
+
+			
+			boardSkyImage = LoadImageDeferred(sector[i].ceilingpicnum);
+			getpsky(sector[i].ceilingpicnum, &horizfrac, NULL);
+			
+			switch (horizfrac)
+			{
+			case 0:
+				// psky always at same level wrt screen
+				curskyangmul = 0.f;
+				break;
+			case 65536:
+				// psky horiz follows camera horiz
+				curskyangmul = 1.f;
+				break;
+			default:
+				// sky has hard-coded parallax
+				curskyangmul = 1 / DEFAULT_ARTSKY_ANGDIV;
+				break;
+			}
+
+			return;
+		}
+	}
+}
+
+/*
+=============
 PolymerNGBoard::InitBoard
 =============
 */
 void PolymerNGBoard::InitBoard()
 {
 	board = new Build3DBoard();
+
+	curskyangmul = 1;
 
 	initprintf("--------PolymerNGBoard::InitBoard--------\n");
 	initprintf("Loading Sectors\n");
@@ -64,12 +112,6 @@ void PolymerNGBoard::InitBoard()
 	}
 
 	initprintf("Loading Walls\n");
-	// Load in all the walls.
-	for (int i = 0; i < numwalls; i++)
-	{
-		board->initwall(i);
-		board->updatewall(i);
-	}
 
 	for (int i = 0; i < numsectors; i++)
 	{
@@ -78,16 +120,41 @@ void PolymerNGBoard::InitBoard()
 
 		sector->ceil.renderImageHandle = LoadImageDeferred(sector->ceil.tileNum);
 		sector->floor.renderImageHandle = LoadImageDeferred(sector->floor.tileNum);
+
+		//sector->floorstat = ::sector[i].floorstat;
+		//sector->ceilingstat = ::sector[i].ceilingstat;
 	}
 
+	// Load in all the walls.
 	for (int i = 0; i < numwalls; i++)
 	{
-		// Draw the sectors.
-		Build3DWall *wall = board->GetWall(i);
+		board->initwall(i);
+		if (!board->updatewall(i))
+		{
+			initprintf("PolymerNGBoard::InitBoard: Update Wall failed\n");
+		}
 
+		Build3DWall *wall = board->GetWall(i);
 		wall->wall.renderImageHandle = LoadImageDeferred(wall->picnum);
-		wall->over.renderImageHandle = LoadImageDeferred(wall->over.tileNum);
+
+
+		if (i == 1474)
+		{
+	//		initprintf("yup");
+		}
+
+		if (wall->over.buffer && wall->over.tileNum != -1)
+		{
+			wall->over.renderImageHandle = LoadImageDeferred(wall->over.tileNum);
+		}
+
+		if (wall->mask.buffer && wall->mask.tileNum != -1)
+		{
+			wall->mask.renderImageHandle = LoadImageDeferred(wall->mask.tileNum);
+		}
 	}
+
+	FindMapSky();
 
 	initprintf("Initializing Occlusion Culling Engine...\n");
 	InitOcclusion();
@@ -96,10 +163,11 @@ void PolymerNGBoard::InitBoard()
 
 	// We can't update memory on the device in the game thread, pass it off to the render thread to deal with.
 	BuildRenderCommand command;
-	command.taskId = BUILDRENDER_TASK_UPDATEMODEL;
-	command.taskUpdateModel.model = model;
-	command.taskUpdateModel.startVertex = 0;
-	command.taskUpdateModel.numVertexes = model->meshVertexes.size();
+	command.taskId = BUILDRENDER_TASK_CREATEMODEL;
+	command.taskCreateModel.model = model;
+	command.taskCreateModel.startVertex = 0;
+	command.taskCreateModel.createDynamicBuffers = true;
+	command.taskCreateModel.numVertexes = model->meshVertexes.size();
 	renderer.AddRenderCommand(command);
 
 	initprintf("NumSections = %d\n", numsectors);
@@ -151,11 +219,18 @@ void PolymerNGBoard::DrawRooms(int32_t daposx, int32_t daposy, int32_t daposz, i
 	position.SetY(-(float)(daposz) / 16.0f);
 	position.SetZ(-(float)daposx);
 
+	// if it's not a skybox, make the sky parallax
+	// DEFAULT_ARTSKY_ANGDIV is computed from eyeballed values
+	// need to recompute it if we ever change the max horiz amplitude
+	//skyhoriz *= curskyangmul;
+
 	viewMatrix.Identity();
 
 	viewMatrix.Rotatef(tiltang, 0.0f, 0.0f, -1.0f);
 	viewMatrix.Rotatef(skyhoriz, 1.0f, 0.0f, 0.0f);
 	viewMatrix.Rotatef(ang, 0.0f, 1.0f, 0.0f);
+
+	Math::Matrix4 skyModelView = viewMatrix;
 
 	Math::Matrix4 scaleMatrix = viewMatrix.MakeScale(Math::Vector3(1.0f / 1000.0f, 1.0f / 1000.0f, 1.0f / 1000.0f));
 	viewMatrix = viewMatrix * scaleMatrix;
@@ -173,15 +248,46 @@ void PolymerNGBoard::DrawRooms(int32_t daposx, int32_t daposy, int32_t daposz, i
 
 	Math::Matrix4 modelViewProjection = projectionMatrix * viewMatrix;
 
-	BuildRenderCommand command;
-	command.taskId = BUILDRENDER_TASK_RENDERWORLD;
-	command.taskRenderWorld.board = board;
-	command.taskRenderWorld.position = position;
-	FindVisibleSectors(command.taskRenderWorld, modelViewProjection, dacursectnum);
+	Math::Matrix4 skyModelViewProjection = projectionMatrix * skyModelView;
 
-	modelViewProjection.GetFloat4x4(&command.taskRenderWorld.viewProjMatrix);
+	int16_t cursectnum = dacursectnum;
+	updatesectorbreadth(daposx, daposy, &cursectnum);
 
-	renderer.AddRenderCommand(command);
+	int smpframe = renderer.GetCurrentFrameNum();
+	{
+		int numSectorsToUpdate = board->GetBaseModel()->geoUpdateQueue[smpframe].size();
+		if (numSectorsToUpdate > 0)
+		{
+			BuildRenderCommand command;
+			command.taskId = BUILDRENDER_TASK_UPDATEMODEL;
+			command.taskUpdateModel.rhiMesh = board->GetBaseModel()->rhiVertexBufferDynamic[smpframe];
+
+			command.taskUpdateModel.modelUpdateQueuedItems.reserve(numSectorsToUpdate);
+			for (int d = 0; d < numSectorsToUpdate; d++)
+			{
+				command.taskUpdateModel.modelUpdateQueuedItems.push_back(board->GetBaseModel()->geoUpdateQueue[smpframe][d]);
+			}
+			command.taskUpdateModel.model = board->GetBaseModel();
+			board->GetBaseModel()->geoUpdateQueue[smpframe].clear();
+			renderer.AddRenderCommand(command);
+		}
+		
+	}
+
+	{
+		BuildRenderCommand command;
+		command.taskId = BUILDRENDER_TASK_RENDERWORLD;
+		command.taskRenderWorld.board = board;
+		command.taskRenderWorld.position = position;
+		command.taskRenderWorld.skyImageHandle = boardSkyImage;
+		command.taskRenderWorld.gameSmpFrame = !smpframe;
+		FindVisibleSectors(command.taskRenderWorld, modelViewProjection, cursectnum);
+
+		modelViewProjection.GetFloat4x4(&command.taskRenderWorld.viewProjMatrix);
+		skyModelViewProjection.GetFloat4x4(&command.taskRenderWorld.skyProjMatrix);
+
+		renderer.AddRenderCommand(command);
+	}
 
 	// Now render all the sprites.
 	DrawSprites(viewMatrix, projectionMatrix, horizang, daang);
@@ -212,8 +318,8 @@ void PolymerNGBoard::ComputeSpritePlane(Math::Matrix4 &viewMatrix, Math::Matrix4
 
 	if (tspr->owner < 0 || tspr->picnum < 0) return;
 
-	if ((tspr->cstat & 8192) )
-		return;
+	//if ((tspr->cstat & 8192) )
+	//	return;
 
 	if ((tspr->cstat & 16384))
 		return;
@@ -337,7 +443,7 @@ void PolymerNGBoard::DrawSprites(Math::Matrix4 &viewMatrix, Math::Matrix4 &proje
 	
 	for (int i = 0; i < localspritesortcnt; i++)
 	{
-		tspritetype *tspr = &localtsprite[i];
+		tspritetype *tspr = &tsprite[i];
 		Build3DSprite *sprite = &command.taskRenderSprites.prsprites[i];
 		int startVertex = i * 4;
 
@@ -347,12 +453,15 @@ void PolymerNGBoard::DrawSprites(Math::Matrix4 &viewMatrix, Math::Matrix4 &proje
 
 		DO_TILE_ANIM(tspr->picnum, tspr->owner + 32768);
 
+		
+		sprite->paletteNum = tspr->pal;
 		sprite->plane.tileNum = tspr->picnum;
 		sprite->plane.renderImageHandle = LoadImageDeferred(tspr->picnum);
 		ComputeSpritePlane(viewMatrix, projectionMatrix, horizang, daang, sprite, tspr);
 	}
 
 	renderer.AddRenderCommand(command);
+	Bmemcpy(tsprite, localtsprite, sizeof(spritetype) * spritesortcnt);
 }
 
 /*

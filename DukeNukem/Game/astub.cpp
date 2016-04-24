@@ -104,7 +104,7 @@ static int32_t lastsave = -180*60;
 static int32_t NoAutoLoad = 0;
 static int32_t spnoclip=1;
 
-static char *default_tiles_cfg = "tiles.cfg";
+static char const *default_tiles_cfg = "tiles.cfg";
 static int32_t pathsearchmode_oninit;
 
 #ifdef LUNATIC
@@ -127,8 +127,10 @@ static uint32_t templenrepquot=1;
 
 static int32_t duke3d_m32_globalflags;
 
-enum {
+// KEEPINSYNC global.h (used values only)
+enum DUKE3D_GLOBALFLAGS {
     DUKE3D_NO_HARDCODED_FOGPALS = 1<<1,
+    DUKE3D_NO_PALETTE_CHANGES = 1<<2,
 };
 
 //////////////////// Key stuff ////////////////////
@@ -885,14 +887,14 @@ const char *ExtGetSpriteCaption(int16_t spritenum)
     static char tempbuf[1024];
     int32_t retfast = 0, lt;
 
-    Bmemset(tempbuf,0,sizeof(tempbuf));
-
     if (!(onnames>=3 && onnames<=8) || (onnames==7 && sprite[spritenum].picnum!=SECTOREFFECTOR))
         retfast = 1;
     if (onnames==5 && !tileInGroup(tilegroupItems, sprite[spritenum].picnum))
         retfast = 1;
     if (onnames==6 && sprite[spritenum].picnum != sprite[cursprite].picnum)
         retfast = 1;
+
+    tempbuf[0] = 0;
 
     if (retfast)
         return tempbuf;
@@ -903,7 +905,9 @@ const char *ExtGetSpriteCaption(int16_t spritenum)
 
     if ((sprite[spritenum].lotag|sprite[spritenum].hitag) == 0)
     {
+        Bmemset(tempbuf, 0, sizeof(tempbuf));
         SpriteName(spritenum,lo);
+
         if (lo[0]!=0)
         {
             Bsprintf(tempbuf,"%s",lo);
@@ -923,14 +927,15 @@ const char *ExtGetSpriteCaption(int16_t spritenum)
     {
         if (onnames!=8)
         {
+            Bmemset(tempbuf, 0, sizeof(tempbuf));
             Bsprintf(lo,"%s",SectorEffectorText(spritenum));
             Bsprintf(tempbuf,"%s, %s",lo, histr);
         }
     }
     else
     {
+        Bmemset(tempbuf, 0, sizeof(tempbuf));
         taglab_handle1(lt&1, sprite[spritenum].lotag, lostr);
-
         SpriteName(spritenum,lo);
 
         if (sprite[spritenum].extra != -1)
@@ -3624,7 +3629,7 @@ restart:
 #define WIND1X   3
 #define WIND1Y 150
 
-static char *tileinfo_colorstr = "";
+static char const *tileinfo_colorstr = "";
 
 static void tileinfo_doprint(int32_t x, int32_t y, char *buf, const char *label, int32_t value, int32_t pos)
 {
@@ -5126,7 +5131,7 @@ static void Keys3d(void)
         {
             AIMED_CEILINGFLOOR(stat) ^= 8;
             message("Sector %d %s texture expansion bit %s", searchsector, typestr[searchstat],
-                    ONOFF(sector[searchsector].ceilingstat&8));
+                    ONOFF(AIMED_CEILINGFLOOR(stat)&8));
             asksave = 1;
         }
     }
@@ -7997,10 +8002,10 @@ extern char forcegl;
 #endif
 
 #ifdef LUNATIC
-const char **g_argv;
+char const * const * g_argv;
 #endif
 
-static void G_CheckCommandLine(int32_t argc, const char **argv)
+static void G_CheckCommandLine(int32_t argc, char const * const * argv)
 {
     int32_t i = 1, j, maxlen=0, *lengths;
     const char *c, *k;
@@ -8040,7 +8045,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
 
     while (i < argc)
     {
-        c = (char *)argv[i];
+        c = argv[i];
 
         if ((*c == '-')
 #ifdef _WIN32
@@ -8386,7 +8391,7 @@ static int32_t check_filename_casing(void)
 }
 #endif
 
-int32_t ExtPreInit(int32_t argc,const char **argv)
+int32_t ExtPreInit(int32_t argc,char const * const * argv)
 {
 #if defined(_WIN32) && defined(DEBUGGINGAIDS)
     {
@@ -8696,6 +8701,32 @@ static int32_t osdcmd_vars_pk(const osdfuncparm_t *parm)
         return OSDCMD_OK;
     }
 
+    if (!Bstrcasecmp(parm->name, "pointhighlightdist"))
+    {
+        if (parm->numparms > 1)
+            return OSDCMD_SHOWHELP;
+
+        if (setval)
+            pointhighlightdist = atoi_safe(parm->parms[0]);
+
+        OSD_Printf("Point highlight distance: %d\n", pointhighlightdist);
+
+        return OSDCMD_OK;
+    }
+
+    if (!Bstrcasecmp(parm->name, "linehighlightdist"))
+    {
+        if (parm->numparms > 1)
+            return OSDCMD_SHOWHELP;
+
+        if (setval)
+            linehighlightdist = atoi_safe(parm->parms[0]);
+
+        OSD_Printf("Line highlight distance: %d\n", linehighlightdist);
+
+        return OSDCMD_OK;
+    }
+
     if (!Bstrcasecmp(parm->name, "corruptcheck"))
     {
         if (parm->numparms >= 1)
@@ -8880,7 +8911,7 @@ static int32_t osdcmd_lua(const osdfuncparm_t *parm)
         return OSDCMD_OK;
     }
 
-    ret = L_RunString(&g_EmState, (char *)parm->parms[0], 0, -1, "console");
+    ret = L_RunString(&g_EmState, parm->parms[0], -1, "console");
     if (ret != 0)
         OSD_Printf("Error running the Lua code (error code %d)\n", ret);
     else
@@ -9099,6 +9130,8 @@ static int32_t registerosdcommands(void)
 
     //PK
     OSD_RegisterFunction("m32_2d3dmode", "2d3dmode: experimental 2d/3d hybrid mode", osdcmd_vars_pk);
+    OSD_RegisterFunction("pointhighlightdist", "pointhighlightdist: distance at which points are selected", osdcmd_vars_pk);
+    OSD_RegisterFunction("linehighlightdist", "linehighlightdist: distance at which lines are selected", osdcmd_vars_pk);
     OSD_RegisterFunction("pk_turnaccel", "pk_turnaccel <value>: sets turning acceleration+deceleration", osdcmd_vars_pk);
     OSD_RegisterFunction("pk_turndecel", "pk_turndecel <value>: sets turning deceleration", osdcmd_vars_pk);
     OSD_RegisterFunction("pk_uedaccel", "pk_uedaccel <value>: sets UnrealEd movement speed factor (0-5, exponentially)", osdcmd_vars_pk);
@@ -9161,6 +9194,8 @@ enum
 
     T_RENAMEFILE,
     T_GLOBALGAMEFLAGS,
+
+    T_GAMESTARTUP,
 
     T_DUMMY,
 };
@@ -9693,6 +9728,7 @@ static int32_t parseconsounds(scriptfile *script)
         { "define",          T_DEFINE           },
         { "#define",         T_DEFINE           },
         { "definesound",     T_DEFINESOUND      },
+        { "gamestartup",     T_GAMESTARTUP      },
     };
 
     while (1)
@@ -9723,6 +9759,11 @@ static int32_t parseconsounds(scriptfile *script)
             if (scriptfile_addsymbolvalue(name,number) < 0)
                 initprintf("Warning: Symbol %s was NOT redefined to %d on line %s:%d\n",
                            name,number,script->filename,scriptfile_getlinum(script,cmdtokptr));
+            break;
+        }
+        case T_GAMESTARTUP:
+        {
+            if (scriptfile_getsymbol(script, &g_visibility)) break;
             break;
         }
         case T_DEFINESOUND:
@@ -9849,6 +9890,9 @@ static int32_t loadconsounds(const char *fn)
     else
         initprintf("Loaded %d sound definitions.\n", ret);
 
+    if (g_visibility != 512)
+        initprintf("Global visibility: %d\n", g_visibility);
+
     scriptfile_close(script);
     scriptfile_clearsymbols();
     return ret;
@@ -9958,7 +10002,7 @@ int32_t ExtPostStartupWindow(void)
     {
         extern const char luaJIT_BC_defs_m32[];
 
-        int32_t i = L_RunString(&g_EmState, (char *)luaJIT_BC_defs_m32, 0,
+        int32_t i = L_RunString(&g_EmState, luaJIT_BC_defs_m32,
                                 LUNATIC_DEFS_M32_BC_SIZE, "defs_m32.ilua");
         if (i != 0)
         {
@@ -9976,10 +10020,13 @@ void ExtPostInit(void)
 {
     InitCustomColors();
 
-    // Make base shade table at shade 0 into the identity map.
-    // (In the shade table of Duke3D's PALETTE.DAT, palookup[0][239]==143.)
-    // This makes it possible to sensibly use Lunatic's engine.saveLookupDat().
-    palookup[0][239] = 239;
+    if (!(duke3d_m32_globalflags & DUKE3D_NO_PALETTE_CHANGES))
+    {
+        // Make base shade table at shade 0 into the identity map.
+        // (In the shade table of Duke3D's PALETTE.DAT, palookup[0][239]==143.)
+        // This makes it possible to sensibly use Lunatic's engine.saveLookupDat().
+        palookup[0][239] = 239;
+    }
 
     if (!(duke3d_m32_globalflags & DUKE3D_NO_HARDCODED_FOGPALS))
         generatefogpals();
@@ -10852,22 +10899,12 @@ void faketimerhandler(void)
     sampletimer();
 }
 
-void SetGamePalette(int32_t j)
+void SetGamePalette(int32_t palid)
 {
-    switch (j)
-    {
-    default:
-        j=0;
-    case 0:
-    case 1:
-    case 2:
-    case 3:
-        if (acurpalette==j)
-            return;
-        acurpalette=j;
-        setbrightness(GAMMA_CALC,j,2);
-        break;
-    }
+    if ((unsigned)palid >= MAXBASEPALS)
+        palid = 0;
+
+    setbrightness(GAMMA_CALC, palid, 2);
 }
 
 static void SearchSectors(int32_t dir)  // <0: backwards, >=0: forwards

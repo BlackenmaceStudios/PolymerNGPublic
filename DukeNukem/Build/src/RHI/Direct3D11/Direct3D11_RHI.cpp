@@ -30,7 +30,7 @@ void BuildRHI::Init()
 		// We want to use back face culling.
 		D3D11_RASTERIZER_DESC cullModeDesc;
 		memset(&cullModeDesc, 0, sizeof(D3D11_RASTERIZER_DESC));
-		cullModeDesc.CullMode = D3D11_CULL_NONE;
+		cullModeDesc.CullMode = D3D11_CULL_NONE; // Should be D3D11_CULL_FRONT!
 		cullModeDesc.FillMode = D3D11_FILL_SOLID;
 		DX::RHIGetD3DDevice()->CreateRasterizerState(&cullModeDesc, &rhiPrivate.cullModeBuildState);
 
@@ -47,14 +47,35 @@ BuildRHIMesh *BuildRHI::AllocateRHIMesh(int vertexSize, int numVertexes, void * 
 	return mesh;
 }
 
+void BuildRHI::UpdateRHIMesh(BuildRHIMesh *mesh, int startVertex, int vertexSize, int numVertexes, void *initialData)
+{
+	BuildRHIDirect3DMesh *mesh_internal = static_cast<BuildRHIDirect3DMesh *>(mesh);
+	mesh_internal->vertexbuffer->UpdateBuffer(initialData, vertexSize * numVertexes, vertexSize * startVertex);
+}
+
 void BuildRHI::AllocateRHIMeshIndexes(BuildRHIMesh *mesh, int numIndexes, void * initialData, bool isDynamic)
 {
 	BuildRHIDirect3DMesh *mesh_internal = static_cast<BuildRHIDirect3DMesh *>(mesh);
 	mesh_internal->indexBuffer = new BuildD3D11GPUBufferIndexBuffer(numIndexes, -1, initialData, isDynamic);
 }
 
+void BuildRHI::SetRHIMeshIndexBuffer(BuildRHIMesh *mesh, BuildRHIMesh *parentMesh)
+{
+	BuildRHIDirect3DMesh *mesh_internal = static_cast<BuildRHIDirect3DMesh *>(mesh);
+	BuildRHIDirect3DMesh *parentMesh_internal = static_cast<BuildRHIDirect3DMesh *>(parentMesh);
+
+	mesh_internal->indexBuffer = parentMesh_internal->indexBuffer;
+}
+
 BuildRHIConstantBuffer *BuildRHI::AllocateRHIConstantBuffer(int size, void *initialData)
 {
 	BuildD3D11GPUBufferConstantBuffer *constantBuffer = new BuildD3D11GPUBufferConstantBuffer(size, initialData);
 	return constantBuffer;
+}
+
+void RHIAppToggleDepthTest(bool enableDepthTest);
+
+void BuildRHI::SetDepthEnable(bool depthEnable)
+{
+	RHIAppToggleDepthTest(depthEnable);
 }

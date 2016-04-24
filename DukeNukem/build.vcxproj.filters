@@ -419,6 +419,9 @@
     <ClInclude Include="Build\src\PolymerNG\Renderer\Renderer_Pass_DrawSprite.h">
       <Filter>Source Files\PolymerNG\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="Build\src\PolymerNG\Renderer\Renderer_Pass_ClassicSky.h">
+      <Filter>Source Files\PolymerNG\Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="build\src\a-c.cpp">
@@ -701,6 +704,9 @@
       <Filter>Source Files\PolymerNG</Filter>
     </ClCompile>
     <ClCompile Include="Build\src\PolymerNG\Renderer\Renderer_Pass_DrawSprite.cpp">
+      <Filter>Source Files\PolymerNG\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Build\src\PolymerNG\Renderer\Renderer_Pass_ClassicSky.cpp">
       <Filter>Source Files\PolymerNG\Renderer</Filter>
     </ClCompile>
   </ItemGroup>

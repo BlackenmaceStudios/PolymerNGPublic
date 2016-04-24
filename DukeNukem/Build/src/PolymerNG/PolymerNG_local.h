@@ -26,6 +26,8 @@
 //#include "ShaderBuild/ShaderBinary.h"
 //#include "ShaderBuild/ShaderBuild.h"
 
+void updatesectorbreadth(int32_t x, int32_t y, int16_t *sectnum);
+
 
 //
 // ScopedHeapMemory

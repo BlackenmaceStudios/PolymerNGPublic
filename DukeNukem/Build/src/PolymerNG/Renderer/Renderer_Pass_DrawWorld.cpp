@@ -21,7 +21,7 @@ void RendererDrawPassDrawWorld::Init()
 RendererDrawPassDrawWorld::DrawPlane
 ========================
 */
-void RendererDrawPassDrawWorld::DrawPlane(const BaseModel *model, const Build3DPlane *plane)
+void RendererDrawPassDrawWorld::DrawPlane(BuildRHIMesh *rhiMesh, const BaseModel *model, const Build3DPlane *plane)
 {
 	BuildImage *image = static_cast<BuildImage *>(plane->renderImageHandle);
 
@@ -32,11 +32,11 @@ void RendererDrawPassDrawWorld::DrawPlane(const BaseModel *model, const Build3DP
 
 		if (plane->ibo_offset != -1)
 		{
-			rhi.DrawIndexedQuad(renderer.albedoSimpleProgram->GetRHIShader(), model->rhiVertexBufferStatic, plane->vbo_offset, plane->ibo_offset, plane->indicescount);
+			rhi.DrawIndexedQuad(renderer.albedoSimpleProgram->GetRHIShader(), rhiMesh, plane->vbo_offset, plane->ibo_offset, plane->indicescount);
 		}
 		else
 		{
-			rhi.DrawUnoptimizedQuad(renderer.albedoSimpleProgram->GetRHIShader(), model->rhiVertexBufferStatic, plane->vbo_offset, plane->vertcount);
+			rhi.DrawUnoptimizedQuad(renderer.albedoSimpleProgram->GetRHIShader(), rhiMesh, plane->vbo_offset, plane->vertcount);
 		}
 	}
 }
@@ -54,10 +54,23 @@ void RendererDrawPassDrawWorld::Draw(const BuildRenderCommand &command)
 	rhi.SetConstantBuffer(0, drawWorldConstantBuffer);
 
 	const Build3DBoard *board = command.taskRenderWorld.board;
+
+	int currentSMPFrame = renderer.GetCurrentFrameNum();
+
+	// Render all of the static sectors.
 	for (int i = 0; i < command.taskRenderWorld.numRenderPlanes; i++)
 	{
-		DrawPlane(board->GetBaseModel(), command.taskRenderWorld.renderplanes[i]);
+		if (!command.taskRenderWorld.renderplanes[i]->isDynamicPlane)
+		{
+			DrawPlane(board->GetBaseModel()->rhiVertexBufferStatic, board->GetBaseModel(), command.taskRenderWorld.renderplanes[i]);
+		}
+		else
+		{
+			DrawPlane(board->GetBaseModel()->rhiVertexBufferDynamic[currentSMPFrame], board->GetBaseModel(), command.taskRenderWorld.renderplanes[i]);
+		}
 	}
+
+//	((Build3DBoard *)board)->GetBaseModel()->geoUpdateQueue[command.taskRenderWorld.gameSmpFrame].clear();
 
 	//for (int i = 0; i < numsectors; i++)
 	//{

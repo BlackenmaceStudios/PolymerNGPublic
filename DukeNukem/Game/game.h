@@ -1,6 +1,6 @@
 //-------------------------------------------------------------------------
 /*
-Copyright (C) 2010 EDuke32 developers and contributors
+Copyright (C) 2016 EDuke32 developers and contributors
 
 This file is part of EDuke32.
 
@@ -20,10 +20,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
+#pragma once
+
 #ifndef game_h_
 #define game_h_
 
-#include "premap.h"
+#include "premap.h" // XXX
 
 #ifdef __cplusplus
 extern "C" {
@@ -94,31 +96,6 @@ enum LogoFlags_t {
     LOGO_NOE3RADLOGO       = 0x00040000,
     LOGO_NODUKETEAMTEXT    = 0x00080000,
     LOGO_NODUKETEAMPIC     = 0x00100000,
-};
-
-enum ScreenTextFlags_t {
-    TEXT_XRIGHT          = 0x00000001,
-    TEXT_XCENTER         = 0x00000002,
-    TEXT_YBOTTOM         = 0x00000004,
-    TEXT_YCENTER         = 0x00000008,
-    TEXT_INTERNALSPACE   = 0x00000010,
-    TEXT_TILESPACE       = 0x00000020,
-    TEXT_INTERNALLINE    = 0x00000040,
-    TEXT_TILELINE        = 0x00000080,
-    TEXT_XOFFSETZERO     = 0x00000100,
-    TEXT_XJUSTIFY        = 0x00000200,
-    TEXT_YOFFSETZERO     = 0x00000400,
-    TEXT_YJUSTIFY        = 0x00000800,
-    TEXT_LINEWRAP        = 0x00001000,
-    TEXT_UPPERCASE       = 0x00002000,
-    TEXT_INVERTCASE      = 0x00004000,
-    TEXT_IGNOREESCAPE    = 0x00008000,
-    TEXT_LITERALESCAPE   = 0x00010000,
-    TEXT_BACKWARDS       = 0x00020000,
-    TEXT_GAMETEXTNUMHACK = 0x00040000,
-    TEXT_DIGITALNUMBER   = 0x00080000,
-    TEXT_BIGALPHANUM     = 0x00100000,
-    TEXT_GRAYFONT        = 0x00200000,
 };
 
 void A_DeleteSprite(int32_t s);
@@ -263,7 +240,6 @@ extern const char *s_buildDate;
 
 extern const char *g_rtsNamePtr;
 
-extern char CheatStrings[][MAXCHEATLEN];
 extern char boardfilename[BMAX_PATH], currentboardfilename[BMAX_PATH];
 extern char boardfilename[BMAX_PATH];
 
@@ -276,11 +252,7 @@ extern char ror_protectedsectors[MAXSECTORS];
 
 extern float r_ambientlight;
 
-extern int32_t althud_flashing;
-extern int32_t althud_numberpal;
-extern int32_t althud_numbertile;
-extern int32_t althud_shadows;
-
+extern int32_t g_Debug;
 extern int32_t g_Shareware;
 #if !defined LUNATIC
 extern int32_t g_cameraClock;
@@ -304,6 +276,7 @@ extern int32_t ticrandomseed;
 extern int32_t vote_map;
 extern int32_t voting;
 
+extern int32_t MAXCACHE1DSIZE;
 //extern int8_t cheatbuf[MAXCHEATLEN],cheatbuflen;
 
 #define CROSSHAIR_PAL (MAXPALOOKUPS-RESERVEDPALS-1)
@@ -316,15 +289,11 @@ extern uint32_t g_frameDelay;
 extern user_defs ud;
 
 int32_t A_CheckInventorySprite(spritetype *s);
-int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int32_t s_pn,int32_t s_s,int32_t s_xr,int32_t s_yr,int32_t s_a,int32_t s_ve,int32_t s_zv,int32_t s_ow,int32_t s_ss);
+int32_t A_InsertSprite(int16_t whatsect, int32_t s_x, int32_t s_y, int32_t s_z, int16_t s_pn, int8_t s_s, uint8_t s_xr,
+                       uint8_t s_yr, int16_t s_a, int16_t s_ve, int16_t s_zv, int16_t s_ow, int16_t s_ss);
 int32_t A_Spawn(int32_t j,int32_t pn);
 int32_t G_DoMoveThings(void);
 //int32_t G_EndOfLevel(void);
-int32_t G_GameTextLen(int32_t x,const char *t);
-int32_t G_PrintGameText(int32_t hack,int32_t tile,int32_t x,int32_t y,const char *t,int32_t s,int32_t p,int32_t o,int32_t x1,int32_t y1,int32_t x2,int32_t y2,int32_t z, int32_t a);
-extern int32_t minitext_lowercase;
-int32_t minitext_(int32_t x,int32_t y,const char *t,int32_t s,int32_t p,int32_t sb);
-int32_t mpgametext(int32_t y,const char *t,int32_t s,int32_t dabits);
 
 #ifdef YAX_ENABLE
 void Yax_SetBunchZs(int32_t sectnum, int32_t cf, int32_t daz);
@@ -343,6 +312,7 @@ void A_SpawnRandomGlass(int32_t i,int32_t wallnum,int32_t n);
 void A_SpawnWallGlass(int32_t i,int32_t wallnum,int32_t n);
 void G_AddUserQuote(const char *daquote);
 void G_BackToMenu(void);
+void G_DumpDebugInfo(void);
 
 const char* G_PrintYourTime(void);
 const char* G_PrintParTime(void);
@@ -357,12 +327,6 @@ void G_DrawFrags(void);
 void G_HandleMirror(int32_t x, int32_t y, int32_t z, int32_t a, int32_t horiz, int32_t smoothratio);
 void G_DrawRooms(int32_t snum,int32_t smoothratio);
 void G_DrawTXDigiNumZ(int32_t starttile,int32_t x,int32_t y,int32_t n,int32_t s,int32_t pal,int32_t cs,int32_t x1,int32_t y1,int32_t x2,int32_t y2,int32_t z);
-#if !defined LUNATIC
-void G_DrawTile(int32_t x,int32_t y,int32_t tilenum,int32_t shade,int32_t orientation);
-void G_DrawTilePal(int32_t x,int32_t y,int32_t tilenum,int32_t shade,int32_t orientation,int32_t p);
-void G_DrawTilePalSmall(int32_t x,int32_t y,int32_t tilenum,int32_t shade,int32_t orientation,int32_t p);
-void G_DrawTileSmall(int32_t x,int32_t y,int32_t tilenum,int32_t shade,int32_t orientation);
-#endif
 void G_FadePalette(int32_t r,int32_t g,int32_t b,int32_t e);
 void G_GameExit(const char *t) ATTRIBUTE((noreturn));
 void G_GameQuit(void);
@@ -377,17 +341,7 @@ void G_Shutdown(void);
 void G_UpdatePlayerFromMenu(void);
 void M32RunScript(const char *s);
 void P_DoQuote(int32_t q,DukePlayer_t *p);
-extern int32_t textsc(int32_t sc);
 void P_SetGamePalette(DukePlayer_t *player, uint32_t palid, int32_t set);
-
-extern int32_t G_GetStringLineLength(const char *text, const char *end, const int32_t iter);
-extern int32_t G_GetStringNumLines(const char *text, const char *end, const int32_t iter);
-extern char* G_GetSubString(const char *text, const char *end, const int32_t iter, const int32_t length);
-extern int32_t G_GetStringTile(int32_t font, char *t, int32_t f);
-extern vec2_t G_ScreenTextSize(const int32_t font, int32_t x, int32_t y, const int32_t z, const int32_t blockangle, const char *str, const int32_t o, int32_t xspace, int32_t yline, int32_t xbetween, int32_t ybetween, const int32_t f, const int32_t x1, const int32_t y1, const int32_t x2, const int32_t y2);
-extern void G_AddCoordsFromRotation(vec2_t *coords, const vec2_t *unitDirection, const int32_t magnitude);
-extern vec2_t G_ScreenText(const int32_t font, int32_t x, int32_t y, const int32_t z, const int32_t blockangle, const int32_t charangle, const char *str, const int32_t shade, int32_t pal, int32_t o, int32_t alpha, int32_t xspace, int32_t yline, int32_t xbetween, int32_t ybetween, const int32_t f, int32_t x1, int32_t y1, int32_t x2, int32_t y2);
-extern vec2_t G_ScreenTextShadow(int32_t sx, int32_t sy, const int32_t font, int32_t x, int32_t y, const int32_t z, const int32_t blockangle, const int32_t charangle, const char *str, const int32_t shade, int32_t pal, int32_t o, const int32_t alpha, int32_t xspace, int32_t yline, int32_t xbetween, int32_t ybetween, const int32_t f, int32_t x1, int32_t y1, int32_t x2, int32_t y2);
 
 #define NEG_ALPHA_TO_BLEND(alpha, blend, orientation) do { \
     if (alpha < 0) { blend = -alpha; alpha = 0; orientation |= RS_TRANS1; } \
@@ -398,7 +352,6 @@ extern vec2_t G_ScreenTextShadow(int32_t sx, int32_t sy, const int32_t font, int
 // 2048+(32+16)+8+4
 #define SPAWN_PROTECT_CSTAT_MASK (CSTAT_SPRITE_NOSHADE|CSTAT_SPRITE_SLAB|CSTAT_SPRITE_XFLIP|CSTAT_SPRITE_YFLIP);
 
-int32_t app_main(int32_t argc,const char **argv);
 void fadepal(int32_t r,int32_t g,int32_t b,int32_t start,int32_t end,int32_t step);
 //void fadepaltile(int32_t r,int32_t g,int32_t b,int32_t start,int32_t end,int32_t step,int32_t tile);
 void G_InitTimer(int32_t ticpersec);
@@ -412,15 +365,6 @@ static inline int32_t G_GetTeamPalette(int32_t team)
 
     return pal[team];
 }
-
-#define minitextshade(x, y, t, s, p, sb) minitext_(x,y,t,s,p,sb)
-#define minitext(x, y, t, p, sb) minitext_(x,y,t,0,p,sb)
-#define menutext(x,y,s,p,t) menutext_(x,y,s,p,(char *)OSD_StripColors(menutextbuf,t),10+16)
-#define gametext(x,y,t,s,dabits) G_PrintGameText(0,STARTALPHANUM, x,y,t,s,0,dabits,0, 0, xdim-1, ydim-1, 65536, 0)
-#define gametextscaled(x,y,t,s,dabits) G_PrintGameText(1,STARTALPHANUM, x,y,t,s,0,dabits,0, 0, xdim-1, ydim-1, 65536, 0)
-#define gametextpal(x,y,t,s,p) G_PrintGameText(0,STARTALPHANUM, x,y,t,s,p,26,0, 0, xdim-1, ydim-1, 65536, 0)
-#define gametextpalbits(x,y,t,s,p,dabits,a) G_PrintGameText(0,STARTALPHANUM, x,y,t,s,p,dabits,0, 0, xdim-1, ydim-1, 65536, a)
-#define mpgametext(y, t, s, dabits) G_PrintGameText(4,STARTALPHANUM, 5,y,t,s,0,dabits,0, 0, xdim-1, ydim-1, 65536, 0);
 
 #define A_CheckSpriteFlags(iActor, iType) (((g_tile[sprite[iActor].picnum].flags^actor[iActor].flags) & iType) != 0)
 // (unsigned)iPicnum check: AMC TC Rusty Nails, bayonet MG alt. fire, iPicnum == -1 (via aplWeaponShoots)
@@ -515,68 +459,6 @@ enum {
     // left: ST 32767, 65534, 65535
 };
 
-// Cheats
-// KEEPINSYNC game.c: char CheatStrings[][]
-enum cheatindex_t
-{
-    CHEAT_CORNHOLIO,  // 0
-    CHEAT_STUFF,
-    CHEAT_SCOTTY,
-    CHEAT_COORDS,
-    CHEAT_VIEW,
-    CHEAT_TIME,  // 5
-    CHEAT_UNLOCK,
-    CHEAT_CASHMAN,
-    CHEAT_ITEMS,
-    CHEAT_RATE,
-    CHEAT_SKILL,  // 10
-    CHEAT_BETA,
-    CHEAT_HYPER,
-    CHEAT_MONSTERS,
-    CHEAT_RESERVED,
-    CHEAT_RESERVED2,  // 15
-    CHEAT_TODD,
-    CHEAT_SHOWMAP,
-    CHEAT_KROZ,
-    CHEAT_ALLEN,
-    CHEAT_CLIP,  // 20
-    CHEAT_WEAPONS,
-    CHEAT_INVENTORY,
-    CHEAT_KEYS,
-    CHEAT_DEBUG,
-    CHEAT_RESERVED3,  // 25
-    CHEAT_COMEGETSOME,
-    NUMCHEATS,
-};
-
-// KEEPINSYNC game.c: uint8_t CheatFunctionIDs[]
-// KEEPINSYNC menus.c: MenuEntry_t ME_CheatCodes[]
-enum CheatCodeFunctions
-{
-    CHEATFUNC_CASHMAN,
-    CHEATFUNC_GOD,
-    CHEATFUNC_GIVEEVERYTHING,
-    CHEATFUNC_GIVEWEAPONS,
-    CHEATFUNC_GIVEALLITEMS,
-    CHEATFUNC_GIVEINVENTORY,
-    CHEATFUNC_GIVEKEYS,
-    CHEATFUNC_HYPER,
-    CHEATFUNC_VIEW,
-    CHEATFUNC_SHOWMAP,
-    CHEATFUNC_UNLOCK,
-    CHEATFUNC_CLIP,
-    CHEATFUNC_WARP,
-    CHEATFUNC_SKILL,
-    CHEATFUNC_MONSTERS,
-    CHEATFUNC_FRAMERATE,
-    CHEATFUNC_QUOTEBETA,
-    CHEATFUNC_QUOTETODD,
-    CHEATFUNC_QUOTEALLEN,
-    CHEATFUNC_COORDS,
-    CHEATFUNC_DEBUG,
-    NUMCHEATFUNCS,
-};
-
 
 # define G_ModDirSnprintf(buf, size, basename, ...) \
 ( \
@@ -586,8 +468,6 @@ enum CheatCodeFunctions
             Bsnprintf(buf, size, basename, ## __VA_ARGS__) \
     ) >= ((int32_t)size)-1 \
 )
-
-#include "game_inline.h"
 
 static inline void G_NewGame_EnterLevel(void)
 {
@@ -634,12 +514,32 @@ extern void G_StartMusic(void);
 
 #ifdef LUNATIC
 void El_SetCON(const char *conluacode);
-void G_DrawTileGeneric(int32_t x, int32_t y, int32_t zoom, int32_t tilenum,
-                       int32_t shade, int32_t orientation, int32_t p);
 #endif
+
+EXTERN_INLINE_HEADER void G_SetStatusBarScale(int32_t sc);
+
+EXTERN_INLINE_HEADER void SetIfGreater(int32_t *variable, int32_t potentialValue);
 
 #ifdef __cplusplus
 }
+#endif
+
+#if defined game_c_ || !defined DISABLE_INLINING
+
+EXTERN_INLINE void G_SetStatusBarScale(int32_t sc)
+{
+    ud.statusbarscale = clamp(sc, 36, 100);
+    G_UpdateScreenArea();
+}
+
+// the point of this is to prevent re-running a function or calculation passed to potentialValue
+// without making a new variable under each individual circumstance
+EXTERN_INLINE void SetIfGreater(int32_t *variable, int32_t potentialValue)
+{
+    if (potentialValue > *variable)
+        *variable = potentialValue;
+}
+
 #endif
 
 #endif

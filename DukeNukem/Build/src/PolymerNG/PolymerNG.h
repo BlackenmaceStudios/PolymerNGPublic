@@ -44,6 +44,7 @@ public:
 	BuildImage *GetImage(int texnum) { return images[texnum]; }
 
 	BuildImage *GetPaletteImage();
+	BuildImage *GetPaletteImage(int idx) { return palette_image[idx]; }
 private:
 	BuildImage *palette_image[256];
 

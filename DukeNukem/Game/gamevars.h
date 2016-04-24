@@ -35,7 +35,6 @@ enum GamevarFlags_t {
     GAMEVAR_USER_MASK  = (GAMEVAR_PERPLAYER|GAMEVAR_PERACTOR),
     GAMEVAR_RESET      = 0x00000008, // INTERNAL, don't use
     GAMEVAR_DEFAULT    = 0x00000100, // UNUSED, but always cleared for user-defined gamevars
-    GAMEVAR_SECRET     = 0x00000200, // don't dump...
     GAMEVAR_NODEFAULT  = 0x00000400, // don't reset on actor spawn
     GAMEVAR_SYSTEM     = 0x00000800, // cannot change mode flags...(only default value)
     GAMEVAR_READONLY   = 0x00001000, // values are read-only (no setvar allowed)
@@ -66,14 +65,14 @@ enum GamearrayFlags_t {
     GAMEARRAY_OFCHAR   = 0x00000001,
     GAMEARRAY_OFSHORT  = 0x00000002,
     GAMEARRAY_OFINT    = 0x00000004,
+    GAMEARRAY_RESET    = 0x00000008,
     GAMEARRAY_TYPE_MASK = GAMEARRAY_OFCHAR|GAMEARRAY_OFSHORT|GAMEARRAY_OFINT,
+    GAMEARRAY_RESTORE  = 0x00000010,
 
     GAMEARRAY_VARSIZE = 0x00000020,
 
     GAMEARRAY_STRIDE2 = 0x00000100,
 
-    GAMEARRAY_RESET    = 0x00000008,
-///    GAMEARRAY_NORESET  = 0x00000001,
 };
 
 #pragma pack(push,1)

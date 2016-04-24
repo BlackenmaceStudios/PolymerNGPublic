@@ -61,7 +61,6 @@ const char *G_DefaultGrpFile(void)
 {
     if (DUKE)
         return defaultgamegrp[GAME_DUKE];
-    // order is important for the following three because GAMEFLAG_NAM overlaps all
     else if (NAPALM)
         return defaultgamegrp[GAME_NAPALM];
     else if (WW2GI)
@@ -256,7 +255,7 @@ int32_t usecwd;
 static void G_LoadAddon(void);
 int32_t g_groupFileHandle;
 
-void G_ExtPreInit(int32_t argc,const char **argv)
+void G_ExtPreInit(int32_t argc,char const * const * argv)
 {
 // jmarshall
 //    usecwd = G_CheckCmdSwitch(argc, argv, "-usecwd");
@@ -512,7 +511,7 @@ void G_LoadGroups(int32_t autoload)
 }
 
 #ifdef _WIN32
-const char * G_GetInstallPath(int32_t insttype)
+static int G_ReadRegistryValue(char const * const SubKey, char const * const Value, char * const Output, DWORD * OutputSize)
 {
 	return NULL;
 }
@@ -543,43 +542,39 @@ static void G_LoadAddon(void)
         g_selectedGrp = grp;
 }
 
+#ifndef EDUKE32_TOUCH_DEVICES
 #if defined EDUKE32_OSX || defined __linux__ || defined EDUKE32_BSD
 static void G_AddSteamPaths(const char *basepath)
 {
     char buf[BMAX_PATH];
 
+    // Duke Nukem 3D: Megaton Edition (Steam)
     Bsnprintf(buf, sizeof(buf), "%s/steamapps/common/Duke Nukem 3D/gameroot", basepath);
-    addsearchpath_user(buf, SEARCHPATH_REMOVE);
-
+    addsearchpath(buf);
     Bsnprintf(buf, sizeof(buf), "%s/steamapps/common/Duke Nukem 3D/gameroot/addons/dc", basepath);
     addsearchpath_user(buf, SEARCHPATH_REMOVE);
-
     Bsnprintf(buf, sizeof(buf), "%s/steamapps/common/Duke Nukem 3D/gameroot/addons/nw", basepath);
     addsearchpath_user(buf, SEARCHPATH_REMOVE);
-
     Bsnprintf(buf, sizeof(buf), "%s/steamapps/common/Duke Nukem 3D/gameroot/addons/vacation", basepath);
     addsearchpath_user(buf, SEARCHPATH_REMOVE);
 
-    Bsnprintf(buf, sizeof(buf), "%s/steamapps/common/Duke Nukem 3D/gameroot/music", basepath);
-    addsearchpath(buf);
-
-    Bsnprintf(buf, sizeof(buf), "%s/steamapps/common/Duke Nukem 3D/gameroot/music/nwinter", basepath);
-    addsearchpath_user(buf, SEARCHPATH_NWINTER);
-
-    Bsnprintf(buf, sizeof(buf), "%s/steamapps/common/Duke Nukem 3D/gameroot/music/vacation", basepath);
-    addsearchpath(buf);
-
+    // Duke Nukem 3D (3D Realms Anthology (Steam) / Kill-A-Ton Collection 2015)
 #if defined EDUKE32_OSX
     Bsnprintf(buf, sizeof(buf), "%s/steamapps/common/Duke Nukem 3D/Duke Nukem 3D.app/drive_c/Program Files/Duke Nukem 3D", basepath);
     addsearchpath_user(buf, SEARCHPATH_REMOVE);
 #endif
 
+    // NAM (Steam)
 #if defined EDUKE32_OSX
     Bsnprintf(buf, sizeof(buf), "%s/steamapps/common/Nam/Nam.app/Contents/Resources/Nam.boxer/C.harddisk/NAM", basepath);
 #else
     Bsnprintf(buf, sizeof(buf), "%s/steamapps/common/Nam/NAM", basepath);
 #endif
     addsearchpath_user(buf, SEARCHPATH_NAM);
+
+    // WWII GI (Steam)
+    Bsnprintf(buf, sizeof(buf), "%s/steamapps/common/World War II GI/WW2GI", basepath);
+    addsearchpath_user(buf, SEARCHPATH_WW2GI);
 }
 
 // A bare-bones "parser" for Valve's KeyValues VDF format.
@@ -749,9 +744,11 @@ static void G_ParseSteamKeyValuesForPaths(const char *vdf)
     Bfree(vdfbufstart);
 }
 #endif
+#endif
 
 void G_AddSearchPaths(void)
 {
+#ifndef EDUKE32_TOUCH_DEVICES
 #if defined __linux__ || defined EDUKE32_BSD
     char buf[BMAX_PATH];
     char *homepath = Bgethomedir();
@@ -782,6 +779,7 @@ void G_AddSearchPaths(void)
         Bsnprintf(buf, sizeof(buf), "%s/Steam/steamapps/libraryfolders.vdf", support[i]);
         G_ParseSteamKeyValuesForPaths(buf);
 
+        // Duke Nukem 3D: Atomic Edition (GOG.com)
         Bsnprintf(buf, sizeof(buf), "%s/Duke Nukem 3D.app/Contents/Resources/Duke Nukem 3D.boxer/C.harddisk", applications[i]);
         addsearchpath_user(buf, SEARCHPATH_REMOVE);
     }
@@ -800,59 +798,88 @@ void G_AddSearchPaths(void)
         Bfree(support[i]);
     }
 #elif defined (_WIN32)
-    char buf[BMAX_PATH];
-    const char* instpath;
+    char buf[BMAX_PATH] = {0};
+    DWORD bufsize;
 
-    if ((instpath = G_GetInstallPath(INSTPATH_STEAM_DUKE3D_MEGATON)))
+    // Duke Nukem 3D: Megaton Edition (Steam)
+    bufsize = sizeof(buf);
+    if (G_ReadRegistryValue("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 225140", "InstallLocation", buf, &bufsize))
     {
-        Bsnprintf(buf, sizeof(buf), "%s/gameroot", instpath);
-        addsearchpath_user(buf, SEARCHPATH_REMOVE);
+        char * const suffix = buf + bufsize - 1;
+        DWORD const remaining = sizeof(buf) - bufsize;
 
-        Bsnprintf(buf, sizeof(buf), "%s/gameroot/addons/dc", instpath);
-        addsearchpath_user(buf, SEARCHPATH_REMOVE);
-
-        Bsnprintf(buf, sizeof(buf), "%s/gameroot/addons/nw", instpath);
-        addsearchpath_user(buf, SEARCHPATH_REMOVE);
-
-        Bsnprintf(buf, sizeof(buf), "%s/gameroot/addons/vacation", instpath);
-        addsearchpath_user(buf, SEARCHPATH_REMOVE);
-
-        Bsnprintf(buf, sizeof(buf), "%s/gameroot/music", instpath);
+        Bstrncpy(suffix, "/gameroot", remaining);
         addsearchpath(buf);
-
-        Bsnprintf(buf, sizeof(buf), "%s/gameroot/music/nwinter", instpath);
-        addsearchpath_user(buf, SEARCHPATH_NWINTER);
-
-        Bsnprintf(buf, sizeof(buf), "%s/gameroot/music/vacation", instpath);
-        addsearchpath(buf);
-    }
-
-    if ((instpath = G_GetInstallPath(INSTPATH_STEAM_DUKE3D_3DR)))
-    {
-        Bsnprintf(buf, sizeof(buf), "%s/Duke Nukem 3D", instpath);
+        Bstrncpy(suffix, "/gameroot/addons/dc", remaining);
+        addsearchpath_user(buf, SEARCHPATH_REMOVE);
+        Bstrncpy(suffix, "/gameroot/addons/nw", remaining);
+        addsearchpath_user(buf, SEARCHPATH_REMOVE);
+        Bstrncpy(suffix, "/gameroot/addons/vacation", remaining);
         addsearchpath_user(buf, SEARCHPATH_REMOVE);
     }
 
-    if ((instpath = G_GetInstallPath(INSTPATH_GOG_DUKE3D)))
-        addsearchpath_user(instpath, SEARCHPATH_REMOVE);
-
-    if ((instpath = G_GetInstallPath(INSTPATH_3DR_DUKE3D)))
+    // Duke Nukem 3D (3D Realms Anthology (Steam) / Kill-A-Ton Collection 2015)
+    bufsize = sizeof(buf);
+    if (G_ReadRegistryValue("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 359850", "InstallLocation", buf, &bufsize))
     {
-        Bsnprintf(buf, sizeof(buf), "%s/Duke Nukem 3D", instpath);
+        char * const suffix = buf + bufsize - 1;
+        DWORD const remaining = sizeof(buf) - bufsize;
+
+        Bstrncpy(suffix, "/Duke Nukem 3D", remaining);
         addsearchpath_user(buf, SEARCHPATH_REMOVE);
     }
 
-    if ((instpath = G_GetInstallPath(INSTPATH_3DR_ANTH)))
+    // Duke Nukem 3D: Atomic Edition (GOG.com)
+    bufsize = sizeof(buf);
+    if (G_ReadRegistryValue("SOFTWARE\\GOG.com\\GOGDUKE3D", "PATH", buf, &bufsize))
     {
-        Bsnprintf(buf, sizeof(buf), "%s/Duke Nukem 3D", instpath);
         addsearchpath_user(buf, SEARCHPATH_REMOVE);
     }
 
-    if ((instpath = G_GetInstallPath(INSTPATH_STEAM_NAM)))
+    // Duke Nukem 3D (3D Realms Anthology)
+    bufsize = sizeof(buf);
+    if (G_ReadRegistryValue("SOFTWARE\\3DRealms\\Duke Nukem 3D", NULL, buf, &bufsize))
     {
-        Bsnprintf(buf, sizeof(buf), "%s/NAM", instpath);
+        char * const suffix = buf + bufsize - 1;
+        DWORD const remaining = sizeof(buf) - bufsize;
+
+        Bstrncpy(suffix, "/Duke Nukem 3D", remaining);
+        addsearchpath_user(buf, SEARCHPATH_REMOVE);
+    }
+
+    // 3D Realms Anthology
+    bufsize = sizeof(buf);
+    if (G_ReadRegistryValue("SOFTWARE\\3DRealms\\Anthology", NULL, buf, &bufsize))
+    {
+        char * const suffix = buf + bufsize - 1;
+        DWORD const remaining = sizeof(buf) - bufsize;
+
+        Bstrncpy(suffix, "/Duke Nukem 3D", remaining);
+        addsearchpath_user(buf, SEARCHPATH_REMOVE);
+    }
+
+    // NAM (Steam)
+    bufsize = sizeof(buf);
+    if (G_ReadRegistryValue("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 329650", "InstallLocation", buf, &bufsize))
+    {
+        char * const suffix = buf + bufsize - 1;
+        DWORD const remaining = sizeof(buf) - bufsize;
+
+        Bstrncpy(suffix, "/NAM", remaining);
         addsearchpath_user(buf, SEARCHPATH_NAM);
     }
+
+    // WWII GI (Steam)
+    bufsize = sizeof(buf);
+    if (G_ReadRegistryValue("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 376750", "InstallLocation", buf, &bufsize))
+    {
+        char * const suffix = buf + bufsize - 1;
+        DWORD const remaining = sizeof(buf) - bufsize;
+
+        Bstrncpy(suffix, "/WW2GI", remaining);
+        addsearchpath_user(buf, SEARCHPATH_WW2GI);
+    }
+#endif
 #endif
 }
 
@@ -860,11 +887,11 @@ void G_CleanupSearchPaths(void)
 {
     removesearchpaths_withuser(SEARCHPATH_REMOVE);
 
-    if (!(NAM || NAPALM))
+    if (!NAM)
         removesearchpaths_withuser(SEARCHPATH_NAM);
 
-    if (!(NWINTER))
-        removesearchpaths_withuser(SEARCHPATH_NWINTER);
+    if (!WW2GI)
+        removesearchpaths_withuser(SEARCHPATH_WW2GI);
 }
 
 //////////
@@ -931,14 +958,11 @@ void G_AddConModule(const char *buffer)
 // loads all group (grp, zip, pk3/4) files in the given directory
 void G_LoadGroupsInDir(const char *dirname)
 {
-    static const char *extensions[4] = { "*.grp", "*.zip", "*.pk3", "*.pk4" };
-
+    static const char *extensions[] = { "*.grp", "*.zip", "*.ssi", "*.pk3", "*.pk4" };
     char buf[BMAX_PATH];
-    int32_t i;
-
     fnlist_t fnlist = FNLIST_INITIALIZER;
 
-    for (i=0; i<4; i++)
+    for (unsigned i=0; i<(sizeof(extensions)/sizeof(extensions[0])); i++)
     {
         CACHE1D_FIND_REC *rec;
 
@@ -1002,65 +1026,117 @@ void G_LoadLookups(void)
     kclose(fp);
 }
 
-#if defined HAVE_FLAC || defined HAVE_VORBIS
-int32_t S_UpgradeFormat(const char *fn, char searchfirst)
+//////////
+
+#ifdef FORMAT_UPGRADE_ELIGIBLE
+
+static int32_t S_TryFormats(char * const testfn, char * const fn_suffix, char const searchfirst)
 {
-    char *testfn, *extension;
-    int32_t fp = -1;
+#ifdef HAVE_FLAC
+    {
+        Bstrcpy(fn_suffix, ".flac");
+        int32_t const fp = kopen4loadfrommod(testfn, searchfirst);
+        if (fp >= 0)
+            return fp;
+    }
+#endif
 
-    testfn = (char *)Xmalloc(Bstrlen(fn) + 6);
-    Bstrcpy(testfn, fn);
-    extension = Bstrrchr(testfn, '.');
+#ifdef HAVE_VORBIS
+    {
+        Bstrcpy(fn_suffix, ".ogg");
+        int32_t const fp = kopen4loadfrommod(testfn, searchfirst);
+        if (fp >= 0)
+            return fp;
+    }
+#endif
 
+    return -1;
+}
+
+static int32_t S_TryExtensionReplacements(char * const testfn, char const searchfirst, uint8_t const ismusic)
+{
+    char * extension = Bstrrchr(testfn, '.');
+    char * const fn_end = Bstrchr(testfn, '\0');
+
+    // ex: grabbag.voc --> grabbag_voc.*
     if (extension != NULL)
     {
-        char * const fn_end = Bstrrchr(testfn, '\0');
         *extension = '_';
 
-#ifdef HAVE_FLAC
-        char const * const extFLAC = ".flac";
-        Bstrcpy(fn_end, extFLAC);
-        fp = kopen4loadfrommod(testfn, searchfirst);
+        int32_t const fp = S_TryFormats(testfn, fn_end, searchfirst);
         if (fp >= 0)
-        {
-            Bfree(testfn);
             return fp;
-        }
-#endif
+    }
+    else
+    {
+        extension = fn_end;
+    }
 
-#ifdef HAVE_VORBIS
-        char const * const extOGG = ".ogg";
-        Bstrcpy(fn_end, extOGG);
-        fp = kopen4loadfrommod(testfn, searchfirst);
+    // ex: grabbag.mid --> grabbag.*
+    if (ismusic) // this conditional is a hack so that subway.voc does not upgrade to Megaton's music/subway.ogg
+    {
+        int32_t const fp = S_TryFormats(testfn, extension, searchfirst);
         if (fp >= 0)
-        {
-            Bfree(testfn);
             return fp;
-        }
-#endif
+    }
 
-#ifdef HAVE_FLAC
-        Bstrcpy(extension, extFLAC);
-        fp = kopen4loadfrommod(testfn, searchfirst);
-        if (fp >= 0)
-        {
-            Bfree(testfn);
-            return fp;
-        }
-#endif
+    return -1;
+}
 
-#ifdef HAVE_VORBIS
-        Bstrcpy(extension, extOGG);
-        fp = kopen4loadfrommod(testfn, searchfirst);
+int32_t S_OpenAudio(const char *fn, char searchfirst, uint8_t const ismusic)
+{
+    int32_t const origfp = kopen4loadfrommod(fn, searchfirst);
+    char const * const origparent = origfp != -1 ? kfileparent(origfp) : NULL;
+    uint32_t const origparentlength = origparent != NULL ? Bstrlen(origparent) : 0;
+
+    char * const testfn = (char *)Xmalloc(Bstrlen(fn) + 12 + origparentlength); // "music/" + overestimation of parent minus extension + ".flac" + '\0'
+
+    // look in ./
+    // ex: ./grabbag.mid
+    {
+        Bstrcpy(testfn, fn);
+        int32_t const fp = S_TryExtensionReplacements(testfn, searchfirst, 1);
         if (fp >= 0)
         {
             Bfree(testfn);
+            kclose(origfp);
             return fp;
         }
-#endif
+    }
+
+    // look in ./music/<file's parent GRP name>/
+    // ex: ./music/duke3d/grabbag.mid
+    // ex: ./music/nwinter/grabbag.mid
+    if (origparent != NULL)
+    {
+        char const * const origparentextension = Bstrrchr(origparent, '.');
+        uint32_t namelength = origparentextension != NULL ? (unsigned)(origparentextension - origparent) : origparentlength;
+
+        Bsprintf(testfn, "music/%.*s/%s", namelength, origparent, fn);
+        int32_t const fp = S_TryExtensionReplacements(testfn, searchfirst, ismusic);
+        if (fp >= 0)
+        {
+            Bfree(testfn);
+            kclose(origfp);
+            return fp;
+        }
+    }
+
+    // look in ./music/
+    // ex: ./music/grabbag.mid
+    {
+        Bsprintf(testfn, "music/%s", fn);
+        int32_t const fp = S_TryExtensionReplacements(testfn, searchfirst, ismusic);
+        if (fp >= 0)
+        {
+            Bfree(testfn);
+            kclose(origfp);
+            return fp;
+        }
     }
 
     Bfree(testfn);
-    return -1;
+    return origfp;
 }
+
 #endif

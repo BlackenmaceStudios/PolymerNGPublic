@@ -65,6 +65,8 @@ namespace Math
 
 		INLINE void GetFloat4x4(XMFLOAT4X4 *matrix) { XMStoreFloat4x4(matrix, m_mat); }
 
+		INLINE void Inverse() { m_mat = XMMatrixInverse(NULL, m_mat); }
+
 		INLINE operator XMMATRIX() const { return m_mat; }
 
 		INLINE Vector4 operator* ( Vector3 vec ) const { return Vector4(XMVector3Transform(vec, m_mat)); }

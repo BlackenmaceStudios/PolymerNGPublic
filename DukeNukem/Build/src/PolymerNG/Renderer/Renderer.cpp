@@ -29,6 +29,7 @@ void Renderer::Init()
 	drawUIPass.Init();
 	drawWorldPass.Init();
 	drawSpritePass.Init();
+	drawClassicSkyPass.Init();
 }
 
 void Renderer::SetShaderForPSO(BuildRHIPipelineStateObject *pso, PolymerNGRenderProgram *program)
@@ -78,21 +79,52 @@ void Renderer::RenderFrame()
 
 			_2dcommands.push_back(command);
 		}
-		else if (command.taskId == BUILDRENDER_TASK_UPDATEMODEL)
+		else if (command.taskId == BUILDRENDER_TASK_CREATEMODEL)
 		{
-			BaseModel *model = command.taskUpdateModel.model;
+			BaseModel *model = command.taskCreateModel.model;
 			if (model->rhiVertexBufferStatic == NULL)
 			{
-				BuildRHIMesh *rhiMeshData = rhi.AllocateRHIMesh(sizeof(Build3DVertex), command.taskUpdateModel.numVertexes, &model->meshVertexes[0], false);
+				BuildRHIMesh *rhiMeshData = rhi.AllocateRHIMesh(sizeof(Build3DVertex), command.taskCreateModel.numVertexes, &model->meshVertexes[0], false);
 				if (model->meshIndexes.size() > 0)
 				{
 					rhi.AllocateRHIMeshIndexes(rhiMeshData, model->meshIndexes.size(), &model->meshIndexes[0], false);
 				}
 				model->rhiVertexBufferStatic = rhiMeshData;
 			}
+
+			// Create the dynamic buffers.
+			if (command.taskCreateModel.createDynamicBuffers)
+			{
+				for (int d = 0; d < 2; d++)
+				{
+					BuildRHIMesh *rhiMeshData = rhi.AllocateRHIMesh(sizeof(Build3DVertex), command.taskCreateModel.numVertexes, &model->meshVertexes[0], true);
+					if (model->meshIndexes.size() > 0)
+					{
+						rhi.SetRHIMeshIndexBuffer(rhiMeshData, model->rhiVertexBufferStatic);
+					}
+					model->rhiVertexBufferDynamic[d] = rhiMeshData;
+				}
+			}
+		}
+		else if (command.taskId == BUILDRENDER_TASK_UPDATEMODEL)
+		{
+			BuildRHIMesh *model = command.taskUpdateModel.rhiMesh;
+
+			int32_t numUpdateItems = command.taskUpdateModel.modelUpdateQueuedItems.size();
+			ModelUpdateQueuedItem *queuedItems = &command.taskUpdateModel.modelUpdateQueuedItems[0];
+			//for (int d = 0; d < numUpdateItems; d++)
+			//{
+			//	rhi.UpdateRHIMesh(model, queuedItems[d].startPosition, sizeof(Build3DVertex), queuedItems[d].numVertexes, &command.taskUpdateModel.model->meshVertexes[queuedItems[d].startPosition]);
+			//}
+			rhi.UpdateRHIMesh(model, 0, sizeof(Build3DVertex), command.taskUpdateModel.model->meshVertexes.size(), &command.taskUpdateModel.model->meshVertexes[0]);
+
+			command.taskUpdateModel.modelUpdateQueuedItems.clear();
 		}
 		else if (command.taskId == BUILDRENDER_TASK_RENDERWORLD)
 		{
+			rhi.SetDepthEnable(false);
+			drawClassicSkyPass.Draw(command);
+			rhi.SetDepthEnable(true);
 			drawWorldPass.Draw(command);
 		}
 		else if (command.taskId == BUILDRENDER_TASK_DRAWSPRITES)
@@ -106,7 +138,7 @@ void Renderer::RenderFrame()
 
 void Renderer::RenderFrame2D(class GraphicsContext& Context)
 {
-	for (int i = _2dcommands.size() - 1; i >= 0; i--)
+	for (int i = 0; i < _2dcommands.size(); i++)
 	{
 		drawUIPass.Draw( _2dcommands[i]);
 	}

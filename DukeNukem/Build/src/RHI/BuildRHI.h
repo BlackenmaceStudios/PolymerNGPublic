@@ -177,10 +177,13 @@ public:
 	static void SetConstantBuffer(int index, BuildRHIConstantBuffer *constantBuffer);
 	static void DrawUnoptimized2DQuad( BuildRHIUIVertex *vertexes);
 	static BuildRHIMesh *AllocateRHIMesh(int vertexSize, int numVertexes, void * initialData, bool isDynamic);
+	static void UpdateRHIMesh(BuildRHIMesh *mesh, int startVertex, int vertexSize, int numVertexes, void *initialData);
 	static void AllocateRHIMeshIndexes(BuildRHIMesh *mesh, int numIndexes, void * initialData, bool isDynamic);
+	static void SetRHIMeshIndexBuffer(BuildRHIMesh *mesh, BuildRHIMesh *parentMesh);
 	static BuildRHIConstantBuffer *AllocateRHIConstantBuffer(int size, void *initialData);
 	static void DrawUnoptimizedQuad(BuildRHIShader *shader, BuildRHIMesh *mesh, int startVertex, int numVertexes);
 	static void DrawIndexedQuad(BuildRHIShader *shader, BuildRHIMesh *mesh, int startVertex, int startIndex, int numIndexes);
+	static void SetDepthEnable(bool depthEnable);
 };
 
 extern BuildRHIInputElementDesc *ui_VertexElementDescriptor;

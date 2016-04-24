@@ -23,7 +23,6 @@ extern int32_t usecwd;
 #define GAMEFLAG_SHAREWARE  0x00000020
 #define GAMEFLAG_DUKEBETA   0x00000060 // includes 0x20 since it's a shareware beta
 #define GAMEFLAGMASK        0x0000007F // flags allowed from grpinfo
-#define GAMEFLAG_NWINTER    0x00000080
 
 extern struct grpfile_t const *g_selectedGrp;
 
@@ -35,9 +34,9 @@ extern int32_t g_usingAddon;
 #define NAM                 (g_gameType & GAMEFLAG_NAM)
 #define NAPALM              (g_gameType & GAMEFLAG_NAPALM)
 #define WW2GI               (g_gameType & GAMEFLAG_WW2GI)
+#define NAM_WW2GI           (g_gameType & (GAMEFLAG_NAM|GAMEFLAG_WW2GI))
 #define SHAREWARE           (g_gameType & GAMEFLAG_SHAREWARE)
 #define DUKEBETA            ((g_gameType & GAMEFLAG_DUKEBETA) == GAMEFLAG_DUKEBETA)
-#define NWINTER             (g_gameType & GAMEFLAG_NWINTER)
 
 enum Games_t {
     GAME_DUKE = 0,
@@ -54,14 +53,14 @@ enum instpath_t {
     INSTPATH_3DR_DUKE3D,
     INSTPATH_3DR_ANTH,
     INSTPATH_STEAM_NAM,
+    INSTPATH_STEAM_WW2GI,
     NUMINSTPATHS
 };
 
 enum searchpathtypes_t {
     SEARCHPATH_REMOVE = 1<<0,
     SEARCHPATH_NAM    = 1<<1,
-
-    SEARCHPATH_NWINTER = 1<<2,
+    SEARCHPATH_WW2GI  = 1<<2,
 };
 
 typedef enum basepal_ {
@@ -110,7 +109,7 @@ extern int32_t kopen4loadfrommod(const char *filename, char searchfirst);
 extern void G_AddSearchPaths(void);
 extern void G_CleanupSearchPaths(void);
 
-extern void G_ExtPreInit(int32_t argc,const char **argv);
+extern void G_ExtPreInit(int32_t argc,char const * const * argv);
 extern void G_ExtInit(void);
 extern void G_ScanGroups(void);
 extern void G_LoadGroups(int32_t autoload);
@@ -129,7 +128,10 @@ extern void G_LoadLookups(void);
 //////////
 
 #if defined HAVE_FLAC || defined HAVE_VORBIS
-int32_t S_UpgradeFormat(const char *fn, char searchfirst);
+# define FORMAT_UPGRADE_ELIGIBLE
+extern int32_t S_OpenAudio(const char *fn, char searchfirst, uint8_t ismusic);
+#else
+# define S_OpenAudio(fn, searchfirst, ismusic) kopen4loadfrommod(fn, searchfirst)
 #endif
 
 #ifdef __cplusplus

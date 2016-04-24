@@ -1,6 +1,6 @@
 //-------------------------------------------------------------------------
 /*
-Copyright (C) 2010 EDuke32 developers and contributors
+Copyright (C) 2016 EDuke32 developers and contributors
 
 This file is part of EDuke32.
 
@@ -20,26 +20,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
-/*
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <ctype.h>
-#include <time.h>
-*/
 #include "pch.h"
-
-#include "baselayer.h"
 #include "duke3d.h"
-#include "game.h"
-#include "common_game.h"
 #include "scriplib.h"
-#include "osd.h"
 #include "osdcmds.h"
-#include "osdfuncs.h"
-#ifdef _WIN32
-#include "winlayer.h"
-#endif
+#include "renderlayer.h"
 
 #ifdef __ANDROID__
 #include "android.h"
@@ -50,14 +35,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #define __SETUP__   // JBF 20031211
 #include "_functio.h"
-
-/*
-===================
-=
-= CONFIG_FunctionNameToNum
-=
-===================
-*/
 
 hashtable_t h_gamefuncs    = { NUMGAMEFUNCTIONS<<1, NULL };
 
@@ -82,13 +59,6 @@ int32_t CONFIG_FunctionNameToNum(const char *func)
     return i;
 }
 
-/*
-===================
-=
-= CONFIG_FunctionNumToName
-=
-===================
-*/
 
 char *CONFIG_FunctionNumToName(int32_t func)
 {
@@ -96,14 +66,6 @@ char *CONFIG_FunctionNumToName(int32_t func)
         return NULL;
     return gamefunctions[func];
 }
-
-/*
-===================
-=
-= CONFIG_AnalogNameToNum
-=
-===================
-*/
 
 
 int32_t CONFIG_AnalogNameToNum(const char *func)
@@ -149,14 +111,6 @@ const char *CONFIG_AnalogNumToName(int32_t func)
     return NULL;
 }
 
-
-/*
-===================
-=
-= CONFIG_SetDefaults
-=
-===================
-*/
 
 void CONFIG_SetDefaultKeys(const char (*keyptr)[MAXGAMEFUNCLEN])
 {
@@ -410,13 +364,6 @@ void CONFIG_MapKey(int32_t which, kb_scancode key1, kb_scancode oldkey1, kb_scan
     }
 }
 
-/*
-===================
-=
-= CONFIG_SetupMouse
-=
-===================
-*/
 
 void CONFIG_SetupMouse(void)
 {
@@ -487,13 +434,6 @@ void CONFIG_SetupMouse(void)
     }
 }
 
-/*
-===================
-=
-= CONFIG_SetupJoystick
-=
-===================
-*/
 
 void CONFIG_SetupJoystick(void)
 {
@@ -568,25 +508,10 @@ void CONFIG_SetupJoystick(void)
     }
 }
 
-/*
-===================
-=
-= CONFIG_ReadSetup
-=
-===================
-*/
-extern void G_CheckPlayerColor(int32_t *color,int32_t prev_color);
-extern palette_t CrosshairColors;
-extern palette_t DefaultCrosshairColors;
-extern char g_modDir[BMAX_PATH];
-extern int32_t r_maxfps;
-extern int32_t g_noSetup;
-extern int32_t demorec_diffs_cvar, demoplay_diffs;
-extern int32_t demorec_difftics_cvar, demorec_diffcompress_cvar, demorec_synccompress_cvar;
 
 int32_t CONFIG_ReadSetup(void)
 {
-    int32_t dummy, i = 0;
+    int32_t dummy;
     char commmacro[] = "CommbatMacro# ";
     char tempbuf[1024];
 
@@ -601,12 +526,14 @@ int32_t CONFIG_ReadSetup(void)
         ud.config.scripthandle = SCRIPT_Load(setupfilename);
     else if (SafeFileExists(SETUPFILENAME) && ud.config.scripthandle < 0)
     {
+        int32_t i;
         i=wm_ynbox("Import Configuration Settings", "The configuration file \"%s\" was not found. "
                    "Import configuration data from \"%s\"?",setupfilename,SETUPFILENAME);
         if (i) ud.config.scripthandle = SCRIPT_Load(SETUPFILENAME);
     }
     else if (SafeFileExists("duke3d.cfg") && ud.config.scripthandle < 0)
     {
+        int32_t i;
         i=wm_ynbox("Import Configuration Settings", "The configuration file \"%s\" was not found. "
                    "Import configuration data from \"duke3d.cfg\"?",setupfilename);
         if (i) ud.config.scripthandle = SCRIPT_Load("duke3d.cfg");
@@ -628,7 +555,6 @@ int32_t CONFIG_ReadSetup(void)
         }
 
         Bmemset(tempbuf, 0, sizeof(tempbuf));
-//        Bmemset(dummybuf, 0, sizeof(dummybuf));
         SCRIPT_GetString(ud.config.scripthandle, "Comm Setup","PlayerName",&tempbuf[0]);
 
         while (Bstrlen(OSD_StripColors(dummybuf,tempbuf)) > 10)
@@ -667,7 +593,7 @@ int32_t CONFIG_ReadSetup(void)
                 g_grpNamePtr = dup_filename(G_DefaultGrpFile());
         }
 
-        if (!NAM)
+        if (!NAM_WW2GI)
         {
             SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "Out",&ud.lockout);
             SCRIPT_GetString(ud.config.scripthandle, "Screen Setup","Password",&ud.pwlockout[0]);
@@ -683,9 +609,7 @@ int32_t CONFIG_ReadSetup(void)
         windowy = -1;
         SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "WindowPosY", (int32_t *)&windowy);
 
-#ifdef RENDERTYPEWIN
         SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "MaxRefreshFreq", (int32_t *)&maxrefreshfreq);
-#endif
 
         SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "ScreenBPP", &ud.config.ScreenBPP);
         if (ud.config.ScreenBPP < 8) ud.config.ScreenBPP = 32;
@@ -696,14 +620,6 @@ int32_t CONFIG_ReadSetup(void)
         else glrendmode = REND_POLYMOST;
 #endif
 
-        /*
-
-                    SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "Color",&ud.color);
-                    G_CheckPlayerColor((int32_t *)&ud.color,-1);
-                    g_player[0].ps->palookup = g_player[0].pcolor = ud.color;
-                    tempbuf[0] = 0;
-        */
-
         SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "Executions",&ud.executions);
 
 #ifdef _WIN32
@@ -713,19 +629,10 @@ int32_t CONFIG_ReadSetup(void)
 
     }
 
-    //CONFIG_SetupMouse(ud.config.scripthandle);
-    //CONFIG_SetupJoystick(ud.config.scripthandle);
     ud.config.setupread = 1;
     return 0;
 }
 
-/*
-===================
-=
-= CONFIG_WriteSetup
-=
-===================
-*/
 
 void CONFIG_WriteSettings(void) // save binds and aliases to <cfgname>_settings.cfg
 {
@@ -793,7 +700,7 @@ void CONFIG_WriteSetup(uint32_t flags)
 
     SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "Executions",++ud.executions,FALSE,FALSE);
 
-    SCRIPT_PutNumber(ud.config.scripthandle, "Setup","ConfigVersion",BYTEVERSION_JF,FALSE,FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Setup","ConfigVersion",BYTEVERSION_EDUKE32,FALSE,FALSE);
     SCRIPT_PutNumber(ud.config.scripthandle, "Setup", "ForceSetup",ud.config.ForceSetup,FALSE,FALSE);
     SCRIPT_PutNumber(ud.config.scripthandle, "Setup", "NoAutoLoad",ud.config.NoAutoLoad,FALSE,FALSE);
 
@@ -827,11 +734,9 @@ void CONFIG_WriteSetup(uint32_t flags)
     SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "WindowPositioning", windowpos, FALSE, FALSE);
     SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "WindowPosX", windowx, FALSE, FALSE);
     SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "WindowPosY", windowy, FALSE, FALSE);
-#ifdef RENDERTYPEWIN
     SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "MaxRefreshFreq", maxrefreshfreq, FALSE, FALSE);
-#endif
 
-    if (!NAM)
+    if (!NAM_WW2GI)
     {
         SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "Out",ud.lockout,FALSE,FALSE);
         SCRIPT_PutString(ud.config.scripthandle, "Screen Setup", "Password",ud.pwlockout);
@@ -968,7 +873,7 @@ void CONFIG_WriteSetup(uint32_t flags)
     Bfflush(NULL);
 }
 
-static const char *CONFIG_GetMapEntryName(char m[], const char *mapname)
+static const char *CONFIG_GetMapEntryName(char m[], char const * const mapname)
 {
     strcpy(m, mapname);
 
@@ -984,32 +889,41 @@ static const char *CONFIG_GetMapEntryName(char m[], const char *mapname)
     return p;
 }
 
-int32_t CONFIG_GetMapBestTime(const char *mapname)
+static void CONFIG_GetMD4EntryName(char m[], uint8_t const * const md4)
+{
+    sprintf(m, "MD4_%08x%08x%08x%08x",
+            B_BIG32(B_UNBUF32(&md4[0])), B_BIG32(B_UNBUF32(&md4[4])),
+            B_BIG32(B_UNBUF32(&md4[8])), B_BIG32(B_UNBUF32(&md4[12])));
+}
+
+int32_t CONFIG_GetMapBestTime(char const * const mapname, uint8_t const * const mapmd4)
 {
     if (!ud.config.setupread) return -1;
     if (ud.config.scripthandle < 0) return -1;
 
-    char m[BMAX_PATH];
-    const char *p = CONFIG_GetMapEntryName(m, mapname);
+    char m[37];
+    CONFIG_GetMD4EntryName(m, mapmd4);
 
     int32_t t = -1;
-    SCRIPT_GetNumber(ud.config.scripthandle, "MapTimes", p, &t);
+    if (SCRIPT_GetNumber(ud.config.scripthandle, "MapTimes", m, &t))
+    {
+        // fall back to map filenames
+        char m2[BMAX_PATH];
+        char const * const p = CONFIG_GetMapEntryName(m2, mapname);
+        SCRIPT_GetNumber(ud.config.scripthandle, "MapTimes", p, &t);
+    }
     return t;
 }
 
-int32_t CONFIG_SetMapBestTime(const char *mapname, int32_t tm)
+int32_t CONFIG_SetMapBestTime(uint8_t const * const mapmd4, int32_t const tm)
 {
     if (ud.config.scripthandle < 0) ud.config.scripthandle = SCRIPT_Init(setupfilename);
     if (ud.config.scripthandle < 0) return -1;
 
-    char m[BMAX_PATH];
-    const char *p = CONFIG_GetMapEntryName(m, mapname);
+    char m[37];
+    CONFIG_GetMD4EntryName(m, mapmd4);
 
-    SCRIPT_PutNumber(ud.config.scripthandle, "MapTimes", p, tm, FALSE, FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "MapTimes", m, tm, FALSE, FALSE);
     return 0;
 }
-
-/*
- * vim:ts=4:sw=4:
- */
 

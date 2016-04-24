@@ -19,6 +19,7 @@ class BaseModel;
 class Build3DBoard;
 struct Build3DPlane;
 struct Build3DSprite;
+struct ModelUpdateQueuedItem;
 
 //
 // BuildRenderTaskId
@@ -27,9 +28,10 @@ enum BuildRenderTaskId
 {
 	BUILDRENDER_TASK_NOTSET = 0,
 	BUILDRENDER_TASK_ROTATESPRITE,
-	BUILDRENDER_TASK_UPDATEMODEL,
+	BUILDRENDER_TASK_CREATEMODEL,
 	BUILDRENDER_TASK_RENDERWORLD,
-	BUILDRENDER_TASK_DRAWSPRITES
+	BUILDRENDER_TASK_DRAWSPRITES,
+	BUILDRENDER_TASK_UPDATEMODEL
 };
 
 //
@@ -51,9 +53,12 @@ struct BuildRenderThreadTaskRenderWorld
 {
 	Math::Vector3			position;
 	Math::XMFLOAT4X4		viewProjMatrix;
+	Math::XMFLOAT4X4		skyProjMatrix;
 	const Build3DPlane		*renderplanes[60000];
 	int						numRenderPlanes;
 	const Build3DBoard		*board;
+	int						gameSmpFrame;
+	void					*skyImageHandle;
 };
 
 //
@@ -70,14 +75,27 @@ struct BuildRenderThreadTaskRenderSprites
 	Build3DSprite			*prsprites;
 };
 
+class BuildRHIMesh;
+
 //
 // BuildRenderThreadTaskUpdateModel
 //
 struct BuildRenderThreadTaskUpdateModel
 {
 	BaseModel *model;
+	BuildRHIMesh *rhiMesh;
+	std::vector<ModelUpdateQueuedItem> modelUpdateQueuedItems;
+};
+
+//
+// BuildRenderThreadTaskCreateModel
+//
+struct BuildRenderThreadTaskCreateModel
+{
+	BaseModel *model;
 	int startVertex;
 	int numVertexes;
+	bool createDynamicBuffers;
 };
 
 //
@@ -113,7 +131,6 @@ struct BuildRenderThreadTaskRotateSprite
 //
 __forceinline BuildRenderThreadTaskRotateSprite::BuildRenderThreadTaskRotateSprite()
 {
-	
 	is2D = false;
 	enableBlend = false;
 	enableAlpha = false;
@@ -135,9 +152,10 @@ struct BuildRenderCommand
 
 	BuildRenderTaskId taskId;
 	BuildRenderThreadTaskRotateSprite		taskRotateSprite;
-	BuildRenderThreadTaskUpdateModel		taskUpdateModel;
+	BuildRenderThreadTaskCreateModel		taskCreateModel;
 	BuildRenderThreadTaskRenderWorld		taskRenderWorld;
 	BuildRenderThreadTaskRenderSprites		taskRenderSprites;
+	BuildRenderThreadTaskUpdateModel		taskUpdateModel;
 };
 
 //
@@ -202,6 +220,10 @@ struct Build3DPlane
 		vbo_offset = -1;
 		ibo_offset = -1;
 		renderImageHandle = NULL;
+		isDynamicPlane = false;
+		buffer = NULL;
+		indices = NULL;
+		indicescount = 0;
 	}
 	// geometry
 	Build3DVertex*        buffer;
@@ -218,6 +240,8 @@ struct Build3DPlane
 
 	int					vbo_offset;
 	int					ibo_offset;
+
+	bool				isDynamicPlane;
 
 	// elements
 	unsigned short*     indices;
@@ -270,9 +294,9 @@ struct Build3DSector
 	int16_t         floorpicnum_anim, ceilingpicnum_anim;
 
 	struct {
-		int32_t     empty : 1;
-		int32_t     uptodate : 1;
-		int32_t     invalidtex : 1;
+		int32_t     empty;
+		int32_t     uptodate ;
+		int32_t     invalidtex;
 	}               flags;
 	uint32_t        invalidid;
 
@@ -284,6 +308,31 @@ struct Build3DSector
 //
 struct Build3DWall 
 {
+	Build3DWall()
+	{
+		bigportal = NULL;
+		cstat = 0;
+		picnum = 0;
+		overpicnum = 0;
+		shade = 0;
+		pal = 0;
+		xrepeat = 0;
+		yrepeat = 0;
+		xpanning = 0;
+		ypanning = 0;
+		nwallpicnum = 0;
+		nwallcstat = 0;
+		nwallxpanning = 0;
+		nwallypanning = 0;
+		nwallshade = 0;
+		picnum_anim = 0;
+		overpicnum_anim = 0;
+		underover = 0;
+		invalidid = 0;
+		flags.uptodate = 0;
+		flags.empty = 0;
+		flags.invalidtex = 0;
+	}
 	Build3DPlane        wall;
 	Build3DPlane        over;
 	Build3DPlane        mask;
@@ -327,6 +376,7 @@ struct Build3DSprite
 	Math::XMFLOAT4X4   modelMatrix;
 	uint32_t        hash;
 	bool			isHorizsprite;
+	int				paletteNum;
 };
 
 //

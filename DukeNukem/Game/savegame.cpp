@@ -505,10 +505,18 @@ void G_SavePlayerMaybeMulti(int32_t slot)
 typedef struct dataspec_
 {
     uint32_t flags;
-    void *ptr;
+    void * const ptr;
     uint32_t size;
     intptr_t cnt;
 } dataspec_t;
+
+typedef struct dataspec_gv_
+{
+    uint32_t flags;
+    void * ptr;
+    uint32_t size;
+    intptr_t cnt;
+} dataspec_gv_t;
 
 #define SV_DEFAULTCOMPRTHRES 8
 static uint8_t savegame_diffcompress;  // 0:none, 1:Ken's LZW in cache1d.c
@@ -690,7 +698,8 @@ static int32_t readspecdata(const dataspec_t *spec, int32_t fil, uint8_t **dumpv
 
 #define UINT(bits) uint##bits##_t
 #define BYTES(bits) (bits>>3)
-#define VAL(bits,p) (*(UINT(bits) *)(p))
+#define VAL(bits,p) (*(UINT(bits) const *)(p))
+#define WVAL(bits,p) (*(UINT(bits) *)(p))
 
 static void docmpsd(const void *ptr, void *dump, uint32_t size, uint32_t cnt, uint8_t **diffvar)
 {
@@ -700,7 +709,7 @@ static void docmpsd(const void *ptr, void *dump, uint32_t size, uint32_t cnt, ui
 #define CPSINGLEVAL(Datbits) \
         if (VAL(Datbits, ptr) != VAL(Datbits, dump))  \
         {                                             \
-            VAL(Datbits, retdiff) = VAL(Datbits, dump) = VAL(Datbits, ptr); \
+            WVAL(Datbits, retdiff) = WVAL(Datbits, dump) = VAL(Datbits, ptr); \
             *diffvar = retdiff+BYTES(Datbits);        \
         }
 
@@ -720,21 +729,21 @@ static void docmpsd(const void *ptr, void *dump, uint32_t size, uint32_t cnt, ui
             if (*p!=*op)                      \
             {                                 \
                 *op = *p;      \
-                VAL(Idxbits, retdiff) = i;    \
+                WVAL(Idxbits, retdiff) = i;    \
                 retdiff += BYTES(Idxbits);    \
-                VAL(Datbits, retdiff) = *p;   \
+                WVAL(Datbits, retdiff) = *p;   \
                 retdiff += BYTES(Datbits);    \
             }                                 \
             p++;                              \
             op++;                             \
         }                                     \
-        VAL(Idxbits, retdiff) = -1;           \
+        WVAL(Idxbits, retdiff) = -1;           \
         retdiff += BYTES(Idxbits);            \
     } while (0)
 
 #define CPDATA(Datbits) do \
     { \
-        const UINT(Datbits) *p=(UINT(Datbits) *)ptr;    \
+        const UINT(Datbits) *p=(UINT(Datbits) const *)ptr;    \
         UINT(Datbits) *op=(UINT(Datbits) *)dump;        \
         uint32_t i, nelts=tabledivide32_noinline(size*cnt, BYTES(Datbits));    \
         if (nelts>65536)                                \
@@ -844,7 +853,7 @@ static int32_t applydiff(const dataspec_t *spec, uint8_t **dumpvar, uint8_t **di
 
 // ----------
 #define CPSINGLEVAL(Datbits) \
-            VAL(Datbits, dumptr) = VAL(Datbits, diffptr); \
+            WVAL(Datbits, dumptr) = VAL(Datbits, diffptr); \
             diffptr += BYTES(Datbits); \
             dumptr += BYTES(Datbits)
 
@@ -983,9 +992,10 @@ static char(*savegame_quotes)[MAXQUOTELEN];
 static char(*savegame_quoteredefs)[MAXQUOTELEN];
 static uint8_t savegame_restdata[SVARDATALEN];
 
+static char svgm_udnetw_string [] = "blK:udnt";
 static const dataspec_t svgm_udnetw[] =
 {
-    { DS_STRING, (void *)"blK:udnt", 0, 1 },
+    { DS_STRING, (void *)svgm_udnetw_string, 0, 1 },
     { 0, &ud.multimode, sizeof(ud.multimode), 1 },
     { 0, &g_numPlayerSprites, sizeof(g_numPlayerSprites), 1 },
     { 0, &g_playerSpawnPoints, sizeof(g_playerSpawnPoints), 1 },
@@ -1031,9 +1041,10 @@ static const dataspec_t svgm_udnetw[] =
 # define DS_MAINAR 0
 #endif
 
+static char svgm_secwsp_string [] = "blK:swsp";
 static const dataspec_t svgm_secwsp[] =
 {
-    { DS_STRING, (void *)"blK:swsp", 0, 1 },
+    { DS_STRING, (void *)svgm_secwsp_string, 0, 1 },
     { DS_NOCHK, &numwalls, sizeof(numwalls), 1 },
     { DS_MAINAR|DS_CNT(numwalls), &wall, sizeof(walltype), (intptr_t)&numwalls },
     { DS_NOCHK, &numsectors, sizeof(numsectors), 1 },
@@ -1077,9 +1088,10 @@ static const dataspec_t svgm_secwsp[] =
     { DS_END, 0, 0, 0 }
 };
 
+static char svgm_script_string [] = "blK:scri";
 static const dataspec_t svgm_script[] =
 {
-    { DS_STRING, (void *)"blK:scri", 0, 1 },
+    { DS_STRING, (void *)svgm_script_string, 0, 1 },
 #if !defined LUNATIC
     { DS_NOCHK, &g_scriptSize, sizeof(g_scriptSize), 1 },
     { DS_SAVEFN|DS_LOADFN|DS_NOCHK, (void *)&sv_calcbitptrsize, 0, 1 },
@@ -1108,9 +1120,12 @@ static const dataspec_t svgm_script[] =
     { DS_END, 0, 0, 0 }
 };
 
+static char svgm_anmisc_string [] = "blK:anms";
+static char svgm_end_string [] = "savegame_end";
+
 static const dataspec_t svgm_anmisc[] =
 {
-    { DS_STRING, (void *)"blK:anms", 0, 1 },
+    { DS_STRING, (void *)svgm_anmisc_string, 0, 1 },
     { 0, &g_animateCount, sizeof(g_animateCount), 1 },
     { 0, &animatesect[0], sizeof(animatesect[0]), MAXANIMATES },
     { 0, &animategoal[0], sizeof(animategoal[0]), MAXANIMATES },
@@ -1119,8 +1134,7 @@ static const dataspec_t svgm_anmisc[] =
     { 0, &animateptr[0], sizeof(animateptr[0]), MAXANIMATES },
     { DS_SAVEFN|DS_LOADFN , (void *)&sv_postanimateptr, 0, 1 },
     { 0, &g_curViewscreen, sizeof(g_curViewscreen), 1 },
-    { 0, &msx[0], sizeof(msx[0]), ARRAY_SIZE(msx) },
-    { 0, &msy[0], sizeof(msy[0]), ARRAY_SIZE(msy) },
+    { 0, &g_origins[0], sizeof(g_origins[0]), ARRAY_SIZE(g_origins) },
     { 0, &g_spriteDeleteQueuePos, sizeof(g_spriteDeleteQueuePos), 1 },
     { DS_NOCHK, &g_spriteDeleteQueueSize, sizeof(g_spriteDeleteQueueSize), 1 },
     { DS_CNT(g_spriteDeleteQueueSize), &SpriteDeletionQueue[0], sizeof(int16_t), (intptr_t)&g_spriteDeleteQueueSize },
@@ -1151,12 +1165,12 @@ static const dataspec_t svgm_anmisc[] =
     { 0, savegame_restdata, 1, sizeof(savegame_restdata) },  // sz/cnt swapped for kdfread
     { DS_LOADFN, (void *)&sv_restload, 0, 1 },
 
-    { DS_STRING, (void *)"savegame_end", 0, 1 },
+    { DS_STRING, (void *)svgm_end_string, 0, 1 },
     { DS_END, 0, 0, 0 }
 };
 
 #if !defined LUNATIC
-static dataspec_t *svgm_vars=NULL;
+static dataspec_gv_t *svgm_vars=NULL;
 #endif
 static uint8_t *dosaveplayer2(FILE *fil, uint8_t *mem);
 static int32_t doloadplayer2(int32_t fil, uint8_t **memptr);
@@ -1173,10 +1187,12 @@ static uint8_t *svdiff;
 #if !defined LUNATIC
 # define SV_SKIPMASK (/*GAMEVAR_SYSTEM|*/GAMEVAR_READONLY|GAMEVAR_INTPTR|    \
                       GAMEVAR_SHORTPTR|GAMEVAR_CHARPTR /*|GAMEVAR_NORESET*/ |GAMEVAR_SPECIAL)
+
+static char svgm_vars_string [] = "blK:vars";
 // setup gamevar data spec for snapshotting and diffing... gamevars must be loaded when called
 static void sv_makevarspec()
 {
-    static char *magic = "blK:vars";
+    static char *magic = svgm_vars_string;
     int32_t i, j, numsavedvars=0, numsavedarrays=0, per;
 
     for (i=0; i<g_gameVarCount; i++)
@@ -1186,7 +1202,7 @@ static void sv_makevarspec()
         numsavedarrays += !(aGameArrays[i].dwFlags & GAMEARRAY_READONLY);  // SYSTEM_GAMEARRAY
 
     Bfree(svgm_vars);
-    svgm_vars = (dataspec_t *)Xmalloc((numsavedvars+numsavedarrays+2)*sizeof(dataspec_t));
+    svgm_vars = (dataspec_gv_t *)Xmalloc((numsavedvars+numsavedarrays+2)*sizeof(dataspec_gv_t));
 
     svgm_vars[0].flags = DS_STRING;
     svgm_vars[0].ptr = magic;
@@ -1261,7 +1277,7 @@ int32_t sv_saveandmakesnapshot(FILE *fil, int8_t spot, int8_t recdiffsp, int8_t 
     // calculate total snapshot size
 #if !defined LUNATIC
     sv_makevarspec();
-    svsnapsiz = calcsz(svgm_vars);
+    svsnapsiz = calcsz((const dataspec_t *)svgm_vars);
 #else
     svsnapsiz = 0;
 #endif
@@ -1523,7 +1539,7 @@ uint32_t sv_writediff(FILE *fil)
     cmpspecdata(svgm_script, &p, &d);
     cmpspecdata(svgm_anmisc, &p, &d);
 #if !defined LUNATIC
-    cmpspecdata(svgm_vars, &p, &d);
+    cmpspecdata((const dataspec_t *)svgm_vars, &p, &d);
 #endif
 
     if (p != svsnapshot+svsnapsiz)
@@ -1570,7 +1586,7 @@ int32_t sv_readdiff(int32_t fil)
     if (applydiff(svgm_script, &p, &d)) return -5;
     if (applydiff(svgm_anmisc, &p, &d)) return -6;
 #if !defined LUNATIC
-    if (applydiff(svgm_vars, &p, &d)) return -7;
+    if (applydiff((const dataspec_t *)svgm_vars, &p, &d)) return -7;
 #endif
 
     if (p!=svsnapshot+svsnapsiz)
@@ -1915,7 +1931,7 @@ static uint8_t *dosaveplayer2(FILE *fil, uint8_t *mem)
 
 #if !defined LUNATIC
     Gv_WriteSave(fil, 1);  // gamevars
-    mem=writespecdata(svgm_vars, 0, mem);
+    mem=writespecdata((const dataspec_t *)svgm_vars, 0, mem);
     PRINTSIZE("vars");
 #endif
 
@@ -2042,7 +2058,7 @@ int32_t sv_updatestate(int32_t frominit)
     if (readspecdata(svgm_anmisc, -1, &p)) return -6;
 
 #if !defined LUNATIC
-    if (readspecdata(svgm_vars, -1, &p)) return -8;
+    if (readspecdata((const dataspec_t *)svgm_vars, -1, &p)) return -8;
 #endif
 
     if (p != pbeg+svsnapsiz)
@@ -2233,110 +2249,3 @@ static void postloadplayer(int32_t savegamep)
 
 ////////// END GENERIC SAVING/LOADING SYSTEM //////////
 
-#ifdef __ANDROID__
-#include <jni.h>
-#include <android/log.h>
-
-#ifndef LOGI
-#define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO,"DUKE", __VA_ARGS__))
-#define LOGW(...) ((void)__android_log_print(ANDROID_LOG_WARN, "DUKE", __VA_ARGS__))
-#define LOGE(...) ((void)__android_log_print(ANDROID_LOG_ERROR,"DUKE", __VA_ARGS__))
-#endif
-
-char const * G_GetStringFromSavegame(const char *filename, int type)
-{
-    LOGI("getSavegameText %s", filename);
-    int32_t fil = kopen4load(filename, 0);
-
-    if (fil == -1)
-    {
-        LOGE("couldn't load %s", filename);
-        return "";
-    }
-
-    savehead_t saveh;
-
-    int32_t i = sv_loadheader(fil, 0, &saveh);
-
-    if (i && (i != 2 && i != 3))
-        goto corrupt;
-
-    kclose(fil);
-
-    static char tempbuf[64];
-
-    switch (type)
-    {
-        case 0: Bstrncpyz(tempbuf, saveh.savename, sizeof(saveh.savename) - 1); break;
-        case 1: Bstrncpyz(tempbuf, saveh.volname, sizeof(saveh.volname) - 1); break;
-        case 2: Bstrncpyz(tempbuf, saveh.skillname, sizeof(saveh.skillname) - 1); break;
-    }
-    return tempbuf;
-
-corrupt:
-    kclose(fil);
-    LOGE("couldn't load %s", filename);
-    return "";
-}
-
-int32_t G_GetScreenshotFromSavegame(const char *filename, char *pal, char *data)
-{
-    LOGI("getSavegameScreenshot %s", filename);
-
-    int32_t fil = kopen4load(filename, 0);
-
-    if (fil == -1)
-        return -1;
-
-    savehead_t saveh;
-
-    int32_t i = sv_loadheader(fil, 0, &saveh);
-
-    if (i && (i != 2 && i != 3))
-        goto corrupt;
-
-    int32_t screenshotofs;
-
-    if (kread(fil, &screenshotofs, 4) != 4)
-        goto corrupt;
-
-    if (screenshotofs)
-    {
-        if (kdfread(data, 320, 200, fil) != 200)
-        {
-            // OSD_Printf("G_LoadSaveHeaderNew(%d): failed reading screenshot\n", spot);
-            goto corrupt;
-        }
-    }
-    else
-    {
-        kclose(fil);
-        return -1;
-    }
-
-    kclose(fil);
-
-    char pstr[BMAX_PATH];
-
-    Bstrcpy(pstr, filename);
-    Bcorrectfilename(pstr, 1);
-    Bstrcat(pstr, "palette.dat");
-
-    int32_t pfil;
-
-    if ((pfil = kopen4load(pstr, 0)) == -1)
-    {
-        LOGE("couldn't load %s", pstr);
-        return -1;
-    }
-
-    kread(pfil, pal, 768);
-    kclose(pfil);
-
-    return 0;
-
-corrupt:
-    kclose(fil);
-    return 1;
-}
-#endif

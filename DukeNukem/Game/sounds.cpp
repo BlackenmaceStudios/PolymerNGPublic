@@ -1,6 +1,6 @@
 //-------------------------------------------------------------------------
 /*
-Copyright (C) 2010 EDuke32 developers and contributors
+Copyright (C) 2016 EDuke32 developers and contributors
 
 This file is part of EDuke32.
 
@@ -27,20 +27,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define __STDC_LIMIT_MACROS
 #endif
 #include "pch.h"
-#include <stdio.h>
-#include <string.h>
-
-#include "fx_man.h"
-#include "music.h"
 #include "duke3d.h"
-#include "osd.h"
-#include "sounds.h"
-
-#include "common_game.h"
-
-#ifdef _WIN32
-#include "winlayer.h"
-#endif
+#include "renderlayer.h" // for win_gethwnd()
 
 #define DQSIZE 128
 
@@ -50,6 +38,7 @@ static int32_t MusicIsWaveform = 0;
 static char *MusicPtr = NULL;
 static int32_t MusicVoice = -1;
 static int32_t MusicPaused = 0;
+static int32_t SoundPaused = 0;
 
 static mutex_t s_mutex;
 static volatile uint32_t dq[DQSIZE], dnum = 0;
@@ -148,6 +137,25 @@ void S_PauseMusic(int32_t onf)
         MUSIC_Continue();
 }
 
+void S_PauseSounds(int32_t onf)
+{
+    if (SoundPaused == onf)
+        return;
+
+    SoundPaused = onf;
+
+    for (int i=0; i<g_maxSoundPos; ++i)
+    {
+        for (int j = 0; j<MAXSOUNDINSTANCES; ++j)
+        {
+            if (g_sounds[i].SoundOwner[j].voice > 0)
+                FX_PauseVoice(g_sounds[i].SoundOwner[j].voice, onf);
+        }
+    }
+}
+
+
+
 void S_MusicVolume(int32_t volume)
 {
     if (MusicIsWaveform && MusicVoice >= 0)
@@ -186,13 +194,7 @@ int32_t S_PlayMusic(const char *fn)
     if (!ud.config.MusicToggle || fn == NULL)
         return 0;
 
-    int32_t fp;
-
-#if defined HAVE_FLAC || defined HAVE_VORBIS
-    if ((fp = S_UpgradeFormat(fn, 0)) < 0)
-#endif
-        fp = kopen4loadfrommod(fn, 0);
-
+    int32_t fp = S_OpenAudio(fn, 0, 1);
     if (EDUKE32_PREDICT_FALSE(fp < 0))
     {
         OSD_Printf(OSD_ERROR "S_PlayMusic(): error: can't open \"%s\" for playback!\n",fn);
@@ -283,18 +285,22 @@ void S_Cleanup(void)
     // process from our own local copy of the delete queue so we don't hold the lock long
     mutex_lock(&s_mutex);
 
-    if (!dnum)
+    uint32_t ldnum = dnum;
+
+    if (!ldnum)
     {
         mutex_unlock(&s_mutex);
         return;
     }
 
-    Bmemcpy(ldq, (void *)dq, dnum * sizeof(int32_t));
-
-    uint32_t ldnum = dnum-1;
     dnum = 0;
 
+    for (uint32_t i = 0; i < ldnum; i++)
+        ldq[i] = dq[i];
+
     mutex_unlock(&s_mutex);
+
+    ldnum--;
 
     do
     {
@@ -355,19 +361,11 @@ int32_t S_LoadSound(uint32_t num)
         return 0;
     }
 
-    int32_t fp;
-#if defined HAVE_FLAC || defined HAVE_VORBIS
-    fp = S_UpgradeFormat(g_sounds[num].filename, g_loadFromGroupOnly);
-    if (fp == -1)
-#endif
+    int32_t fp = S_OpenAudio(g_sounds[num].filename, g_loadFromGroupOnly, 0);
+    if (EDUKE32_PREDICT_FALSE(fp == -1))
     {
-        fp = kopen4loadfrommod(g_sounds[num].filename,g_loadFromGroupOnly);
-
-        if (EDUKE32_PREDICT_FALSE(fp == -1))
-        {
-            OSD_Printf(OSDTEXT_RED "Sound %s(#%d) not found!\n",g_sounds[num].filename,num);
-            return 0;
-        }
+        OSD_Printf(OSDTEXT_RED "Sound %s(#%d) not found!\n",g_sounds[num].filename,num);
+        return 0;
     }
 
     int32_t l = kfilelength(fp);

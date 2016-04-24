@@ -1,6 +1,6 @@
 //-------------------------------------------------------------------------
 /*
-Copyright (C) 2010 EDuke32 developers and contributors
+Copyright (C) 2016 EDuke32 developers and contributors
 
 This file is part of EDuke32.
 
@@ -54,16 +54,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 // increase by 3, because atomic GRP adds 1, and Shareware adds 2
 #ifdef LUNATIC
 // Lunatic
-# define BYTEVERSION_JF      303
+# define BYTEVERSION_EDUKE32      306
 #else
 // Non-Lua build
-# define BYTEVERSION_JF      303
+# define BYTEVERSION_EDUKE32      306
 #endif
 
 //#define BYTEVERSION_13      27
 //#define BYTEVERSION_14      116
 //#define BYTEVERSION_15      117
-#define BYTEVERSION         (BYTEVERSION_JF+(PLUTOPAK?1:(VOLUMEONE<<1)))
+#define BYTEVERSION         (BYTEVERSION_EDUKE32+(PLUTOPAK?1:(VOLUMEONE<<1)))
 
 #define NUMPAGES            1
 
@@ -133,6 +133,7 @@ EDUKE32_STATIC_ASSERT(7 <= MAXTILES-MAXUSERTILES);
 #include "rts.h"
 #include "soundsdyn.h"
 #include "music.h"
+#include "inv.h"
 #include "player.h"
 #include "actors.h"
 #include "quotes.h"
@@ -143,6 +144,7 @@ EDUKE32_STATIC_ASSERT(7 <= MAXTILES-MAXUSERTILES);
 #include "gamedef.h"
 #include "gameexec.h"
 #include "gamevars.h"
+#include "screentext.h"
 
 #ifdef LUNATIC
 # include "lunatic_game.h"

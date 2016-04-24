@@ -1,6 +1,6 @@
 //-------------------------------------------------------------------------
 /*
-Copyright (C) 2010 EDuke32 developers and contributors
+Copyright (C) 2016 EDuke32 developers and contributors
 
 This file is part of EDuke32.
 
@@ -57,6 +57,8 @@ enum MenuIndex_t {
     MENU_MOUSEADVANCED  = 212,
     MENU_JOYSTICKAXIS   = 213,
     MENU_TOUCHSETUP     = 214,
+    MENU_TOUCHSENS      = 215,
+    MENU_TOUCHBUTTONS   = 216,
 	MENU_CONTROLS       = 220,
     MENU_POLYMOST       = 230,
     MENU_COLCORR        = 231,
@@ -113,8 +115,6 @@ typedef enum MenuAnimationType_t
     MA_Advance,
 } MenuAnimationType_t;
 
-
-
 // a subset of screentext parameters, restricted because menus require accessibility
 typedef struct MenuFont_t
 {
@@ -166,7 +166,7 @@ typedef struct MenuLink_t
 typedef struct MenuOptionSet_t
 {
     // traits
-    char **optionNames;
+    char const **optionNames;
     int32_t *optionValues; // If NULL, the identity of currentOption is assumed.
 
     // pop-up list appearance
@@ -202,7 +202,7 @@ typedef struct MenuCustom2Col_t
 {
     // effect
     uint8_t *column[2];
-    char **key;
+    char const **key;
 
     // appearance
     MenuFont_t *font;
@@ -339,7 +339,7 @@ typedef struct MenuMenu_t
 
     // state
     int32_t currentEntry, currentColumn;
-    int32_t totalHeight, scrollPos;
+    int32_t scrollPos;
 } MenuMenu_t;
 typedef struct MenuPanel_t
 {
@@ -411,6 +411,19 @@ typedef struct Menu_t
     MenuType_t type;
 } Menu_t;
 
+typedef struct MenuAnimation_t
+{
+    int32_t(*out)(struct MenuAnimation_t *);
+    int32_t(*in)(struct MenuAnimation_t *);
+
+    Menu_t *previous;
+    Menu_t *current;
+
+    int32_t start;
+    int32_t length;
+} MenuAnimation_t;
+
+extern MenuAnimation_t m_animation;
 
 extern MenuID_t g_currentMenu;
 extern Menu_t *m_currentMenu;
@@ -418,8 +431,8 @@ extern Menu_t *m_currentMenu;
 extern int32_t g_lastSaveSlot;
 extern int32_t g_quitDeadline;
 extern int32_t voting;
-int32_t menutext_(int32_t x,int32_t y,int32_t s,int32_t p,char *t,int32_t bits);
-void M_ChangeMenu(int32_t cm);
+int32_t menutext_(int32_t x,int32_t y,int32_t s,int32_t p,char const *t,int32_t bits);
+int M_ChangeMenu(int32_t cm);
 void M_ChangeMenuAnimate(int32_t cm, MenuAnimationType_t animtype);
 int32_t M_IsTextInput(Menu_t *cm);
 void G_CheckPlayerColor(int32_t *color,int32_t prev_color);

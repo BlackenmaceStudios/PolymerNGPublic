@@ -6838,9 +6838,9 @@ static void drawsprite(int32_t snum)
 {
     switch (getrendermode())
     {
-    case REND_CLASSIC:
-        drawsprite_classic(snum);
-        return;
+ //   case REND_CLASSIC:
+ //       drawsprite_classic(snum);
+ //       return;
 #ifdef USE_OPENGL
     case REND_POLYMOST:
         polymost_drawsprite(snum);
@@ -8448,6 +8448,8 @@ static void E_PostLoadPalette(void)
         j = palette[i*3] + palette[i*3+1] + palette[i*3+2];
         if (j < k) { k = j; blackcol = i; }
     }
+
+	redcol = getclosestcol(255, 0, 0);
 
     // Bmemset(PaletteIndexFullbrights, 0, sizeof(PaletteIndexFullbrights));
     for (int c = 0; c < 255; ++c) // skipping transparent color
@@ -17856,6 +17858,8 @@ void printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, const
     if (fontsize) { fontptr = smalltextfont; charxsiz = 4; }
     else { fontptr = textfont; charxsiz = 8; }
 
+	//jmarshall:
+	return; // FIXME!!!
 #ifdef USE_OPENGL
     if (!polymost_printext256(xpos,ypos,col,backcol,name,fontsize)) return;
 # if 0

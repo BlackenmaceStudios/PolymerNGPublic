@@ -19,14 +19,11 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
+
+#define sector_c_
+
 #include "pch.h"
 #include "duke3d.h"
-#include "sector.h"
-#include "gamedef.h"
-#include "gameexec.h"
-#include "premap.h"
-#include "osd.h"
-#include "common_game.h"
 #include "input.h"
 
 // PRIMITIVE
@@ -1390,24 +1387,9 @@ int32_t P_ActivateSwitch(int32_t snum, int32_t w, int32_t switchissprite)
         }
     }
 
-    if (lotag == 65535)
+    if (lotag == UINT16_MAX)
     {
-        g_player[myconnectindex].ps->gm = MODE_EOL;
-
-        if (ud.from_bonus)
-        {
-            ud.level_number = ud.from_bonus;
-            ud.m_level_number = ud.level_number;
-            ud.from_bonus = 0;
-        }
-        else
-        {
-            ud.level_number++;
-            if (ud.level_number > MAXLEVELS-1)
-                ud.level_number = 0;
-            ud.m_level_number = ud.level_number;
-        }
-
+        P_EndLevel();
         return 1;
     }
 
@@ -1540,7 +1522,7 @@ void A_DamageWall(int32_t spr, int32_t dawallnum, const vec3_t *pos, int32_t atw
     walltype *wal = &wall[dawallnum];
 
     if (wal->overpicnum == MIRROR && wal->pal != 4 &&
-            A_CheckSpriteTileFlags(atwith,SFLAG_PROJECTILE) &&
+            A_CheckSpriteFlags(spr,SFLAG_PROJECTILE) &&
             (SpriteProjectile[spr].workslike & PROJECTILE_RPG))
     {
         if (wal->nextwall == -1 || wall[wal->nextwall].pal != 4)
@@ -2286,7 +2268,7 @@ void A_DamageObject(int32_t i,int32_t sn)
 
                 if ((PN != DRONE) && (PN != ROTATEGUN) && (PN != COMMANDER) && (PN < GREENSLIME || PN > GREENSLIME+7))
                     if (sprite[sn].picnum != FREEZEBLAST)
-                        if (!A_CheckSpriteTileFlags(PN, SFLAG_BADGUY) || A_CheckSpriteTileFlags(PN, SFLAG_HURTSPAWNBLOOD))
+                        if (!A_CheckSpriteFlags(i, SFLAG_BADGUY) || A_CheckSpriteFlags(i, SFLAG_HURTSPAWNBLOOD))
                         {
                             j = A_Spawn(sn,JIBS6);
                             if (sprite[sn].pal == 6)
@@ -2301,7 +2283,7 @@ void A_DamageObject(int32_t i,int32_t sn)
 
                 if (j >= 0 && sprite[j].picnum == APLAYER && PN != ROTATEGUN && PN != DRONE)
                     if (g_player[P_Get(j)].ps->curr_weapon == SHOTGUN_WEAPON)
-                        if (!A_CheckSpriteTileFlags(PN, SFLAG_BADGUY) || A_CheckSpriteTileFlags(PN, SFLAG_HURTSPAWNBLOOD))
+                        if (!A_CheckSpriteFlags(i, SFLAG_BADGUY) || A_CheckSpriteFlags(i, SFLAG_HURTSPAWNBLOOD))
                         {
                             A_Shoot(i,BLOODSPLAT3);
                             A_Shoot(i,BLOODSPLAT1);
@@ -2474,12 +2456,14 @@ void P_HandleSharedKeys(int32_t snum)
             if (ud.pause_on)
             {
                 S_PauseMusic(1);
-                FX_StopAllSounds();
-                S_ClearSoundLocks();
+                S_PauseSounds(1);
             }
             else
             {
                 if (ud.config.MusicToggle) S_PauseMusic(0);
+
+                S_PauseSounds(0);
+
                 pub = NUMPAGES;
                 pus = NUMPAGES;
             }
@@ -2495,21 +2479,11 @@ void P_HandleSharedKeys(int32_t snum)
             {
                 switch (p->inven_icon)
                 {
-                case ICON_JETPACK:
-                    sb_snum |= BIT(SK_JETPACK);
-                    break;
-                case ICON_HOLODUKE:
-                    sb_snum |= BIT(SK_HOLODUKE);
-                    break;
-                case ICON_HEATS:
-                    sb_snum |= BIT(SK_NIGHTVISION);
-                    break;
-                case ICON_FIRSTAID:
-                    sb_snum |= BIT(SK_MEDKIT);
-                    break;
-                case ICON_STEROIDS:
-                    sb_snum |= BIT(SK_STEROIDS);
-                    break;
+                    case ICON_JETPACK: sb_snum |= BIT(SK_JETPACK); break;
+                    case ICON_HOLODUKE: sb_snum |= BIT(SK_HOLODUKE); break;
+                    case ICON_HEATS: sb_snum |= BIT(SK_NIGHTVISION); break;
+                    case ICON_FIRSTAID: sb_snum |= BIT(SK_MEDKIT); break;
+                    case ICON_STEROIDS: sb_snum |= BIT(SK_STEROIDS); break;
                 }
             }
         }
@@ -2549,11 +2523,10 @@ void P_HandleSharedKeys(int32_t snum)
         {
             p->invdisptime = GAMETICSPERSEC*2;
 
-            if (TEST_SYNC_KEY(sb_snum, SK_INV_RIGHT)) k = 1;
-            else k = 0;
+            int32_t k = !!(TEST_SYNC_KEY(sb_snum, SK_INV_RIGHT));
 
             if (p->refresh_inventory) p->refresh_inventory = 0;
-            dainv = p->inven_icon;
+            int32_t dainv = p->inven_icon;
 
             i = 0;
 
@@ -2565,25 +2538,11 @@ CHECKINV1:
                 switch (dainv)
                 {
                 case ICON_JETPACK:
-                    if (p->inv_amount[GET_JETPACK] > 0 && i > 1)
-                        break;
-                    if (k) dainv++;
-                    else dainv--;
-                    goto CHECKINV1;
                 case ICON_SCUBA:
-                    if (p->inv_amount[GET_SCUBA] > 0 && i > 1)
-                        break;
-                    if (k) dainv++;
-                    else dainv--;
-                    goto CHECKINV1;
                 case ICON_STEROIDS:
-                    if (p->inv_amount[GET_STEROIDS] > 0 && i > 1)
-                        break;
-                    if (k) dainv++;
-                    else dainv--;
-                    goto CHECKINV1;
                 case ICON_HOLODUKE:
-                    if (p->inv_amount[GET_HOLODUKE] > 0 && i > 1)
+                case ICON_HEATS:
+                    if (p->inv_amount[icon_to_inv[dainv]] > 0 && i > 1)
                         break;
                     if (k) dainv++;
                     else dainv--;
@@ -2594,12 +2553,6 @@ CHECKINV1:
                         break;
                     if (k) dainv = 2;
                     else dainv = 7;
-                    goto CHECKINV1;
-                case ICON_HEATS:
-                    if (p->inv_amount[GET_HEATS] > 0 && i > 1)
-                        break;
-                    if (k) dainv++;
-                    else dainv--;
                     goto CHECKINV1;
                 case ICON_BOOTS:
                     if (p->inv_amount[GET_BOOTS] > 0 && i > 1)
@@ -2820,7 +2773,7 @@ CHECKINV1:
             }
         }
 
-        if (TEST_SYNC_KEY(sb_snum, SK_HOLODUKE) && p->newowner == -1)
+        if (TEST_SYNC_KEY(sb_snum, SK_HOLODUKE) && (p->newowner == -1 || p->holoduke_on != -1))
         {
             if (p->holoduke_on == -1)
             {
@@ -2880,7 +2833,7 @@ CHECKINV1:
             }
         }
 
-        if (p->newowner == -1 && TEST_SYNC_KEY(sb_snum, SK_JETPACK))
+        if ((p->newowner == -1 || p->jetpack_on) && TEST_SYNC_KEY(sb_snum, SK_JETPACK))
         {
             if (VM_OnEvent(EVENT_USEJETPACK,g_player[snum].ps->i,snum) == 0)
             {
@@ -2978,7 +2931,6 @@ static void G_ClearCameras(DukePlayer_t *p)
 
 void P_CheckSectors(int32_t snum)
 {
-    int32_t i = -1;
     DukePlayer_t *const p = g_player[snum].ps;
 
     if (p->cursectnum > -1)
@@ -2991,22 +2943,8 @@ void P_CheckSectors(int32_t snum)
             return;
 
         case UINT16_MAX:
-            for (TRAVERSE_CONNECT(i))
-                g_player[i].ps->gm = MODE_EOL;
             sector[p->cursectnum].lotag = 0;
-            if (ud.from_bonus)
-            {
-                ud.level_number = ud.from_bonus;
-                ud.m_level_number = ud.level_number;
-                ud.from_bonus = 0;
-            }
-            else
-            {
-                ud.level_number++;
-                if (ud.level_number > MAXLEVELS-1)
-                    ud.level_number = 0;
-                ud.m_level_number = ud.level_number;
-            }
+            P_EndLevel();
             return;
 
         case UINT16_MAX-1:
@@ -3068,7 +3006,7 @@ void P_CheckSectors(int32_t snum)
         p->toggle_key_flag = 1;
         hitscanwall = -1;
 
-        i = P_FindWall(p,&hitscanwall);
+        int32_t i = P_FindWall(p,&hitscanwall);
 
         if (hitscanwall >= 0 && i < 1280 && wall[hitscanwall].overpicnum == MIRROR)
             if (wall[hitscanwall].lotag > 0 && !A_CheckSoundPlaying(p->i,wall[hitscanwall].lotag) && snum == screenpeek)
@@ -3291,6 +3229,7 @@ void P_CheckSectors(int32_t snum)
         if (neartagsector >= 0 && (sector[neartagsector].lotag&16384) == 0 &&
                 isanearoperator(sector[neartagsector].lotag))
         {
+            int32_t i;
             for (SPRITES_OF_SECT(neartagsector, i))
             {
                 if (PN == ACTIVATOR || PN == MASTERSWITCH)

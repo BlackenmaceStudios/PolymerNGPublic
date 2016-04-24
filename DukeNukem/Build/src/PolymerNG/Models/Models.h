@@ -6,6 +6,15 @@
 class BuildRHIMesh;
 
 //
+// ModelUpdateQueuedItem
+//
+struct ModelUpdateQueuedItem
+{
+	int startPosition;
+	int numVertexes;
+};
+
+//
 // BaseModel
 //
 class BaseModel
@@ -19,8 +28,11 @@ public:
 	int						AddVertexesToBuffer(int numVertexes, Build3DVertex *vertexes);
 	int						AddIndexesToBuffer(int numIndexes, unsigned short *indexes);
 
+	std::vector<ModelUpdateQueuedItem> geoUpdateQueue[2];
+
 	std::vector<Build3DVertex> meshVertexes;
 	std::vector<unsigned short> meshIndexes;
 
 	BuildRHIMesh			*rhiVertexBufferStatic;
+	BuildRHIMesh			*rhiVertexBufferDynamic[2];
 };

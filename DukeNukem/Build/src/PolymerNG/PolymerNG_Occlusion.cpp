@@ -246,6 +246,32 @@ void PolymerNGBoard::ScanSprites(int16_t sectnum, tspritetype* localtsprite, int
 		}
 	}
 }
+/*
+=============
+PolymerNGBoard::PokeSector
+=============
+*/
+void PolymerNGBoard::PokeSector(int16_t sectnum)
+{
+	sectortype      *sec = &sector[sectnum];
+	Build3DSector   *s = board->GetSector(sectnum);
+	walltype        *wal = &wall[sec->wallptr];
+	int32_t         i = 0;
+
+	if (!s->flags.uptodate)
+		board->updatesector(sectnum);
+
+	do
+	{
+		if ((wal->nextsector >= 0) && (!board->GetSector(wal->nextsector)->flags.uptodate))
+			board->updatesector(wal->nextsector);
+		if (!board->GetWall(sec->wallptr + i)->flags.uptodate)
+			board->updatewall(sec->wallptr + i);
+
+		i++;
+		wal = &wall[sec->wallptr + i];
+	} while (i < sec->wallnum);
+}
 
 /*
 =============
@@ -256,6 +282,8 @@ void PolymerNGBoard::FindVisibleSectors(BuildRenderThreadTaskRenderWorld &render
 {
 	int32_t         front;
 	int32_t         back;
+	int16_t         ns;
+	int16_t         bunchnum;
 	int16_t			sectorqueue[MAXSECTORS];
 	int16_t			drawingstate[MAXSECTORS];
 	PolymerNGOcclusionTest		queueStatus[MAXWALLS];
@@ -285,6 +313,17 @@ void PolymerNGBoard::FindVisibleSectors(BuildRenderThreadTaskRenderWorld &render
 	//cursectormasks = localsectormasks;
 	//cursectormaskcount = localsectormaskcount;
 
+	// Unflag all the sectors.
+	for (int d = 0; d < numsectors; d++)
+	{
+		board->GetSector(d)->flags.uptodate = 0;
+	}
+
+	for (int d = 0; d < numwalls; d++)
+	{
+		board->GetWall(d)->flags.uptodate = 0;
+	}
+
 	while (front != back)
 	{
 		sec = (tsectortype *)&sector[sectorqueue[front]];
@@ -292,20 +331,23 @@ void PolymerNGBoard::FindVisibleSectors(BuildRenderThreadTaskRenderWorld &render
 		// Draw the sectors.
 		Build3DSector *sector = board->GetSector(sectorqueue[front]);
 
-		if (!sector->IsCeilParalaxed())
+		PokeSector(sectorqueue[front]);
+
+		if (!sector->IsCeilParalaxed() && yax_getbunch(sectorqueue[front], YAX_CEILING) < 0)
 		{
 			AddRenderPlaneToDrawList(renderWorldTask, &sector->ceil);
 		}
 
-		if (!sector->IsFloorParalaxed())
+		if (!sector->IsFloorParalaxed() && yax_getbunch(sectorqueue[front], YAX_FLOOR) < 0)
 		{
 			AddRenderPlaneToDrawList(renderWorldTask, &sector->floor);
 		}
 
-		//polymer_pokesector(sectorqueue[front]);
-		//polymer_drawsector(sectorqueue[front], FALSE);
 		ScanSprites(sectorqueue[front], localtsprite, &localspritesortcnt);
 
+		//polymer_pokesector(sectorqueue[front]);
+		//polymer_drawsector(sectorqueue[front], FALSE);
+		
 		doquery = 1;
 
 		i = sec->wallnum - 1;
@@ -374,9 +416,9 @@ void PolymerNGBoard::FindVisibleSectors(BuildRenderThreadTaskRenderWorld &render
 
 						// hack to avoid occlusion querying portals that are too close to the viewpoint
 						// this is needed because of the near z-clipping plane;
-						if (sqdist < 100)
-							queueStatus[sec->wallptr + i] = POLYMER_OCCLUSION_NOTEST;
-						else 
+						//if (sqdist < 100)
+						//	queueStatus[sec->wallptr + i] = POLYMER_OCCLUSION_NOTEST;
+						//else 
 						{
 							queueStatus[sec->wallptr + i] = POLYMER_OCCLUSION_TEST;
 
@@ -411,9 +453,10 @@ void PolymerNGBoard::FindVisibleSectors(BuildRenderThreadTaskRenderWorld &render
 		i = sec->wallnum - 1;
 		do
 		{
-			if (wallvisible(globalposx, globalposy, sec->wallptr + i))
+			int32_t wallNum = sec->wallptr + i;
+			if (wallvisible(globalposx, globalposy, wallNum))
 			{
-				Build3DWall *wall = board->GetWall(sec->wallptr + i);
+				Build3DWall *wall = board->GetWall(wallNum);
 				Build3DSector *neighborSector = NULL;
 
 				/*
@@ -426,49 +469,57 @@ void PolymerNGBoard::FindVisibleSectors(BuildRenderThreadTaskRenderWorld &render
 				==============================================
 				*/
 
-				if (::wall[sec->wallptr + i].nextsector >= 0)
+				if (::wall[wallNum].nextsector >= 0)
 				{
-					neighborSector = board->GetSector(::wall[sec->wallptr + i].nextsector);
+					neighborSector = board->GetSector(::wall[wallNum].nextsector);
 				}
-				if ((wall->underover & 1) && neighborSector == NULL || neighborSector && !sector->IsFloorParalaxed() && !neighborSector->IsFloorParalaxed())
+
+				bool parralaxFloor = (neighborSector != NULL && neighborSector && sector->IsFloorParalaxed() && neighborSector->IsFloorParalaxed());
+				if ((wall->underover & 1) && (!parralaxFloor || searchit == 2))
 				{
 					AddRenderPlaneToDrawList(renderWorldTask, &wall->wall);
 				}
 
-				if ((wall->underover & 2) && neighborSector == NULL || neighborSector && !sector->IsCeilParalaxed() && !neighborSector->IsCeilParalaxed())
+				bool parralaxCeiling =  (neighborSector != NULL && neighborSector && sector->IsCeilParalaxed() && neighborSector->IsCeilParalaxed());
+				if ((wall->underover & 2) && (!parralaxCeiling || searchit == 2))
 				{
 					AddRenderPlaneToDrawList(renderWorldTask, &wall->over);
 				}
+
+				if ((::wall[wallNum].cstat & 32) && (::wall[wallNum].nextsector >= 0))
+				{
+					AddRenderPlaneToDrawList(renderWorldTask, &wall->mask);
+				}
 			}
 		} while (--i >= 0);
-//#ifdef YAX_ENABLE
-//		// queue ROR neighbors
-//		if ((bunchnum = yax_getbunch(sectorqueue[front], YAX_FLOOR)) >= 0) {
-//
-//			for (SECTORS_OF_BUNCH(bunchnum, YAX_CEILING, ns)) {
-//
-//				if (ns >= 0 && !drawingstate[ns] &&
-//					polymer_planeinfrustum(&prsectors[ns]->ceil, frustum)) {
-//
-//					sectorqueue[back++] = ns;
-//					drawingstate[ns] = 1;
-//				}
-//			}
-//		}
-//
-//		if ((bunchnum = yax_getbunch(sectorqueue[front], YAX_CEILING)) >= 0) {
-//
-//			for (SECTORS_OF_BUNCH(bunchnum, YAX_FLOOR, ns)) {
-//
-//				if (ns >= 0 && !drawingstate[ns] &&
-//					polymer_planeinfrustum(&prsectors[ns]->floor, frustum)) {
-//
-//					sectorqueue[back++] = ns;
-//					drawingstate[ns] = 1;
-//				}
-//			}
-//		}
-//#endif
+#ifdef YAX_ENABLE
+		// queue ROR neighbors
+		if ((bunchnum = yax_getbunch(sectorqueue[front], YAX_FLOOR)) >= 0) {
+
+			for (SECTORS_OF_BUNCH(bunchnum, YAX_CEILING, ns)) {
+
+				if (ns >= 0 && !drawingstate[ns] /*&&
+					polymer_planeinfrustum(&prsectors[ns]->ceil, frustum)*/) {
+
+					sectorqueue[back++] = ns;
+					drawingstate[ns] = 1;
+				}
+			}
+		}
+
+		if ((bunchnum = yax_getbunch(sectorqueue[front], YAX_CEILING)) >= 0) {
+
+			for (SECTORS_OF_BUNCH(bunchnum, YAX_FLOOR, ns)) {
+
+				if (ns >= 0 && !drawingstate[ns] /*&&
+					polymer_planeinfrustum(&prsectors[ns]->floor, frustum)*/) {
+
+					sectorqueue[back++] = ns;
+					drawingstate[ns] = 1;
+				}
+			}
+		}
+#endif
 		i = sec->wallnum - 1;
 		do
 		{
@@ -480,6 +531,8 @@ void PolymerNGBoard::FindVisibleSectors(BuildRenderThreadTaskRenderWorld &render
 					sectorqueue[back++] = wall[sec->wallptr + i].nextsector;
 					drawingstate[wall[sec->wallptr + i].nextsector] = 1;
 				}
+
+				queueStatus[sec->wallptr + i] = POLYMER_OCCLUSION_NOTEST;
 			}
 			else if (queueStatus[sec->wallptr + i] == POLYMER_OCCLUSION_NOTEST)
 			{
@@ -490,4 +543,6 @@ void PolymerNGBoard::FindVisibleSectors(BuildRenderThreadTaskRenderWorld &render
 
 		front++;
 	}
+
+	spritesortcnt = localspritesortcnt;
 }

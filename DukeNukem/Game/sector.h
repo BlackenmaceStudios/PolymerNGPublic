@@ -33,8 +33,9 @@ extern "C" {
 #endif
 
 #define MAXCYCLERS      1024
-#define MAXANIMATES     256
+#define MAXANIMATES     1024
 #define MAXANIMWALLS    512
+#define MAXANIMPOINTS   2048
 
 #define VIEWSCREEN_ACTIVE_DISTANCE 8192
 
@@ -48,7 +49,7 @@ typedef struct {
     int32_t animategoal[MAXANIMATES], animatevel[MAXANIMATES], g_animateCount;
     intptr_t animateptr[MAXANIMATES];
     int32_t lockclock;
-    int32_t msx[2048], msy[2048];
+    vec2_t origins[MAXANIMPOINTS];
     int32_t randomseed, g_globalRandom;
     int32_t pskyidx;
 
@@ -85,6 +86,7 @@ typedef struct {
     twalltype wall[MAXWALLS];
 #if !defined LUNATIC
     intptr_t *vars[MAXGAMEVARS];
+    intptr_t *arrays[MAXGAMEARRAYS];
 #else
     char *savecode;
 #endif
@@ -161,10 +163,23 @@ static inline vec3_t G_GetCameraPosition(int32_t i, int32_t smoothratio)
     return cam;
 }
 
+EXTERN_INLINE_HEADER int32_t G_CheckPlayerInSector(int32_t sect);
+
 #ifdef __cplusplus
 }
 #endif
 
-#include "sector_inline.h"
+#if defined sector_c_ || !defined DISABLE_INLINING
+
+EXTERN_INLINE int32_t G_CheckPlayerInSector(int32_t sect)
+{
+    int32_t i;
+    for (TRAVERSE_CONNECT(i))
+        if ((unsigned)g_player[i].ps->i < MAXSPRITES && sprite[g_player[i].ps->i].sectnum == sect)
+            return i;
+    return -1;
+}
+
+#endif
 
 #endif

@@ -14,7 +14,7 @@ public:
 	// Draws the Build Render Command
 	virtual void				Draw( const BuildRenderCommand &command);
 private:
-	void						DrawPlane(const BaseModel *model, const Build3DPlane *plane);
+	void						DrawPlane(BuildRHIMesh *rhiMesh, const BaseModel *model, const Build3DPlane *plane);
 
 	BuildRHIConstantBuffer		*drawWorldConstantBuffer;
 	VS_DRAWWORLD_BUFFER			drawWorldBuffer;

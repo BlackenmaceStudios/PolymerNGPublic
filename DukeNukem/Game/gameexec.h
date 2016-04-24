@@ -56,6 +56,16 @@ int32_t G_GetAngleDelta(int32_t a,int32_t na);
 void G_RestoreMapState();
 void G_SaveMapState();
 
+#if !defined LUNATIC
+void VM_DrawTile(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int32_t orientation);
+void VM_DrawTilePal(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int32_t orientation, int32_t p);
+void VM_DrawTilePalSmall(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int32_t orientation, int32_t p);
+void VM_DrawTileSmall(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int32_t orientation);
+#else
+void VM_DrawTileGeneric(int32_t x, int32_t y, int32_t zoom, int32_t tilenum,
+    int32_t shade, int32_t orientation, int32_t p);
+#endif
+
 int32_t VM_OnEventWithBoth_(int32_t iEventID, int32_t iActor, int32_t iPlayer, int32_t lDist, int32_t iReturn);
 int32_t VM_OnEventWithReturn_(int32_t iEventID, int32_t iActor, int32_t iPlayer, int32_t iReturn);
 int32_t VM_OnEventWithDist_(int32_t iEventID, int32_t iActor, int32_t iPlayer, int32_t lDist);
@@ -66,7 +76,7 @@ static inline int32_t VM_HaveEvent(int32_t iEventID)
 #ifdef LUNATIC
     return L_IsInitialized(&g_ElState) && El_HaveEvent(iEventID);
 #else
-    return apScriptGameEvent[iEventID]!=NULL;
+    return !!apScriptGameEvent[iEventID];
 #endif
 }
 
@@ -89,8 +99,6 @@ static inline int32_t VM_OnEvent(int32_t iEventID, int32_t iActor, int32_t iPlay
 {
     return VM_HaveEvent(iEventID) ? VM_OnEvent_(iEventID, iActor, iPlayer) : 0;
 }
-
-void VM_ScriptInfo(void);
 
 #define CON_ERRPRINTF(Text, ...) do { \
     OSD_Printf("Line %d, %s: " Text, g_errorLineNum, keyw[g_tw], ## __VA_ARGS__); \

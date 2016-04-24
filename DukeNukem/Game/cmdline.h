@@ -1,6 +1,6 @@
 //-------------------------------------------------------------------------
 /*
-Copyright (C) 2010 EDuke32 developers and contributors
+Copyright (C) 2016 EDuke32 developers and contributors
 
 This file is part of EDuke32.
 
@@ -20,25 +20,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
-#include "pch.h"
-#include "compat.h"
-#include "duke3d.h"
-#include "premap.h"
-#include "game.h"
-#include "game_inline.h"
+extern void G_CheckCommandLine(int32_t argc, char const * const * argv);
+extern void G_ShowParameterHelp(void);
+extern void G_ShowDebugHelp(void);
 
-void G_SetStatusBarScale(int32_t sc)
-{
-    ud.statusbarscale = clamp(sc, 36, 100);
-    G_UpdateScreenArea();
-}
-
-// the point of this is to prevent re-running a function or calculation passed to potentialValue
-// without making a new variable under each individual circumstance
-void SetIfGreater(int32_t *variable, int32_t potentialValue)
-{
-    if (potentialValue > *variable)
-        *variable = potentialValue;
-}
-
-
+extern int32_t g_commandSetup;
+extern int32_t g_noSetup;
+extern int32_t g_noAutoLoad;
+extern int32_t g_noSound;
+extern int32_t g_noMusic;
+extern const char *CommandMap;
+extern const char *CommandName;
+extern int32_t g_forceWeaponChoice;
+extern int32_t g_fakeMultiMode;

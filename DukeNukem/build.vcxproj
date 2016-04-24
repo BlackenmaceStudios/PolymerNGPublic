@@ -116,6 +116,7 @@
     <ClInclude Include="build\src\PolymerNG\PolymerNG_RenderProgram.h" />
     <ClInclude Include="build\src\PolymerNG\PolymerNG_Board.h" />
     <ClInclude Include="build\src\PolymerNG\Renderer\Renderer.h" />
+    <ClInclude Include="Build\src\PolymerNG\Renderer\Renderer_Pass_ClassicSky.h" />
     <ClInclude Include="Build\src\PolymerNG\Renderer\Renderer_Pass_DrawSprite.h" />
     <ClInclude Include="build\src\PolymerNG\Renderer\Renderer_Pass_DrawUI.h" />
     <ClInclude Include="Build\src\PolymerNG\Renderer\Renderer_Pass_DrawWorld.h" />
@@ -188,6 +189,7 @@
     <ClCompile Include="build\src\PolymerNG\PolymerNG_RenderParam.cpp" />
     <ClCompile Include="build\src\PolymerNG\PolymerNG_RenderProgram.cpp" />
     <ClCompile Include="build\src\PolymerNG\Renderer\Renderer.cpp" />
+    <ClCompile Include="Build\src\PolymerNG\Renderer\Renderer_Pass_ClassicSky.cpp" />
     <ClCompile Include="Build\src\PolymerNG\Renderer\Renderer_Pass_DrawSprite.cpp" />
     <ClCompile Include="build\src\PolymerNG\Renderer\Renderer_Pass_DrawUI.cpp" />
     <ClCompile Include="Build\src\PolymerNG\Renderer\Renderer_Pass_DrawWorld.cpp" />

@@ -257,6 +257,8 @@ enum sflags_t {
     SFLAG_NODAMAGEPUSH     = 0x00100000,
     SFLAG_NOWATERDIP       = 0x00200000,
     SFLAG_HURTSPAWNBLOOD   = 0x00400000,
+    SFLAG_GREENSLIMEFOOD   = 0x00800000,
+    SFLAG_REALCLIPDIST     = 0x01000000
 };
 
 // Custom projectiles "workslike" flags.
@@ -284,6 +286,7 @@ enum pflags_t {
     PROJECTILE_REALCLIPDIST        = 0x00080000,
     PROJECTILE_ACCURATE            = 0x00100000,
     PROJECTILE_NOSETOWNERSHADE     = 0x00200000,
+    PROJECTILE_MOVED               = 0x80000000, // internal flag, do not document
     PROJECTILE_TYPE_MASK           = PROJECTILE_HITSCAN|PROJECTILE_RPG|PROJECTILE_KNEE|PROJECTILE_BLOOD,
 };
 
@@ -293,12 +296,12 @@ extern int32_t          block_deletesprite;
 extern int32_t          g_noEnemies;
 extern int32_t          otherp;
 extern int32_t          ticrandomseed;
-extern intptr_t         *g_parsingActorPtr;
 extern projectile_t     SpriteProjectile[MAXSPRITES];
 
 
 
 void                A_AddToDeleteQueue(int32_t i);
+int32_t             A_CheckNoSE7Water(const spritetype *s, int32_t sectnum, int32_t slotag, int32_t *othersectptr);
 int32_t             A_CheckSwitchTile(int32_t i);
 void                A_DeleteSprite(int32_t s);
 void                A_DoGuts(int32_t sp,int32_t gtype,int32_t n);
@@ -306,6 +309,7 @@ void                A_DoGutsDir(int32_t sp,int32_t gtype,int32_t n);
 int32_t             A_IncurDamage(int32_t sn);
 void                A_MoveCyclers(void);
 void                A_MoveDummyPlayers(void);
+void                A_MoveSector(int i);
 void                A_PlayAlertSound(int32_t i);
 void                A_RadiusDamage(int32_t i,int32_t r,int32_t hp1,int32_t hp2,int32_t hp3,int32_t hp4);
 void                A_SpawnMultiple(int32_t sp,int32_t pic,int32_t n);
@@ -327,10 +331,72 @@ FORCE_INLINE void   Sect_SetInterpolation(int sectnum) { Sect_ToggleInterpolatio
 int32_t G_ToggleWallInterpolation(int32_t w, int32_t doset);
 #endif
 
+#if KRANDDEBUG
+# define ACTOR_INLINE __fastcall
+# define ACTOR_INLINE_HEADER extern __fastcall
+#else
+# define ACTOR_INLINE EXTERN_INLINE
+# define ACTOR_INLINE_HEADER EXTERN_INLINE_HEADER
+#endif
+
+extern int32_t A_MoveSpriteClipdist(int32_t spritenum, const vec3_t *change, uint32_t cliptype, int32_t clipdist);
+ACTOR_INLINE_HEADER int A_CheckEnemyTile(int32_t pn);
+ACTOR_INLINE_HEADER int32_t A_SetSprite(int32_t i,uint32_t cliptype);
+ACTOR_INLINE_HEADER int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype);
+
+EXTERN_INLINE_HEADER int32_t G_CheckForSpaceCeiling(int32_t sectnum);
+EXTERN_INLINE_HEADER int32_t G_CheckForSpaceFloor(int32_t sectnum);
+
+EXTERN_INLINE_HEADER int32_t A_CheckEnemySprite(const spritetype *s);
+
 #ifdef __cplusplus
 }
 #endif
 
-#include "actors_inline.h"
+#if defined actors_c_ || !defined DISABLE_INLINING
+
+# if !KRANDDEBUG || (KRANDDEBUG && defined actors_c_)
+
+ACTOR_INLINE int A_CheckEnemyTile(int32_t pn)
+{
+    return ((g_tile[pn].flags & (SFLAG_HARDCODED_BADGUY | SFLAG_BADGUY)) != 0);
+}
+
+ACTOR_INLINE int32_t A_SetSprite(int32_t i,uint32_t cliptype)
+{
+    vec3_t davect = {(sprite[i].xvel*(sintable[(sprite[i].ang+512)&2047]))>>14,
+                     (sprite[i].xvel*(sintable[sprite[i].ang&2047]))>>14,
+                     sprite[i].zvel
+                    };
+    return (A_MoveSprite(i,&davect,cliptype)==0);
+}
+
+ACTOR_INLINE int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype)
+{
+    return A_MoveSpriteClipdist(spritenum, change, cliptype, -1);
+}
+
+# endif
+
+# include "namesdyn.h"
+
+EXTERN_INLINE int32_t G_CheckForSpaceCeiling(int32_t sectnum)
+{
+    return ((sector[sectnum].ceilingstat&1) && sector[sectnum].ceilingpal == 0 &&
+            (sector[sectnum].ceilingpicnum==MOONSKY1 || sector[sectnum].ceilingpicnum==BIGORBIT1));
+}
+
+EXTERN_INLINE int32_t G_CheckForSpaceFloor(int32_t sectnum)
+{
+    return ((sector[sectnum].floorstat&1) && sector[sectnum].ceilingpal == 0 &&
+            (sector[sectnum].floorpicnum==MOONSKY1 || sector[sectnum].floorpicnum==BIGORBIT1));
+}
+
+EXTERN_INLINE int32_t A_CheckEnemySprite(const spritetype *s)
+{
+    return A_CheckEnemyTile(s->picnum);
+}
+
+#endif
 
 #endif

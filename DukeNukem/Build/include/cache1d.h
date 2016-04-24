@@ -45,6 +45,8 @@ extern "C" {
 	int32_t	kfilelength(int32_t handle);
 	int32_t	ktell(int32_t handle);
 	void	kclose(int32_t handle);
+	char const * kfileparent(int32_t const handle);
+	extern int32_t numgroupfiles;
 
 	//
 	// BuildFile

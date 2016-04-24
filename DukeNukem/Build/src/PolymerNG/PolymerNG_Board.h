@@ -19,6 +19,7 @@ public:
 	void CreateProjectionMatrix(int32_t fov, Math::Matrix4 &projectionMatrix);
 private:
 	void		 InitBoard();
+	void		 PokeSector(int16_t secnum);
 	void		 FindVisibleSectors(BuildRenderThreadTaskRenderWorld &renderWorldTask, const Math::Matrix4 &modelViewProjectionMatrix, int16_t dacursectnum);
 	void		 ScanSprites(int16_t sectnum, tspritetype* localtsprite, int32_t* localspritesortcnt);
 	void		 RenderOccluderFromPlane(const Math::Matrix4 &modelViewProjectionMatrix, const Build3DPlane *plane);
@@ -30,12 +31,17 @@ private:
 	void		 DrawSprites(Math::Matrix4 &viewMatrix, Math::Matrix4 &projectionMatrix, float horizang, int16_t daang);
 	void		 ComputeSpritePlane(Math::Matrix4 &viewMatrix, Math::Matrix4 &projectionMatrix, float horizang, int16_t daang, Build3DSprite *sprite, tspritetype *tspr);
 
+	void		 FindMapSky();
+
 	Build3DBoard *board;
 
 	OcclusionHandle occlusionHandle;
+
+	BuildImage   *boardSkyImage;
 private:
 	Build3DSprite	prsprites[MAXSPRITESONSCREEN];
 
 	int32_t         localspritesortcnt;
+	float			curskyangmul;
 	tspritetype     localtsprite[MAXSPRITESONSCREEN];
 };

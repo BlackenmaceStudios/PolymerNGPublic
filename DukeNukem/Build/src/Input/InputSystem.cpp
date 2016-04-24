@@ -105,6 +105,10 @@ bool XBuildInputSystemPrivate::ControllerKeyDown(XControllerButton button)
 
 			case XB_Button_B:
 				return controllerState.buttons.b;
+			case XB_Button_Y:
+				return controllerState.buttons.y;
+			case XB_Button_X:
+				return controllerState.buttons.x;
 			case XB_Button_DPAD_Up:
 				return controllerState.dpad.up;
 			case XB_Button_DPAD_Down:
@@ -146,6 +150,14 @@ void XBuildInputSystemPrivate::Update()
 				break;
 			case XB_Button_B:
 				if (controllerState.buttons.b == false)
+					controllerButtonForcedUp[i] = false;
+				break;
+			case XB_Button_Y:
+				if (controllerState.buttons.y == false)
+					controllerButtonForcedUp[i] = false;
+				break;
+			case XB_Button_X:
+				if (controllerState.buttons.x == false)
 					controllerButtonForcedUp[i] = false;
 				break;
 			case XB_Button_DPAD_Up:

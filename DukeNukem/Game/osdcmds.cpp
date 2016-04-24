@@ -20,24 +20,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 #include "pch.h"
-#include "compat.h"
-#include "osdcmds.h"
-#include "baselayer.h"
 #include "duke3d.h"
-#include "game.h"
-#include "net.h"
-#include "premap.h"
+#include "osdcmds.h"
 #include "menus.h"
-#include "osd.h"
 #include "osdfuncs.h"
-#include "gamedef.h"
 #include "demo.h"  // g_firstDemoFile[]
-#include "common.h"
-
-#include <ctype.h>
-#include <limits.h>
-#include <math.h>
-#include "enet/enet.h"
+#include "cheats.h"
+#include "sbar.h"
 
 #ifdef LUNATIC
 # include "lunatic_game.h"
@@ -47,16 +36,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "android/in_android.h"
 #endif
 
-extern int32_t voting, g_doQuickSave;
 struct osdcmd_cheatsinfo osdcmd_cheatsinfo_stat;
 float r_ambientlight = 1.0, r_ambientlightrecip = 1.0;
-extern int32_t althud_numbertile, althud_numberpal, althud_shadows, althud_flashing, hud_glowingquotes;
-extern int32_t hud_showmapname;
-extern int32_t r_maxfps;
-extern uint32_t g_frameDelay;
-extern int32_t demorec_diffs_cvar, demorec_force_cvar, demorec_seeds_cvar, demoplay_diffs, demoplay_showsync;
-extern int32_t demorec_difftics_cvar, demorec_diffcompress_cvar, demorec_synccompress_cvar;
-extern void G_CheckPlayerColor(int32_t *color,int32_t prev_color);
 
 uint32_t cl_cheatmask;
 
@@ -433,6 +414,16 @@ int32_t osdcmd_restartvid(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
+int32_t osdcmd_restartmap(const osdfuncparm_t *parm)
+{
+    UNREFERENCED_PARAMETER(parm);
+
+    if (g_player[myconnectindex].ps->gm & MODE_GAME && ud.multimode == 1)
+        g_player[myconnectindex].ps->gm = MODE_RESTART;
+
+    return OSDCMD_OK;
+}
+
 static int32_t osdcmd_vidmode(const osdfuncparm_t *parm)
 {
     int32_t newbpp = ud.config.ScreenBPP, newwidth = ud.config.ScreenWidth,
@@ -688,7 +679,7 @@ static int32_t osdcmd_lua(const osdfuncparm_t *parm)
 
     // For the 'lua' OSD command, don't make errors appear on-screen:
     el_addNewErrors = 0;
-    ret = L_RunString(&g_ElState, (char *)parm->parms[0], 0, -1, "console");
+    ret = L_RunString(&g_ElState, parm->parms[0], -1, "console");
     el_addNewErrors = 1;
 
     if (ret != 0)
@@ -872,7 +863,7 @@ static int32_t osdcmd_name(const osdfuncparm_t *parm)
 
 static int32_t osdcmd_button(const osdfuncparm_t *parm)
 {
-    char *p = (char *)parm->name+9;  // skip "gamefunc_"
+    char const *p = parm->name+9;  // skip "gamefunc_"
 //    if (g_player[myconnectindex].ps->gm == MODE_GAME) // only trigger these if in game
     CONTROL_OSDInput[CONFIG_FunctionNameToNum(p)] = 1; // FIXME
     return OSDCMD_OK;
@@ -1280,7 +1271,7 @@ static int32_t osdcmd_password(const osdfuncparm_t *parm)
         Bmemset(g_netPassword, 0, sizeof(g_netPassword));
         return OSDCMD_OK;
     }
-    Bstrncpy(g_netPassword, (char *)(parm->raw) + 9, sizeof(g_netPassword)-1);
+    Bstrncpy(g_netPassword, (parm->raw) + 9, sizeof(g_netPassword)-1);
 
     return OSDCMD_OK;
 }
@@ -1581,8 +1572,8 @@ int32_t registerosdcommands(void)
         { "hud_althud", "enable/disable alternate mini-hud", (void *)&ud.althud, CVAR_INT, 0, 2 },
         { "hud_bgstretch", "enable/disable background image stretching in wide resolutions", (void *)&ud.bgstretch, CVAR_BOOL, 0, 1 },
         { "hud_messagetime", "length of time to display multiplayer chat messages", (void *)&ud.msgdisptime, CVAR_INT, 0, 3600 },
-        { "hud_numbertile", "first tile in alt hud number set", (void *)&althud_numbertile, CVAR_INT, 0, MAXTILES-10 },
-        { "hud_numberpal", "pal for alt hud numbers", (void *)&althud_numberpal, CVAR_INT, 0, MAXPALOOKUPS },
+        { "hud_numbertile", "first tile in alt hud number set", (void *)&althud_numbertile, CVAR_INT, 0, MAXUSERTILES-10 },
+        { "hud_numberpal", "pal for alt hud numbers", (void *)&althud_numberpal, CVAR_INT, 0, MAXPALOOKUPS-1 },
         { "hud_shadows", "enable/disable althud shadows", (void *)&althud_shadows, CVAR_BOOL, 0, 1 },
         { "hud_flashing", "enable/disable althud flashing", (void *)&althud_flashing, CVAR_BOOL, 0, 1 },
         { "hud_glowingquotes", "enable/disable \"glowing\" quote text", (void *)&hud_glowingquotes, CVAR_BOOL, 0, 1 },
@@ -1639,12 +1630,12 @@ int32_t registerosdcommands(void)
         { "snd_mixrate", "sound mixing rate", (void *)&ud.config.MixRate, CVAR_INT, 0, 48000 },
         { "snd_numchannels", "the number of sound channels", (void *)&ud.config.NumChannels, CVAR_INT, 0, 2 },
         { "snd_numvoices", "the number of concurrent sounds", (void *)&ud.config.NumVoices, CVAR_INT, 0, 256 },
-        { "snd_reversestereo", "reverses the stereo channels", (void *)&ud.config.ReverseStereo, CVAR_BOOL, 0, 16 },
+        { "snd_reversestereo", "reverses the stereo channels", (void *)&ud.config.ReverseStereo, CVAR_BOOL, 0, 1 },
 
         { "team","change team in multiplayer", (void *)&ud.team, CVAR_INT|CVAR_MULTI, 0, 3 },
 
 #ifdef EDUKE32_TOUCH_DEVICES
-        { "touch_sens_move_x","touch input sensitivity for moving froward/back", (void *)&droidinput.forward_sens, CVAR_FLOAT, 1, 9 },
+        { "touch_sens_move_x","touch input sensitivity for moving forward/back", (void *)&droidinput.forward_sens, CVAR_FLOAT, 1, 9 },
         { "touch_sens_move_y","touch input sensitivity for strafing", (void *)&droidinput.strafe_sens, CVAR_FLOAT, 1, 9 },
         { "touch_sens_look_x", "touch input sensitivity for turning left/right", (void *) &droidinput.yaw_sens, CVAR_FLOAT, 1, 9 },
         { "touch_sens_look_y", "touch input sensitivity for looking up/down", (void *) &droidinput.pitch_sens, CVAR_FLOAT, 1, 9 },
@@ -1735,6 +1726,7 @@ int32_t registerosdcommands(void)
     OSD_RegisterFunction("quit","quit: exits the game immediately", osdcmd_quit);
     OSD_RegisterFunction("exit","exit: exits the game immediately", osdcmd_quit);
 
+    OSD_RegisterFunction("restartmap", "restartmap: restarts the current map", osdcmd_restartmap);
     OSD_RegisterFunction("restartsound","restartsound: reinitializes the sound system",osdcmd_restartsound);
     OSD_RegisterFunction("restartvid","restartvid: reinitializes the video mode",osdcmd_restartvid);
 #if !defined LUNATIC

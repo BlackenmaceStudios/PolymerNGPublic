@@ -33,6 +33,7 @@ protected:
 #include "Renderer_Pass_DrawUI.h"
 #include "Renderer_Pass_DrawWorld.h"
 #include "Renderer_Pass_DrawSprite.h"
+#include "Renderer_Pass_ClassicSky.h"
 
 #define MAX_SMP_FRAMES		2
 
@@ -58,6 +59,8 @@ public:
 
 	void		AddRenderCommand(BuildRenderCommand &command) { commands[currentFrame].push_back(command); }
 
+	int			GetCurrentFrameNum() { return currentFrame; }
+
 	PolymerNGRenderProgram *ui_texture_basic;
 	PolymerNGRenderProgram *albedoSimpleProgram;
 	PolymerNGRenderProgram *spriteSimpleProgram;
@@ -70,6 +73,7 @@ private:
 	RendererDrawPassDrawUI drawUIPass;
 	RendererDrawPassDrawWorld drawWorldPass;
 	RendererDrawPassDrawSprite drawSpritePass;
+	RendererDrawPassDrawClassicSky drawClassicSkyPass;
 	int			currentFrame;
 };
 

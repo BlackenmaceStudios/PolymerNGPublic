@@ -170,6 +170,8 @@
     <Link>
       <AdditionalDependencies>d3d11.lib; dxgi.lib; windowscodecs.lib; dwrite.lib; %(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories); $(VCInstallDir)\lib\store\amd64; $(VCInstallDir)\lib\amd64</AdditionalLibraryDirectories>
+      <StackReserveSize>3000000</StackReserveSize>
+      <StackCommitSize>3000000</StackCommitSize>
     </Link>
     <ClCompile>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -185,6 +187,8 @@
     <Link>
       <AdditionalDependencies>d2d1.lib; d3d11.lib; dxgi.lib; windowscodecs.lib; dwrite.lib; %(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories); $(VCInstallDir)\lib\store\amd64; $(VCInstallDir)\lib\amd64</AdditionalLibraryDirectories>
+      <StackReserveSize>3000000</StackReserveSize>
+      <StackCommitSize>3000000</StackCommitSize>
     </Link>
     <ClCompile>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -216,6 +220,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h" />
+    <ClInclude Include="Assets\dukedata\Mods\bloodcm\names.h">
+      <DeploymentContent>true</DeploymentContent>
+    </ClInclude>
     <ClInclude Include="Common\DeviceResources.h" />
     <ClInclude Include="Common\GraphicsContext.h" />
     <ClInclude Include="DukeNukemMain.h" />
@@ -230,6 +237,8 @@
     <ClInclude Include="Game\anim.h" />
     <ClInclude Include="Game\animsounds.h" />
     <ClInclude Include="Game\animvpx.h" />
+    <ClInclude Include="Game\Cheats.h" />
+    <ClInclude Include="Game\cmdline.h" />
     <ClInclude Include="Game\common_game.h" />
     <ClInclude Include="Game\config.h" />
     <ClInclude Include="Game\demo.h" />
@@ -247,6 +256,7 @@
     <ClInclude Include="Game\GrpFile.game.h" />
     <ClInclude Include="Game\grpscan.h" />
     <ClInclude Include="Game\input.h" />
+    <ClInclude Include="Game\inv.h" />
     <ClInclude Include="Game\keys.h" />
     <ClInclude Include="Game\m32def.h" />
     <ClInclude Include="Game\macros.h" />
@@ -265,6 +275,9 @@
     <ClInclude Include="Game\quotes.h" />
     <ClInclude Include="Game\rts.h" />
     <ClInclude Include="Game\savegame.h" />
+    <ClInclude Include="Game\sbar.h" />
+    <ClInclude Include="Game\screens.h" />
+    <ClInclude Include="Game\screentext.h" />
     <ClInclude Include="Game\sector.h" />
     <ClInclude Include="Game\sector_inline.h" />
     <ClInclude Include="Game\soundefs.h" />
@@ -286,10 +299,11 @@
     <ClCompile Include="Content\SampleFpsTextRenderer.cpp" />
     <ClCompile Include="Content\Sample3DSceneRenderer.cpp" />
     <ClCompile Include="Game\actors.cpp" />
-    <ClCompile Include="Game\actors_inline.cpp" />
     <ClCompile Include="Game\anim.cpp" />
     <ClCompile Include="Game\animsounds.cpp" />
     <ClCompile Include="Game\animvpx.cpp" />
+    <ClCompile Include="Game\Cheats.cpp" />
+    <ClCompile Include="Game\cmdline.cpp" />
     <ClCompile Include="Game\common.cpp" />
     <ClCompile Include="Game\config.cpp" />
     <ClCompile Include="Game\demo.cpp" />
@@ -297,7 +311,6 @@
     <ClCompile Include="Game\gamedef.cpp" />
     <ClCompile Include="Game\gameexec.cpp" />
     <ClCompile Include="Game\gamevars.cpp" />
-    <ClCompile Include="Game\game_inline.cpp" />
     <ClCompile Include="Game\global.cpp" />
     <ClCompile Include="Game\grpscan.cpp" />
     <ClCompile Include="Game\input.cpp" />
@@ -331,6 +344,9 @@
     <ClCompile Include="Game\rev.cpp" />
     <ClCompile Include="Game\rts.cpp" />
     <ClCompile Include="Game\savegame.cpp" />
+    <ClCompile Include="Game\sbar.cpp" />
+    <ClCompile Include="Game\screens.cpp" />
+    <ClCompile Include="Game\screentext.cpp" />
     <ClCompile Include="Game\sector.cpp" />
     <ClCompile Include="Game\sector_inline.cpp" />
     <ClCompile Include="Game\sounds.cpp" />
@@ -356,6 +372,114 @@
     <None Include="Assets\dukedata\233c.ogg">
       <DeploymentContent>true</DeploymentContent>
     </None>
+    <None Include="Assets\dukedata\addons\dc\dukedc.grp">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\addons\dc\DUKEDC1.MAP">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\addons\dc\DUKEDC2.MAP">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\addons\dc\DUKEDC3.MAP">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\addons\dc\DUKEDC4.MAP">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\addons\dc\DUKEDC5.MAP">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\addons\dc\DUKEDC6.MAP">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\addons\dc\DUKEDC7.MAP">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\addons\dc\DUKEDC8.MAP">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\addons\dc\DUKEDC9.MAP">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\addons\dc\DUKEDCSL.MAP">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\addons\nw\E2L1.MAP">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\addons\nw\E2L2.MAP">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\addons\nw\E2L3.MAP">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\addons\nw\E2L4.MAP">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\addons\nw\E2L5.MAP">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\addons\nw\E2L6.MAP">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\addons\nw\E2L7.MAP">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\addons\nw\E2L8.MAP">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\addons\nw\nwactor.con">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\addons\nw\nwdefs.con">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\addons\nw\nwinter.con">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\addons\nw\nwinter.grp">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\addons\vacation\VACA1.MAP">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\addons\vacation\VACA2.MAP">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\addons\vacation\VACA3.MAP">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\addons\vacation\VACA4.MAP">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\addons\vacation\VACA5.MAP">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\addons\vacation\VACA6.MAP">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\addons\vacation\VACA7.MAP">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\addons\vacation\VACADM1.MAP">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\addons\vacation\VACADM2.MAP">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\addons\vacation\VACADM3.MAP">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\addons\vacation\VACADM4.MAP">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\addons\vacation\VACASL.MAP">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\addons\vacation\vacation.grp">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
     <None Include="Assets\dukedata\ahgeez.ogg">
       <DeploymentContent>true</DeploymentContent>
     </None>
@@ -372,6 +496,9 @@
       <DeploymentContent>true</DeploymentContent>
     </None>
     <None Include="Assets\dukedata\cf.ogg">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\clcoast.map">
       <DeploymentContent>true</DeploymentContent>
     </None>
     <None Include="Assets\dukedata\depart.ogg">
@@ -429,7 +556,211 @@
     <None Include="Assets\dukedata\missimp.ogg">
       <DeploymentContent>true</DeploymentContent>
     </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\autoexec.cfg">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\bcm.cfg">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\bcm_m32_settings.cfg">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\bcm_settings.cfg">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\blcons\bloodcm.con">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\blcons\cheats.con">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\blcons\defs.con">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\blcons\enemies.con">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\blcons\enemies\bat.con">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\blcons\enemies\boneell.con">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\blcons\enemies\burningguy.con">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\blcons\enemies\civil.con">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\blcons\enemies\cultist.con">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\blcons\enemies\evilhand.con">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\blcons\enemies\fatrat.con">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\blcons\enemies\fatzombie.con">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\blcons\enemies\gargoyle.con">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\blcons\enemies\gillbeast.con">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\blcons\enemies\good_doggy.con">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\blcons\enemies\hellhound.con">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\blcons\enemies\phantasm.con">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\blcons\enemies\spider.con">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\blcons\enemies\zombie.con">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\blcons\enemy_param.con">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\blcons\global.con">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\blcons\hud.con">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\blcons\interact.con">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\blcons\invis.con">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\blcons\objects\aplayer.con">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\blcons\objects\damagesect.con">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\blcons\objects\guns.con">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\blcons\objects\lighteffector.con">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\blcons\objects\moving_sector_actors.con">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\blcons\objects\spawner.con">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\blcons\objects\spritetoactor.con">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\blcons\objects\switches.con">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\blcons\objects\tc_locker.con">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\blcons\objects\timeactivator.con">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\blcons\objects\trigger.con">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\blcons\objects\triggerquote.con">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\blcons\objects\triggersound.con">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\blcons\particles.con">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\blcons\phys1.con">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\blcons\physics.con">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\blcons\proj_anim.con">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\blcons\qav2tc.con">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\blcons\sounds.con">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\blcons\sprites.con">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\blcons\user.con">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\blcons\weapons.con">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\blcons\weapons\dynamite.con">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\blcons\weapons\flarepistol.con">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\blcons\weapons\hellstaff.con">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\blcons\weapons\napalm.con">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\blcons\weapons\pitchfork.con">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\blcons\weapons\shotgun.con">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\blcons\weapons\spraycan.con">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\blcons\weapons\teslagun.con">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\blcons\weapons\tommygun.con">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\blcons\weapons\voodoodoll.con">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\BloodCM.grp">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\BloodCM.m32">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\m32_autoexec.cfg">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\st_correct.m32">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\textures">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\textures.cache">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\Mods\bloodcm\tiles.cfg">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
     <None Include="Assets\dukedata\names.ogg">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\newboard.map">
       <DeploymentContent>true</DeploymentContent>
     </None>
     <None Include="Assets\dukedata\pizzed.ogg">

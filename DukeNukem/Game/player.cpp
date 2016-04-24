@@ -21,9 +21,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 #include "pch.h"
 #include "duke3d.h"
-#include "common_game.h"
-#include "osd.h"
-#include "player.h"
 #include "demo.h"
 #include "enet/enet.h"
 
@@ -748,7 +745,6 @@ static int32_t P_PostFireHitscan(int32_t p, int32_t k, hitdata_t *hit, int32_t i
                         if (flags&2)
                             sprite[l].cstat = 16+(krand()&(8+4));
 
-
                         A_SetSprite(l, CLIPMASK0);
 
                         // BULLETHOLE already adds itself to the deletion queue in
@@ -995,6 +991,9 @@ static int32_t A_ShootCustom(const int32_t i, const int32_t atwith, int16_t sa, 
         sprite[j].xrepeat = proj->xrepeat;
         sprite[j].yrepeat = proj->yrepeat;
 
+        if (proj->pal >= 0)
+            sprite[j].pal = proj->pal;
+
         if (proj->extra_rand > 0)
             sprite[j].extra += (krand()&proj->extra_rand);
 
@@ -1197,7 +1196,7 @@ static int32_t A_ShootHardcoded(int32_t i, int32_t atwith, int16_t sa, vec3_t sr
 
         if (p >= 0)
             P_PreFireHitscan(i, p, atwith, &srcvect, &zvel, &sa,
-                             atwith == SHOTSPARK1__STATIC && !WW2GI && !NAM,
+                             atwith == SHOTSPARK1__STATIC && !NAM_WW2GI,
                              1);
         else
             A_PreFireHitscan(s, &srcvect, &zvel, &sa, 1);
@@ -1910,6 +1909,9 @@ static int32_t P_DisplayKnuckles(int32_t gs)
     static const int8_t knuckle_frames[] = {0,1,2,2,3,3,3,2,2,1,0};
     const DukePlayer_t *const ps = g_player[screenpeek].ps;
 
+    if (WW2GI)
+        return 0;
+
     if (ps->knuckle_incs == 0)
         return 0;
 
@@ -2316,10 +2318,26 @@ void P_DisplayWeapon(void)
                 if (!(duke3d_globalflags & DUKE3D_NO_WIDESCREEN_PINNING))
                     o |= 512;
 
-                if (*kb > 0 && *kb < 8)
+                if (*kb > 0)
                 {
-                    G_DrawWeaponTileWithID(cw << 1, weapon_xoffset + 164, (looking_arc << 1) + 176 - gun_pos,
-                                           RPGGUN + ((*kb) >> 1), gs, o, pal, 0);
+                    if (*kb < 8)
+                    {
+                        G_DrawWeaponTileWithID(cw << 1, weapon_xoffset + 164, (looking_arc << 1) + 176 - gun_pos,
+                                               RPGGUN + ((*kb) >> 1), gs, o, pal, 0);
+                    }
+                    else if (WW2GI)
+                    {
+                        int32_t const totaltime = PWEAPON(screenpeek, p->curr_weapon, TotalTime);
+                        if (*kb >= totaltime)
+                        {
+                            int32_t const reload = PWEAPON(screenpeek, p->curr_weapon, Reload);
+
+                            if (*kb < ((reload - totaltime) / 2 + totaltime))
+                                gun_pos -= 10 * ((*kb) - totaltime); // down
+                            else
+                                gun_pos -= 10 * (reload - (*kb)); // up
+                        }
+                    }
                 }
 
                 G_DrawWeaponTileWithID(cw, weapon_xoffset + 164, (looking_arc << 1) + 176 - gun_pos, RPGGUN, gs,
@@ -2331,6 +2349,42 @@ void P_DisplayWeapon(void)
                     break;
 
                 weapon_xoffset -= 8;
+
+                if (WW2GI)
+                {
+                    int32_t const totaltime = PWEAPON(screenpeek, p->curr_weapon, TotalTime);
+                    int32_t const reload = PWEAPON(screenpeek, p->curr_weapon, Reload);
+
+                    if (*kb > 0)
+                        gun_pos -= sintable[(*kb)<<7]>>12;
+
+                    if (*kb > 0 && doanim)
+                        weapon_xoffset += 1-(krand()&3);
+
+                    if (*kb == 0)
+                    {
+                        G_DrawWeaponTileWithID(cw, weapon_xoffset + 146 - hla, looking_arc + 202 - gun_pos,
+                                               SHOTGUN, gs, o, pal, 0);
+                    }
+                    else if (*kb <= totaltime)
+                    {
+                        G_DrawWeaponTileWithID(cw, weapon_xoffset + 146 - hla, looking_arc + 202 - gun_pos,
+                                               SHOTGUN + 1, gs, o, pal, 0);
+                    }
+                    // else we are in 'reload time'
+                    else
+                    {
+                        if (*kb < ((reload - totaltime) / 2 + totaltime))
+                            gun_pos -= 10 * ((*kb) - totaltime); // D
+                        else
+                            gun_pos -= 10 * (reload - (*kb)); // U
+
+                        G_DrawWeaponTileWithID(cw, weapon_xoffset + 146 - hla, looking_arc + 202 - gun_pos,
+                                               SHOTGUN, gs, o, pal, 0);
+                    }
+
+                    break;
+                }
 
                 switch (*kb)
                 {
@@ -2411,6 +2465,83 @@ void P_DisplayWeapon(void)
                         weapon_xoffset += 1-(rand()&3);
                 }
 
+                if (WW2GI)
+                {
+                    int32_t const totaltime = PWEAPON(screenpeek, p->curr_weapon, TotalTime);
+                    int32_t const reload = PWEAPON(screenpeek, p->curr_weapon, Reload);
+
+                    if (*kb == 0)
+                    {
+                        G_DrawWeaponTileWithID(cw, weapon_xoffset + 178 - hla,looking_arc+233-gun_pos,
+                            CHAINGUN+1,gs,o,pal,0);
+                    }
+                    else if (*kb <= totaltime)
+                    {
+                        G_DrawWeaponTileWithID(cw, weapon_xoffset + 188 - hla,looking_arc+243-gun_pos,
+                            CHAINGUN+2,gs,o,pal,0);
+                    }
+                    // else we are in 'reload time'
+                    // divide reload time into fifths..
+                    // 1) move weapon up/right, hand on clip (CHAINGUN - 17)
+                    // 2) move weapon up/right, hand removing clip (CHAINGUN - 18)
+                    // 3) hold weapon up/right, hand removed clip (CHAINGUN - 19)
+                    // 4) hold weapon up/right, hand inserting clip (CHAINGUN - 18)
+                    // 5) move weapon down/left, clip inserted (CHAINGUN - 17)
+                    else
+                    {
+                        int iFifths = (reload - totaltime) / 5;
+                        if (iFifths < 1)
+                            iFifths = 1;
+
+                        if (*kb < iFifths + totaltime)
+                        {
+                            // first segment
+                            int32_t const offset = 80 - 10 * (totaltime + iFifths - (*kb));
+                            gun_pos += offset;
+                            weapon_xoffset += offset;
+                            G_DrawWeaponTileWithID(cw, weapon_xoffset + 168 - hla,looking_arc+260-gun_pos,
+                                CHAINGUN - 17,gs,o,pal,0);
+                        }
+                        else if (*kb < (iFifths * 2 + totaltime))
+                        {
+                            // second segment
+                            gun_pos += 80; // D
+                            weapon_xoffset += 80;
+                            G_DrawWeaponTileWithID(cw, weapon_xoffset + 168 - hla,looking_arc+260-gun_pos,
+                                CHAINGUN - 18,gs,o,pal,0);
+                        }
+                        else if (*kb < (iFifths * 3 + totaltime))
+                        {
+                            // third segment
+                            // up
+                            gun_pos += 80;
+                            weapon_xoffset += 80;
+                            G_DrawWeaponTileWithID(cw, weapon_xoffset + 168 - hla,looking_arc+260-gun_pos,
+                                CHAINGUN - 19,gs,o,pal,0);
+                        }
+                        else if (*kb < (iFifths * 4 + totaltime))
+                        {
+                            // fourth segment
+                            // down
+                            gun_pos += 80; // D
+                            weapon_xoffset += 80;
+                            G_DrawWeaponTileWithID(cw, weapon_xoffset + 168 - hla,looking_arc+260-gun_pos,
+                                CHAINGUN - 18,gs,o,pal,0);
+                        }
+                        else
+                        {
+                            // up and left
+                            int32_t const offset = 10 * (reload - (*kb));
+                            gun_pos += offset; // U
+                            weapon_xoffset += offset;
+                            G_DrawWeaponTileWithID(cw, weapon_xoffset + 168 - hla,looking_arc+260-gun_pos,
+                                CHAINGUN - 17,gs,o,pal,0);
+                        }
+                    }
+
+                    break;
+                }
+
                 switch (*kb)
                 {
                 case 0:
@@ -2466,7 +2597,7 @@ void P_DisplayWeapon(void)
                     break;
                 }
 
-                if (!(duke3d_globalflags & DUKE3D_NO_WIDESCREEN_PINNING))
+                if (!(duke3d_globalflags & DUKE3D_NO_WIDESCREEN_PINNING) && DUKE)
                     o |= 512;
 
                 if ((*kb) < PWEAPON(screenpeek, PISTOL_WEAPON, Reload)-17)
@@ -2482,12 +2613,12 @@ void P_DisplayWeapon(void)
                     G_DrawWeaponTileWithID(cw, 224-(p->look_ang>>1), looking_arc+220-gun_pos, FIRSTGUN+5, gs, o, pal, 0);
                 }
 
-                else if ((*kb) < PWEAPON(screenpeek, PISTOL_WEAPON, Reload)-4)
+                else if ((*kb) < PWEAPON(screenpeek, PISTOL_WEAPON, Reload) - (WW2GI ? 12 : 4))
                 {
                     G_DrawWeaponTileWithID(cw<<2, 184-(p->look_ang>>1), looking_arc+235-gun_pos, FIRSTGUN+8, gs, o, pal, 0);
                     G_DrawWeaponTileWithID(cw, 224-(p->look_ang>>1), looking_arc+210-gun_pos, FIRSTGUN+5, gs, o, pal, 0);
                 }
-                else if ((*kb) < PWEAPON(screenpeek, PISTOL_WEAPON, Reload)-2)
+                else if ((*kb) < PWEAPON(screenpeek, PISTOL_WEAPON, Reload) - (WW2GI ? 6 : 2))
                 {
                     G_DrawWeaponTileWithID(cw<<2, 164-(p->look_ang>>1), looking_arc+245-gun_pos, FIRSTGUN+8, gs, o, pal, 0);
                     G_DrawWeaponTileWithID(cw, 224-(p->look_ang>>1), looking_arc+220-gun_pos, FIRSTGUN+5, gs, o, pal, 0);
@@ -2509,12 +2640,41 @@ void P_DisplayWeapon(void)
 
                     if (*kb)
                     {
-                        if ((*kb) < 7)
-                            gun_pos -= 10 * (*kb);  // D
-                        else if ((*kb) < 12)
-                            gun_pos += 20 * ((*kb) - 10);  // U
-                        else if ((*kb) < 20)
-                            gun_pos -= 9 * ((*kb) - 14);  // D
+                        if (WW2GI)
+                        {
+                            int32_t const firedelay = PWEAPON(screenpeek, p->curr_weapon, FireDelay);
+                            int32_t const totaltime = PWEAPON(screenpeek, p->curr_weapon, TotalTime);
+
+                            if (*kb <= firedelay)
+                            {
+                                // it holds here
+                                gun_pos -= 5 * (*kb); // D
+                            }
+                            else if (*kb < ((totaltime - firedelay) / 2 + firedelay))
+                            {
+                                // up and left
+                                int32_t const difference = (*kb) - firedelay;
+                                gun_pos += 10 * difference; // U
+                                weapon_xoffset += 80 * difference;
+                            }
+                            else if (*kb < totaltime)
+                            {
+                                // start high
+                                gun_pos += 240;
+                                gun_pos -= 12 * ((*kb) - firedelay); // D
+                                // move left
+                                weapon_xoffset += 90 - 5 * (totaltime - (*kb));
+                            }
+                        }
+                        else
+                        {
+                            if (*kb < 7)
+                                gun_pos -= 10 * (*kb);  // D
+                            else if (*kb < 12)
+                                gun_pos += 20 * ((*kb) - 10);  // U
+                            else if (*kb < 20)
+                                gun_pos -= 9 * ((*kb) - 14);  // D
+                        }
 
                         gun_pos += 10;
                     }
@@ -2544,9 +2704,58 @@ void P_DisplayWeapon(void)
                 if (VM_OnEvent(EVENT_DRAWWEAPON, g_player[screenpeek].ps->i, screenpeek))
                     break;
 
-                if ((*kb) < (PWEAPON(screenpeek, DEVISTATOR_WEAPON, TotalTime) + 1) && (*kb) > 0)
+                if (WW2GI)
                 {
-                    static uint8_t cycloidy [] ={ 0, 4, 12, 24, 12, 4, 0 };
+                    if (*kb)
+                    {
+                        int32_t const totaltime = PWEAPON(screenpeek, p->curr_weapon, TotalTime);
+                        int32_t const reload = PWEAPON(screenpeek, p->curr_weapon, Reload);
+
+                        if (*kb < totaltime)
+                        {
+                            i = ksgn((*kb)>>2);
+                            if (p->ammo_amount[p->curr_weapon] & 1)
+                            {
+                                G_DrawWeaponTileWithID(cw<<1, weapon_xoffset + 30 - hla, looking_arc + 240 - gun_pos,
+                                                 DEVISTATOR, gs, o | 4, pal, 0);
+                                G_DrawWeaponTileWithID(cw, weapon_xoffset + 268 - hla, looking_arc + 238 - gun_pos,
+                                                 DEVISTATOR + i, -32, o, pal, 0);
+                            }
+                            else
+                            {
+                                G_DrawWeaponTileWithID(cw<<1, weapon_xoffset + 30 - hla, looking_arc + 240 - gun_pos,
+                                                 DEVISTATOR + i, -32, o | 4, pal, 0);
+                                G_DrawWeaponTileWithID(cw, weapon_xoffset + 268 - hla, looking_arc + 238 - gun_pos,
+                                                 DEVISTATOR, gs, o, pal, 0);
+                            }
+                        }
+                        // else we are in 'reload time'
+                        else
+                        {
+                            if (*kb < ((reload - totaltime) / 2 + totaltime))
+                                gun_pos -= 10 * ((*kb) - totaltime); // D
+                            else
+                                gun_pos -= 10 * (reload - (*kb)); // U
+
+                            G_DrawWeaponTileWithID(cw, weapon_xoffset + 268 - hla, looking_arc + 238 - gun_pos,
+                                             DEVISTATOR, gs, o, pal, 0);
+                            G_DrawWeaponTileWithID(cw<<1, weapon_xoffset + 30 - hla, looking_arc + 240 - gun_pos,
+                                             DEVISTATOR, gs, o | 4, pal, 0);
+                        }
+                    }
+                    else
+                    {
+                        G_DrawWeaponTileWithID(cw, weapon_xoffset + 268 - hla, looking_arc + 238 - gun_pos,
+                                         DEVISTATOR, gs, o, pal, 0);
+                        G_DrawWeaponTileWithID(cw<<1, weapon_xoffset + 30 - hla, looking_arc + 240 - gun_pos,
+                                         DEVISTATOR, gs, o | 4, pal, 0);
+                    }
+                    break;
+                }
+
+                if (*kb <= PWEAPON(screenpeek, DEVISTATOR_WEAPON, TotalTime) && *kb > 0)
+                {
+                    static uint8_t const cycloidy[] = { 0, 4, 12, 24, 12, 4, 0 };
 
                     if (*kb >= ARRAY_SIZE(cycloidy))
                         break;
@@ -2583,7 +2792,7 @@ void P_DisplayWeapon(void)
                 if (VM_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek))
                     break;
 
-                if (!(duke3d_globalflags & DUKE3D_NO_WIDESCREEN_PINNING))
+                if (!(duke3d_globalflags & DUKE3D_NO_WIDESCREEN_PINNING) && DUKE)
                     o |= 512;
 
                 if ((*kb) < (PWEAPON(screenpeek, p->curr_weapon, TotalTime)+1) && (*kb) > 0)
@@ -2613,6 +2822,66 @@ void P_DisplayWeapon(void)
 
                 weapon_xoffset += 28;
                 looking_arc += 18;
+
+                if (WW2GI)
+                {
+                    if (*kb == 0)
+                    {
+                        // the 'at rest' display
+                        if (cw == GROW_WEAPON)
+                        {
+                            G_DrawWeaponTileWithID(cw, weapon_xoffset + 188 - hla, looking_arc + 240 - gun_pos,
+                                                   SHRINKER - 2, gs, o, pal, 0);
+
+                            break;
+                        }
+                        else if (p->ammo_amount[cw] > 0)
+                        {
+                            G_DrawWeaponTileWithID(cw << 1, weapon_xoffset + 184 - hla, looking_arc + 240 - gun_pos,
+                                                   SHRINKER + 2, 16 - (sintable[p->random_club_frame & 2047] >> 10), o,
+                                                   0, 1);
+                            G_DrawWeaponTileWithID(cw, weapon_xoffset + 188 - hla, looking_arc + 240 - gun_pos,
+                                                   SHRINKER, gs, o, pal, 0);
+
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        // the 'active' display.
+                        if (doanim)
+                        {
+                            weapon_xoffset += rand() & 3;
+                            gun_pos += rand() & 3;
+                        }
+
+                        int32_t const totaltime = PWEAPON(screenpeek, p->curr_weapon, TotalTime);
+                        int32_t const reload = PWEAPON(screenpeek, p->curr_weapon, Reload);
+
+                        if (*kb < totaltime)
+                        {
+                            if (*kb >= PWEAPON(screenpeek, p->curr_weapon, FireDelay))
+                            {
+                                // after fire time.
+                                // lower weapon to reload cartridge (not clip)
+                                gun_pos -= (cw == GROW_WEAPON ? 15 : 10) * (totaltime - (*kb));
+                            }
+                        }
+                        // else we are in 'reload time'
+                        else if (*kb < ((reload - totaltime) / 2 + totaltime))
+                            gun_pos -= (cw == GROW_WEAPON ? 5 : 10) * ((*kb) - totaltime); // D
+                        else
+                            gun_pos -= 10 * (reload - (*kb)); // U
+                    }
+
+                    G_DrawWeaponTileWithID(cw << 1, weapon_xoffset + 184 - hla, looking_arc + 240 - gun_pos,
+                                           SHRINKER + 3 + ((*kb) & 3), -32, o, cw == GROW_WEAPON ? 2 : 0, 1);
+
+                    G_DrawWeaponTileWithID(cw, weapon_xoffset + 188 - hla, looking_arc + 240 - gun_pos,
+                                           SHRINKER + (cw == GROW_WEAPON ? -1 : 1), gs, o, pal, 0);
+
+                    break;
+                }
 
                 if ((*kb) < PWEAPON(screenpeek, p->curr_weapon, TotalTime) && (*kb) > 0)
                 {
@@ -2845,7 +3114,7 @@ void P_GetInput(int32_t snum)
     if (g_emuJumpTics > 0)
         g_emuJumpTics--;
 
-    loc.bits |=   BUTTON(gamefunc_Crouch)<<SK_CROUCH;
+    loc.bits |=   (BUTTON(gamefunc_Crouch) || xBuildInputSystem->ControllerKeyDown(XB_Button_Y)) <<SK_CROUCH;
     loc.bits |=   BUTTON(gamefunc_Fire)<<SK_FIRE;
     loc.bits |= (BUTTON(gamefunc_Aim_Up) || (BUTTON(gamefunc_Dpad_Aiming) && in.fvel > 0))<<SK_AIM_UP;
     loc.bits |= (BUTTON(gamefunc_Aim_Down) || (BUTTON(gamefunc_Dpad_Aiming) && in.fvel < 0))<<SK_AIM_DOWN;
@@ -2870,7 +3139,7 @@ void P_GetInput(int32_t snum)
     loc.bits |= (BUTTON(gamefunc_Inventory_Right) || (BUTTON(gamefunc_Dpad_Select) || xBuildInputSystem->ControllerKeyDown(XB_Button_DPAD_Right) && (in.svel < 0 || in.avel > 0))) <<SK_INV_RIGHT;
     loc.bits |=   BUTTON(gamefunc_TurnAround)<<SK_TURNAROUND;
     loc.bits |=  ((BUTTON(gamefunc_Open) || xBuildInputSystem->ControllerKeyDown(XB_Button_A) )<<SK_OPEN) ;
-    loc.bits |=   BUTTON(gamefunc_Inventory)<<SK_INVENTORY;
+    loc.bits |=   (BUTTON(gamefunc_Inventory) || xBuildInputSystem->ControllerKeyDown(XB_Button_X)) <<SK_INVENTORY;
     loc.bits |=   ((uint32_t)KB_KeyPressed(sc_Escape))<<SK_ESCAPE;
 
     if (BUTTON(gamefunc_Dpad_Select))
@@ -3092,18 +3361,18 @@ static int32_t P_DoCounters(int32_t snum)
     {
         if (++p->knuckle_incs == 10)
         {
-            if (totalclock > 1024)
-                if (snum == screenpeek || GTFLAGS(GAMETYPE_COOPSOUND))
-                {
+            if (!WW2GI)
+            {
+                if (totalclock > 1024)
+                    if (snum == screenpeek || GTFLAGS(GAMETYPE_COOPSOUND))
+                    {
+                        if (rand()&1)
+                            A_PlaySound(DUKE_CRACK,p->i);
+                        else A_PlaySound(DUKE_CRACK2,p->i);
+                    }
 
-                    if (rand()&1)
-                        A_PlaySound(DUKE_CRACK,p->i);
-                    else A_PlaySound(DUKE_CRACK2,p->i);
-
-                }
-
-            A_PlaySound(DUKE_CRACK_FIRST,p->i);
-
+                A_PlaySound(DUKE_CRACK_FIRST,p->i);
+            }
         }
         else if (p->knuckle_incs == 22 || TEST_SYNC_KEY(g_player[snum].sync->bits, SK_FIRE))
             p->knuckle_incs=0;
@@ -4101,6 +4370,27 @@ static void P_ProcessWeapon(int32_t snum)
     }
 }
 
+void P_EndLevel(void)
+{
+    int32_t i;
+
+    for (TRAVERSE_CONNECT(i))
+        g_player[i].ps->gm = MODE_EOL;
+
+    if (ud.from_bonus)
+    {
+        ud.m_level_number = ud.level_number = ud.from_bonus;
+        ud.from_bonus = 0;
+    }
+    else
+    {
+        ud.level_number++;
+        if (ud.level_number >= MAXLEVELS)
+            ud.level_number = 0;
+        ud.m_level_number = ud.level_number;
+    }
+}
+
 static int32_t P_DoFist(DukePlayer_t *p)
 {
     // the fist punching NUKEBUTTON
@@ -4115,13 +4405,13 @@ static int32_t P_DoFist(DukePlayer_t *p)
 
     if (p->fist_incs > 42)
     {
-        int32_t i;
-
-        for (TRAVERSE_CONNECT(i))
-            g_player[i].ps->gm = MODE_EOL;
-
         if (p->buttonpalette && ud.from_bonus == 0)
         {
+            int32_t i;
+
+            for (TRAVERSE_CONNECT(i))
+                g_player[i].ps->gm = MODE_EOL;
+
             ud.from_bonus = ud.level_number+1;
             if (ud.secretlevel > 0 && ud.secretlevel <= MAXLEVELS)
                 ud.level_number = ud.secretlevel-1;
@@ -4129,21 +4419,7 @@ static int32_t P_DoFist(DukePlayer_t *p)
         }
         else
         {
-            if (ud.from_bonus)
-            {
-                ud.m_level_number = ud.level_number = ud.from_bonus;
-                ud.from_bonus = 0;
-            }
-            else
-            {
-                if (ud.level_number == ud.secretlevel && ud.from_bonus > 0)
-                    ud.level_number = ud.from_bonus;
-                else ud.level_number++;
-
-                if (ud.level_number > MAXLEVELS-1)
-                    ud.level_number = 0;
-                ud.m_level_number = ud.level_number;
-            }
+            P_EndLevel();
         }
 
         p->fist_incs = 0;
@@ -4346,16 +4622,7 @@ void P_ProcessInput(int32_t snum)
         }
         else if (p->timebeforeexit == 1)
         {
-            for (TRAVERSE_CONNECT(i))
-                g_player[i].ps->gm = MODE_EOL;
-
-            ud.m_level_number = ud.level_number++;
-
-            if (ud.from_bonus)
-            {
-                ud.m_level_number = ud.level_number = ud.from_bonus;
-                ud.from_bonus = 0;
-            }
+            P_EndLevel();
             return;
         }
     }

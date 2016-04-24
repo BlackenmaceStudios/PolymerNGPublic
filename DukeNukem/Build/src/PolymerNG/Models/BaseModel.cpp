@@ -18,6 +18,12 @@ void BaseModel::UpdateBuffer(int startPosition, int numVertexes, Build3DVertex *
 {
 	Build3DVertex *vertexpool = &meshVertexes[startPosition];
 	memcpy(vertexpool, vertexes, sizeof(Build3DVertex) * numVertexes);
+
+	ModelUpdateQueuedItem queuedGeoUpdate;
+	queuedGeoUpdate.numVertexes = numVertexes;
+	queuedGeoUpdate.startPosition = startPosition;
+	geoUpdateQueue[0].push_back(queuedGeoUpdate);
+	geoUpdateQueue[1].push_back(queuedGeoUpdate);
 }
 
 int BaseModel::AddIndexesToBuffer(int numIndexes, unsigned short *indexes)

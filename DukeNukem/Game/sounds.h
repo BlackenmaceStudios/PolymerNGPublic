@@ -76,7 +76,7 @@ typedef struct
     char pr,m; // 2b
 } sound_t;
 
-extern volatile char g_soundlocks[MAXSOUNDS];
+extern char g_soundlocks[MAXSOUNDS];
 extern sound_t g_sounds[MAXSOUNDS];
 extern int32_t g_skillSoundVoice;
 extern int32_t g_numEnvSoundsPlaying,g_maxSoundPos;
@@ -95,6 +95,7 @@ void S_MusicStartup(void);
 void S_MusicVolume(int32_t volume);
 void S_RestartMusic(void);
 void S_PauseMusic(int32_t onf);
+void S_PauseSounds(int32_t onf);
 int32_t S_PlayMusic(const char *fn);
 int32_t S_PlaySound(int32_t num);
 int32_t S_PlaySound3D(int32_t num,int32_t i,const vec3_t *pos);

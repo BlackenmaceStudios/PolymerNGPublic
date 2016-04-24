@@ -57,9 +57,11 @@ extern "C" {
 
 G_EXTERN int32_t duke3d_globalflags;
 
-enum {
+// KEEPINSYNC astub.c (used values only)
+enum DUKE3D_GLOBALFLAGS {
     DUKE3D_NO_WIDESCREEN_PINNING = 1<<0,
     DUKE3D_NO_HARDCODED_FOGPALS = 1<<1,
+    DUKE3D_NO_PALETTE_CHANGES = 1<<2,
 };
 
 G_EXTERN DukeStatus_t sbar;
@@ -109,13 +111,12 @@ G_EXTERN int32_t g_scriptDebug;
 G_EXTERN int32_t g_showShareware;
 G_EXTERN int8_t g_numPlayerSprites;
 G_EXTERN int32_t g_tripbombLaserMode;
-G_EXTERN int32_t msx[2048],msy[2048];
+G_EXTERN vec2_t g_origins[MAXANIMPOINTS];
 G_EXTERN int32_t neartaghitdist,lockclock,g_startArmorAmount;
 G_EXTERN int32_t playerswhenstarted;
 G_EXTERN int32_t screenpeek;
 G_EXTERN int32_t startofdynamicinterpolations;
 G_EXTERN int32_t ototalclock;
-G_EXTERN intptr_t *g_parsingActorPtr;
 G_EXTERN intptr_t *g_scriptPtr;
 G_EXTERN int32_t *labelcode,*labeltype;
 G_EXTERN intptr_t *script;
@@ -141,7 +142,7 @@ G_EXTERN sound_t g_sounds[MAXSOUNDS];
 G_EXTERN uint32_t everyothertime;
 G_EXTERN uint32_t g_moveThingsCount;
 G_EXTERN vec3_t my,omy,myvel;
-G_EXTERN volatile char g_soundlocks[MAXSOUNDS];
+G_EXTERN char g_soundlocks[MAXSOUNDS];
 G_EXTERN int32_t g_restorePalette;
 G_EXTERN int32_t g_screenCapture;
 G_EXTERN int32_t g_noEnemies;
@@ -182,8 +183,30 @@ enum
     // EF_HIDEFROMMP = 1<<1,
 };
 
+EXTERN_INLINE_HEADER void G_UpdateInterpolations(void);
+EXTERN_INLINE_HEADER void G_RestoreInterpolations(void);
+
 #ifdef __cplusplus
 }
+#endif
+
+#if defined global_c_ || !defined DISABLE_INLINING
+
+EXTERN_INLINE void G_UpdateInterpolations(void)  //Stick at beginning of G_DoMoveThings
+{
+    for (int i=g_numInterpolations-1; i>=0; i--) oldipos[i] = *curipos[i];
+}
+
+EXTERN_INLINE void G_RestoreInterpolations(void)  //Stick at end of drawscreen
+{
+    int32_t i=g_numInterpolations-1;
+
+    if (--g_interpolationLock)
+        return;
+
+    for (; i>=0; i--) *curipos[i] = bakipos[i];
+}
+
 #endif
 
 #endif

@@ -43,7 +43,7 @@ void RendererDrawPassDrawSprite::Draw(const BuildRenderCommand &command)
 	{
 		Build3DSprite *sprite = &command.taskRenderSprites.prsprites[i];
 		// HACK! Hide the first person view sprite!!!!
-		if (sprite->plane.tileNum == 1405)
+		if (sprite->plane.tileNum >= 1400 && sprite->plane.tileNum <= 1518)
 			continue;
 		BuildImage *image = static_cast<BuildImage *>(sprite->plane.renderImageHandle);
 		drawSpriteBuffer.mWorldViewProj = sprite->modelViewProjectionMatrix;
@@ -53,7 +53,14 @@ void RendererDrawPassDrawSprite::Draw(const BuildRenderCommand &command)
 		rhi.SetConstantBuffer(0, drawSpriteConstantBuffer);
 
 		rhi.SetImageForContext(0, image->GetRHITexture());
-		rhi.SetImageForContext(1, polymerNG.GetPaletteImage()->GetRHITexture());
+		if (polymerNG.GetPaletteImage(sprite->paletteNum))
+		{
+			rhi.SetImageForContext(1, polymerNG.GetPaletteImage(sprite->paletteNum)->GetRHITexture());
+		}
+		else
+		{
+			rhi.SetImageForContext(1, polymerNG.GetPaletteImage()->GetRHITexture());
+		}
 		if (sprite->isHorizsprite)
 		{
 			rhi.DrawUnoptimizedQuad(renderer.spriteSimpleProgram->GetRHIShader(), spriteRHIMesh, 4, 4);

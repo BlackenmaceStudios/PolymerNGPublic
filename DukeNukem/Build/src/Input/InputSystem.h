@@ -10,6 +10,8 @@ enum XControllerButton
 {
 	XB_Button_A = 0,
 	XB_Button_B,
+	XB_Button_Y,
+	XB_Button_X,
 	XB_Button_DPAD_Up,
 	XB_Button_DPAD_Down,
 	XB_Button_DPAD_Left,

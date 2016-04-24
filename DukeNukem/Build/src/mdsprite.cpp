@@ -1,7 +1,5 @@
 //------------------------------------- MD2/MD3 LIBRARY BEGINS -------------------------------------
 
-#ifdef USE_OPENGL
-
 #include "compat.h"
 #include "build.h"
 #include "glbuild.h"
@@ -19,6 +17,13 @@
 #include <math.h>
 #include <float.h>
 
+
+int32_t Ptile2tile(int32_t tile, int32_t palette)
+{
+	return 0;
+}
+
+#ifdef USE_OPENGL
 static int32_t curextra=MAXTILES;
 
 #define MIN_CACHETIME_PRINT 10

@@ -728,7 +728,7 @@ EXTERN char *palookup[MAXPALOOKUPS];
 extern uint8_t *basepaltable[MAXBASEPALS];
 EXTERN uint8_t paletteloaded;
 EXTERN char *blendtable[MAXBLENDTABS];
-EXTERN uint8_t whitecol;
+EXTERN uint8_t whitecol, redcol;
 
 enum {
     PALETTE_MAIN = 1<<0,
@@ -893,8 +893,8 @@ extern float debug1, debug2;
 extern int16_t tiletovox[MAXTILES];
 extern int32_t usevoxels, voxscale[MAXVOXELS];
 
-#ifdef USE_OPENGL
 extern int32_t usemodels, usehightile;
+#ifdef USE_OPENGL
 extern int32_t rendmode;
 #endif
 EXTERN uint16_t h_xsize[MAXTILES], h_ysize[MAXTILES];
@@ -914,7 +914,7 @@ EXTERN int32_t editorzrange[2];
 FORCE_INLINE int32_t getrendermode(void)
 {
 #ifndef USE_OPENGL
-    return REND_CLASSIC;
+    return REND_POLYMER;
 #else
     return rendmode;
 #endif
@@ -1385,7 +1385,7 @@ extern char **g_clipMapFiles;
 extern int32_t g_clipMapFilesNum;
 #endif
 
-#ifdef USE_OPENGL
+//#ifdef USE_OPENGL
 // TODO: dynamically allocate this
 
 typedef struct { vec3f_t add; int16_t angadd, flags, fov; } hudtyp;
@@ -1411,7 +1411,7 @@ FORCE_INLINE int32_t md_tilehasmodel(int32_t tilenume,int32_t pal)
 {
     return mdinited ? tile2model[Ptile2tile(tilenume,pal)].modelid : -1;
 }
-#endif  // defined USE_OPENGL
+//#endif  // defined USE_OPENGL
 
 int32_t md_defineframe(int32_t modelid, const char *framename, int32_t tilenume,
                        int32_t skinnum, float smoothduration, int32_t pal);
