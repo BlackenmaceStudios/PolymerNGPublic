@@ -36,6 +36,7 @@ void PolymerNG::Init()
 
 		images[i] = new BuildImage(opts);
 	}
+
 	numImagesWaitingForUpload = 0;
 	renderer.Init();
 }
@@ -47,6 +48,42 @@ BuildImage *PolymerNG::GetPaletteImage()
 { 
 //	initprintf("GetPaletteImage: Returning %d\n", curbasepal);
 	return palette_image[curbasepal]; 
+}
+//
+// UpdatePaletteLookupTable
+//
+void PolymerNG::UpdatePaletteLookupTable(int idx)
+{
+	// We need to add a alpha channel.
+	const int expectedNumShades = 32;
+
+	byte tempPaletteBuffer[256 * expectedNumShades];
+
+	if (paletteLookUp_image[idx] != NULL || palookup[idx] == NULL)
+		return;
+
+	wchar_t palette_name[512];
+	swprintf(palette_name, L"build_numshadespalette%d", idx);
+
+	// Load in system textures.
+	{
+		BuildImageOpts opts;
+		opts.heapType = BUILDIMAGE_CPU_HEAP_NONE;
+		opts.imageType = IMAGETYPE_2D;
+		opts.width = (256);
+		opts.height = expectedNumShades;
+		opts.format = IMAGE_FORMAT_R8;
+		opts.name = palette_name;
+		opts.tileNum = -1;
+		opts.heapType = BUILDIMAGE_CPU_HEAP_NONE;
+		paletteLookUp_image[idx] = new BuildImage(opts);
+	}
+
+	for (int i = 0; i < 256 * expectedNumShades; i++)
+	{
+		tempPaletteBuffer[i] = palookup[idx][i];
+	}
+	paletteLookUp_image[idx]->UpdateImagePost(tempPaletteBuffer);
 }
 
 //
@@ -73,6 +110,7 @@ void PolymerNG::UpdatePalette(int idx)
 		opts.format = IMAGE_FORMAT_RGBA32;
 		opts.name = palette_name;
 		opts.heapType = BUILDIMAGE_CPU_HEAP_NONE;
+		opts.tileNum = -1;
 		palette_image[idx] = new BuildImage(opts);
 	}
 
@@ -84,6 +122,11 @@ void PolymerNG::UpdatePalette(int idx)
 		tempPaletteBuffer[(i * 4) + 3] = 255;
 	}
 	palette_image[idx]->UpdateImagePost(tempPaletteBuffer);
+
+	if (idx == 0)
+	{
+		UpdatePaletteLookupTable(idx);
+	}
 }
 
 //
@@ -91,6 +134,13 @@ void PolymerNG::UpdatePalette(int idx)
 //
 void PolymerNG::AddImageToUpdateQueue(BuildImage *image)
 {
+//	for (int i = 0; i < numImagesWaitingForUpload; i++)
+//	{
+//		if (image->GetOpts().tileNum != -1 && images_waiting_for_upload[i]->GetOpts().tileNum == image->GetOpts().tileNum)
+//		{
+//			return;
+//		}
+//	}
 	images_waiting_for_upload[numImagesWaitingForUpload++] = image;
 }
 

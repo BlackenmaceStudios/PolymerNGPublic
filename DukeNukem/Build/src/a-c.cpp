@@ -54,6 +54,8 @@ void fixtransluscence(intptr_t datransoff)
 void settransnormal(void) { A64_ASSIGN(a64_transmode, 0); transmode = 0; }
 void settransreverse(void) { A64_ASSIGN(a64_transmode, 1); transmode = 1; }
 
+extern bool isOcclusionPass;
+extern int32_t globalCurrentSectorNum;
 
 ///// Ceiling/floor horizontal line functions /////
 
@@ -72,6 +74,16 @@ void hlineasm4(int32_t cnt, int32_t skiploadincs, int32_t paloffs, uint32_t by, 
     const vec2_t log32 ={ 32-log.x, 32-log.y };
     char *pp = (char *)p;
 
+	if (isOcclusionPass)
+	{
+		for (; cnt >= 4; cnt -= 4, pp -= 4)
+		{
+			*(int32_t *)(pp - 3) = globalCurrentSectorNum;
+		}
+
+		return;
+	}
+
 #ifdef CLASSIC_SLICE_BY_4
     for (; cnt>=4; cnt-=4, pp-=4)
     {
@@ -81,22 +93,21 @@ void hlineasm4(int32_t cnt, int32_t skiploadincs, int32_t paloffs, uint32_t by, 
         *(pp-2) = palptr[buf[(((bx-(inc.x<<1))>>log32.x)<<log.y)+((by-(inc.y<<1))>>log32.y)]];
         *(pp-3) = palptr[buf[(((bx-(inc.x*3))>>log32.x)<<log.y)+((by-(inc.y*3))>>log32.y)]];
 #else
-        *(int32_t *)(pp-3) = palptr[buf[(((bx-(inc.x*3))>>log32.x)<<log.y)+((by-(inc.y*3))>>log32.y)]] +
-            (palptr[buf[(((bx-(inc.x<<1))>>log32.x)<<log.y)+((by-(inc.y<<1))>>log32.y)]]<<8) +
-            (palptr[buf[(((bx-inc.x)>>log32.x)<<log.y)+((by-inc.y)>>log32.y)]]<<16) +
-            (palptr[buf[((bx>>log32.x)<<log.y)+(by>>log32.y)]]<<24);
+		*(int32_t *)(pp - 3) = palptr[buf[(((bx - (inc.x * 3)) >> log32.x) << log.y) + ((by - (inc.y * 3)) >> log32.y)]] +
+			(palptr[buf[(((bx - (inc.x << 1)) >> log32.x) << log.y) + ((by - (inc.y << 1)) >> log32.y)]] << 8) +
+			(palptr[buf[(((bx - inc.x) >> log32.x) << log.y) + ((by - inc.y) >> log32.y)]] << 16) +
+			(palptr[buf[((bx >> log32.x) << log.y) + (by >> log32.y)]] << 24);
 #endif
         bx -= inc.x<<2;
         by -= inc.y<<2;
     }
 #endif
-
-    for (; cnt>=0; cnt--, pp--)
-    {
-        *pp = palptr[buf[((bx>>log32.x)<<log.y)+(by>>log32.y)]];
-        bx -= inc.x;
-        by -= inc.y;
-    }
+	for (; cnt >= 0; cnt--, pp--)
+	{
+		*pp = palptr[buf[((bx >> log32.x) << log.y) + (by >> log32.y)]];
+		bx -= inc.x;
+		by -= inc.y;
+	}
 }
 
 
@@ -154,17 +165,20 @@ int32_t vlineasm1(int32_t vinc, intptr_t paloffs, int32_t cnt, uint32_t vplc, in
 #ifdef CLASSIC_SLICE_BY_4
         for (; cnt>=4; cnt-=4)
         {
-            *pp = pal[buf[vplc>>logy]];
-            *(pp+ourbpl) = pal[buf[(vplc+vinc)>>logy]];
-            *(pp+(ourbpl<<1)) = pal[buf[(vplc+(vinc<<1))>>logy]];
-            *(pp+(ourbpl*3)) = pal[buf[(vplc+(vinc*3))>>logy ]];
+			*pp = pal[buf[vplc >> logy]];
+			*(pp + ourbpl) = pal[buf[(vplc + vinc) >> logy]];
+			*(pp + (ourbpl << 1)) = pal[buf[(vplc + (vinc << 1)) >> logy]];
+			*(pp + (ourbpl * 3)) = pal[buf[(vplc + (vinc * 3)) >> logy]];
             pp += ourbpl<<2;
             vplc += vinc<<2;
         }
 #endif
         while (cnt--)
         {
-            *pp = pal[buf[vplc>>logy]];
+			if (!isOcclusionPass)
+			{
+				*pp = pal[buf[vplc >> logy]];
+			}
             pp += ourbpl;
             vplc += vinc;
         }
@@ -174,17 +188,23 @@ int32_t vlineasm1(int32_t vinc, intptr_t paloffs, int32_t cnt, uint32_t vplc, in
 #ifdef CLASSIC_SLICE_BY_4
         for (; cnt>=4; cnt-=4)
         {
-            *pp = pal[buf[ourmulscale32(vplc, globaltilesizy)]];
-            *(pp+ourbpl) = pal[buf[ourmulscale32((vplc+vinc),globaltilesizy)]];
-            *(pp+(ourbpl<<1)) = pal[buf[ourmulscale32((vplc+(vinc<<1)), globaltilesizy)]];
-            *(pp+(ourbpl*3)) = pal[buf[ourmulscale32((vplc+(vinc*3)), globaltilesizy)]];
+			if (!isOcclusionPass)
+			{
+				*pp = pal[buf[ourmulscale32(vplc, globaltilesizy)]];
+				*(pp + ourbpl) = pal[buf[ourmulscale32((vplc + vinc), globaltilesizy)]];
+				*(pp + (ourbpl << 1)) = pal[buf[ourmulscale32((vplc + (vinc << 1)), globaltilesizy)]];
+				*(pp + (ourbpl * 3)) = pal[buf[ourmulscale32((vplc + (vinc * 3)), globaltilesizy)]];
+			}
             pp += ourbpl<<2;
             vplc += vinc<<2;
         }
 #endif
         while (cnt--)
         {
-            *pp = pal[buf[ourmulscale32(vplc,globaltilesizy)]], pp += ourbpl;
+			if (!isOcclusionPass)
+			{
+				*pp = pal[buf[ourmulscale32(vplc, globaltilesizy)]], pp += ourbpl;
+			}
             vplc += vinc;
         }
     }

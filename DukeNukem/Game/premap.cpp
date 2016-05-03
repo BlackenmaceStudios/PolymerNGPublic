@@ -51,15 +51,15 @@ static void tloadtile(int32_t tilenume, int32_t type)
 {
     int32_t i,j;
 
-    if ((picanm[tilenume].sf&PICANM_ANIMTYPE_MASK)==PICANM_ANIMTYPE_BACK)
+    if ((picanm[tilenume].flags.sf&PICANM_ANIMTYPE_MASK)==PICANM_ANIMTYPE_BACK)
     {
-        i = tilenume - picanm[tilenume].num;
+        i = tilenume - picanm[tilenume].flags.num;
         j = tilenume;
     }
     else
     {
         i = tilenume;
-        j = tilenume + picanm[tilenume].num;
+        j = tilenume + picanm[tilenume].flags.num;
     }
 
     for (; i<=j; i++)

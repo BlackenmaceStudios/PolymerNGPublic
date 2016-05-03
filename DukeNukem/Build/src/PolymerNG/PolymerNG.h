@@ -25,6 +25,9 @@ public:
 	// Upadtes the palette.
 	void		UpdatePalette(int idx = 0);
 
+	// Updates the palette looked up table.
+	void		UpdatePaletteLookupTable(int idx = 0);
+
 	// Updates the hardware image.
 	void		FlushTile(int16_t tileNum);
 
@@ -45,13 +48,15 @@ public:
 
 	BuildImage *GetPaletteImage();
 	BuildImage *GetPaletteImage(int idx) { return palette_image[idx]; }
+	BuildImage *GetPaletteLookupImage(int idx) { return paletteLookUp_image[idx]; }
 private:
 	BuildImage *palette_image[256];
+	BuildImage *paletteLookUp_image[256];
 
 	BuildImage *images[MAXTILES];
 
 	int numImagesWaitingForUpload;
-	BuildImage *images_waiting_for_upload[MAX_QUEUED_IMAGES];
+	BuildImage *images_waiting_for_upload[MAX_QUEUED_IMAGES*2];
 };
 
 extern PolymerNG polymerNG;

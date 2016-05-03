@@ -1,5 +1,9 @@
 #include "guishader.hlsli"
 
+cbuffer PS_CONSTANT_BUFFER : register(b0)
+{
+	float4 modulationColor;
+};
 
 Texture2D diffuseTexture : register(t0);
 SamplerState diffuseTextureSampler : register(s0);
@@ -15,6 +19,6 @@ float4 main(VertexShaderOutput input) : SV_TARGET
 	{
 		discard;
 	}
-	float3 result = paletteTexture.Sample(paletteTextureSampler, r).xyz;
+	float3 result = paletteTexture.Sample(paletteTextureSampler, r).xyz * modulationColor;
 	return float4(result.x,result.y,result.z,1);
 }

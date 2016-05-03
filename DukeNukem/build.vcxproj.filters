@@ -48,9 +48,6 @@
     <Filter Include="Source Files\Xbox">
       <UniqueIdentifier>{f9dbf8ca-82a0-4d2d-9cd2-3da0a09714c2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\OcclusionEngine">
-      <UniqueIdentifier>{b49f82c3-f5d1-45f7-aa7d-e55a6056907a}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="build\include\a.h">
@@ -380,47 +377,14 @@
     <ClInclude Include="Build\src\Input\InputSystem_private.h">
       <Filter>Source Files\Input</Filter>
     </ClInclude>
-    <ClInclude Include="Build\src\OcclusionEngine\DepthBuffer.h">
-      <Filter>Source Files\OcclusionEngine</Filter>
-    </ClInclude>
-    <ClInclude Include="Build\src\OcclusionEngine\Occludee.h">
-      <Filter>Source Files\OcclusionEngine</Filter>
-    </ClInclude>
-    <ClInclude Include="Build\src\OcclusionEngine\Occluder.h">
-      <Filter>Source Files\OcclusionEngine</Filter>
-    </ClInclude>
-    <ClInclude Include="Build\src\OcclusionEngine\OcclusionEngine.h">
-      <Filter>Source Files\OcclusionEngine</Filter>
-    </ClInclude>
-    <ClInclude Include="Build\src\OcclusionEngine\OcclusionEngineLib.h">
-      <Filter>Source Files\OcclusionEngine</Filter>
-    </ClInclude>
-    <ClInclude Include="Build\src\OcclusionEngine\Rasterizer.h">
-      <Filter>Source Files\OcclusionEngine</Filter>
-    </ClInclude>
-    <ClInclude Include="Build\src\OcclusionEngine\stdafx.h">
-      <Filter>Source Files\OcclusionEngine</Filter>
-    </ClInclude>
-    <ClInclude Include="Build\src\OcclusionEngine\targetver.h">
-      <Filter>Source Files\OcclusionEngine</Filter>
-    </ClInclude>
-    <ClInclude Include="Build\src\OcclusionEngine\Tile.h">
-      <Filter>Source Files\OcclusionEngine</Filter>
-    </ClInclude>
-    <ClInclude Include="Build\src\OcclusionEngine\TiledDepthBuffer.h">
-      <Filter>Source Files\OcclusionEngine</Filter>
-    </ClInclude>
-    <ClInclude Include="Build\src\OcclusionEngine\TiledRasterizer.h">
-      <Filter>Source Files\OcclusionEngine</Filter>
-    </ClInclude>
-    <ClInclude Include="Build\src\OcclusionEngine\Utils.h">
-      <Filter>Source Files\OcclusionEngine</Filter>
-    </ClInclude>
     <ClInclude Include="Build\src\PolymerNG\Renderer\Renderer_Pass_DrawSprite.h">
       <Filter>Source Files\PolymerNG\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="Build\src\PolymerNG\Renderer\Renderer_Pass_ClassicSky.h">
       <Filter>Source Files\PolymerNG\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Build\src\PolymerNG\PolymerNG_SoftwareRasterizer.h">
+      <Filter>Source Files\PolymerNG</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -670,36 +634,6 @@
     <ClCompile Include="Build\src\Input\InputSystem.cpp">
       <Filter>Source Files\Input</Filter>
     </ClCompile>
-    <ClCompile Include="Build\src\OcclusionEngine\DepthBuffer.cpp">
-      <Filter>Source Files\OcclusionEngine</Filter>
-    </ClCompile>
-    <ClCompile Include="Build\src\OcclusionEngine\Occludee.cpp">
-      <Filter>Source Files\OcclusionEngine</Filter>
-    </ClCompile>
-    <ClCompile Include="Build\src\OcclusionEngine\Occluder.cpp">
-      <Filter>Source Files\OcclusionEngine</Filter>
-    </ClCompile>
-    <ClCompile Include="Build\src\OcclusionEngine\OcclusionEngine.cpp">
-      <Filter>Source Files\OcclusionEngine</Filter>
-    </ClCompile>
-    <ClCompile Include="Build\src\OcclusionEngine\OcclusionEngineLib.cpp">
-      <Filter>Source Files\OcclusionEngine</Filter>
-    </ClCompile>
-    <ClCompile Include="Build\src\OcclusionEngine\Rasterizer.cpp">
-      <Filter>Source Files\OcclusionEngine</Filter>
-    </ClCompile>
-    <ClCompile Include="Build\src\OcclusionEngine\stdafx.cpp">
-      <Filter>Source Files\OcclusionEngine</Filter>
-    </ClCompile>
-    <ClCompile Include="Build\src\OcclusionEngine\Tile.cpp">
-      <Filter>Source Files\OcclusionEngine</Filter>
-    </ClCompile>
-    <ClCompile Include="Build\src\OcclusionEngine\TiledDepthBuffer.cpp">
-      <Filter>Source Files\OcclusionEngine</Filter>
-    </ClCompile>
-    <ClCompile Include="Build\src\OcclusionEngine\TiledRasterizer.cpp">
-      <Filter>Source Files\OcclusionEngine</Filter>
-    </ClCompile>
     <ClCompile Include="Build\src\PolymerNG\PolymerNG_Occlusion.cpp">
       <Filter>Source Files\PolymerNG</Filter>
     </ClCompile>
@@ -708,6 +642,9 @@
     </ClCompile>
     <ClCompile Include="Build\src\PolymerNG\Renderer\Renderer_Pass_ClassicSky.cpp">
       <Filter>Source Files\PolymerNG\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Build\src\PolymerNG\PolymerNG_SoftwareRasterizer.cpp">
+      <Filter>Source Files\PolymerNG</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

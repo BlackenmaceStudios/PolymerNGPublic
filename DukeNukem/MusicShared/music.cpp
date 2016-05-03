@@ -54,6 +54,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 int32_t MUSIC_SoundDevice = -1;
 int32_t MUSIC_ErrorCode = MUSIC_Ok;
 
+BYTE RedBookSong[40]; // Referenced by Shadow Warrior, not used.
+
 static midifuncs MUSIC_MidiFunctions;
 
 int32_t MUSIC_InitMidi(int32_t card, midifuncs *Funcs, int32_t Address);
@@ -588,9 +590,16 @@ void MUSIC_RegisterTimbreBank
     UNREFERENCED_PARAMETER(timbres);
 }
 
+BYTE playTrack = 0;
+int cdvalid = 0;
 
 void MUSIC_Update(void)
 {
     MIDI_UpdateMusic();
 }
 
+void AudioUpdate(void)
+{
+	MUSIC_Update();
+//	S_Update();
+}

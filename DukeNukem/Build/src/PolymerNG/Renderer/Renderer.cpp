@@ -8,12 +8,13 @@
 
 Renderer renderer;
 
-static bool hasRenderWork = false;
-
 Renderer::Renderer()
 {
 	currentFrame = 0;
-	
+	memset(&numRenderCommands, 0, sizeof(int) * MAX_SMP_FRAMES);
+	num2DRenderCommands = 0;
+	currentRenderCommand = NULL;
+	currentNumRenderCommand = 0;
 
 }
 
@@ -39,29 +40,28 @@ void Renderer::SetShaderForPSO(BuildRHIPipelineStateObject *pso, PolymerNGRender
 
 void Renderer::SubmitFrame()
 {
-	currentFrame = !currentFrame;
-	while (commands[!currentFrame].size() != 0)
+	while (HasWork())
 		Sleep(0);
 
-	hasRenderWork = true;
+	currentRenderCommand = commands[currentFrame];
+	currentFrame = !currentFrame;
+	currentNumRenderCommand = numRenderCommands[!currentFrame];
+	numRenderCommands[!currentFrame] = 0;
 }
 
 bool Renderer::HasWork()
 {
-	return commands[!currentFrame].size() != 0;
+	return currentRenderCommand != NULL && currentNumRenderCommand > 0; // numRenderCommands[currentFrame] != 0;
 }
 
 void Renderer::RenderFrame()
 {
 	polymerNG.UploadPendingImages();
 
-	std::vector<BuildRenderCommand>	&frame_commands = commands[!currentFrame];
-	
-
 	// Ensure all images loaded(we need a precache system, this is temporary).
-	for (int i = 0; i < frame_commands.size(); i++)
+	for (int i = 0; i < currentNumRenderCommand; i++)
 	{
-		BuildRenderCommand &command = frame_commands[i];
+		BuildRenderCommand &command = currentRenderCommand[i];
 
 		if (command.taskId == BUILDRENDER_TASK_ROTATESPRITE && command.taskRotateSprite.is2D)
 		{
@@ -77,7 +77,7 @@ void Renderer::RenderFrame()
 			if (!image->IsLoaded())
 				image->UpdateImagePost(NULL);
 
-			_2dcommands.push_back(command);
+			_2dcommands[num2DRenderCommands++] = &command;
 		}
 		else if (command.taskId == BUILDRENDER_TASK_CREATEMODEL)
 		{
@@ -110,8 +110,8 @@ void Renderer::RenderFrame()
 		{
 			BuildRHIMesh *model = command.taskUpdateModel.rhiMesh;
 
-			int32_t numUpdateItems = command.taskUpdateModel.modelUpdateQueuedItems.size();
-			ModelUpdateQueuedItem *queuedItems = &command.taskUpdateModel.modelUpdateQueuedItems[0];
+			//int32_t numUpdateItems = command.taskUpdateModel.modelUpdateQueuedItems.size();
+			//ModelUpdateQueuedItem *queuedItems = &command.taskUpdateModel.modelUpdateQueuedItems[0];
 			//for (int d = 0; d < numUpdateItems; d++)
 			//{
 			//	rhi.UpdateRHIMesh(model, queuedItems[d].startPosition, sizeof(Build3DVertex), queuedItems[d].numVertexes, &command.taskUpdateModel.model->meshVertexes[queuedItems[d].startPosition]);
@@ -133,15 +133,17 @@ void Renderer::RenderFrame()
 		}
 	}
 	
-	frame_commands.clear();
+	
 }
 
 void Renderer::RenderFrame2D(class GraphicsContext& Context)
 {
-	for (int i = 0; i < _2dcommands.size(); i++)
+	for (int i = 0; i < num2DRenderCommands; i++)
 	{
-		drawUIPass.Draw( _2dcommands[i]);
+		drawUIPass.Draw( *_2dcommands[i]);
 	}
-	_2dcommands.clear();
-	hasRenderWork = false;
+
+	num2DRenderCommands = 0;
+	currentNumRenderCommand = 0;
+	currentRenderCommand = NULL;
 }

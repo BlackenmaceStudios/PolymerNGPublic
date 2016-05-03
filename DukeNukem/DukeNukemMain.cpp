@@ -53,8 +53,8 @@ void DukeNukemMain::Update()
 	m_timer.Tick([&]()
 	{
 		// TODO: Replace this with your app's content update functions.
-		m_sceneRenderer->Update(m_timer);
-		m_fpsTextRenderer->Update(m_timer);
+	//	m_sceneRenderer->Update(m_timer);
+	//	m_fpsTextRenderer->Update(m_timer);
 	});
 }
 

@@ -46,15 +46,23 @@ struct BuildVertex
 	Math::Vector3			normal;
 };
 
+extern const Build3DPlane		*renderPlanesGlobalPool[60000];
+
 //
 // BuildRenderThreadTaskRenderWorld
 //
 struct BuildRenderThreadTaskRenderWorld
 {
+	BuildRenderThreadTaskRenderWorld()
+	{
+		skyImageHandle = NULL;
+		renderplanes = (const Build3DPlane	**)&renderPlanesGlobalPool[0]; // We only draw one board at a time.
+	}
 	Math::Vector3			position;
 	Math::XMFLOAT4X4		viewProjMatrix;
+	Math::XMFLOAT4X4		viewMatrix;
 	Math::XMFLOAT4X4		skyProjMatrix;
-	const Build3DPlane		*renderplanes[60000];
+	const Build3DPlane		**renderplanes;
 	int						numRenderPlanes;
 	const Build3DBoard		*board;
 	int						gameSmpFrame;
@@ -224,10 +232,30 @@ struct Build3DPlane
 		buffer = NULL;
 		indices = NULL;
 		indicescount = 0;
+		paletteNum = 0;
+		shadeNum = 0;
+		visibility = 0;
+
+		fogColor[0] = 0.0f;
+		fogColor[1] = 0.0f;
+		fogColor[2] = 0.0f;
+
+		fogDensity = 0;
+		fogStart = 0;
+		fogEnd = 0;
 	}
 	// geometry
 	Build3DVertex*        buffer;
 	int32_t				vertcount;
+
+	int					paletteNum;
+	int					shadeNum;
+	int					visibility;
+
+	float				fogColor[3];
+	float				fogDensity;
+	float				fogStart;
+	float				fogEnd;
 
 	// attributes
 	float				tbn[3][3];
@@ -294,9 +322,9 @@ struct Build3DSector
 	int16_t         floorpicnum_anim, ceilingpicnum_anim;
 
 	struct {
-		int32_t     empty;
-		int32_t     uptodate ;
-		int32_t     invalidtex;
+		int32_t     empty : 1;
+		int32_t     uptodate : 1;
+		int32_t     invalidtex : 1;
 	}               flags;
 	uint32_t        invalidid;
 
@@ -377,6 +405,7 @@ struct Build3DSprite
 	uint32_t        hash;
 	bool			isHorizsprite;
 	int				paletteNum;
+	bool			isVisible;
 };
 
 //
@@ -432,6 +461,8 @@ class Build3D
 {
 public:
 	static void dorotatesprite(BuildRenderCommand &command, int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum, int8_t dashade, char dapalnum, int32_t dastat, uint8_t daalpha, int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2, int32_t uniqid);
+
+	static void CalculateFogForPlane(int32_t tile, int32_t shade, int32_t vis, int32_t pal, Build3DPlane *plane);
 private:
 	static void drawpoly(BuildRenderThreadTaskRotateSprite	&taskRotateSprite, vec2f_t const * const dpxy, int32_t const n, int32_t method);
 };

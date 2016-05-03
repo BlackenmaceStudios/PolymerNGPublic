@@ -3,8 +3,7 @@
 
 #pragma once
 
-#include "../OcclusionEngine/OcclusionEngineLib.h"
-
+#include "PolymerNG_SoftwareRasterizer.h"
 
 //
 // PolymerNGBoard
@@ -29,13 +28,11 @@ private:
 	BuildImage	 *LoadImageDeferred(int tileNum);
 
 	void		 DrawSprites(Math::Matrix4 &viewMatrix, Math::Matrix4 &projectionMatrix, float horizang, int16_t daang);
-	void		 ComputeSpritePlane(Math::Matrix4 &viewMatrix, Math::Matrix4 &projectionMatrix, float horizang, int16_t daang, Build3DSprite *sprite, tspritetype *tspr);
+	bool		 ComputeSpritePlane(Math::Matrix4 &viewMatrix, Math::Matrix4 &projectionMatrix, float horizang, int16_t daang, Build3DSprite *sprite, tspritetype *tspr);
 
 	void		 FindMapSky();
 
 	Build3DBoard *board;
-
-	OcclusionHandle occlusionHandle;
 
 	BuildImage   *boardSkyImage;
 private:
@@ -44,4 +41,6 @@ private:
 	int32_t         localspritesortcnt;
 	float			curskyangmul;
 	tspritetype     localtsprite[MAXSPRITESONSCREEN];
+
+	PolymerNGSoftwarRasterizer *softwareRasterizer;
 };

@@ -33,6 +33,12 @@ const BuildRHITexture* BuildRHI::LoadTextureFromMemory(const std::wstring &textu
 {
 	BuildRHITextureDirect3D11 *textureRHI = new BuildRHITextureDirect3D11();
 
+	if (Width == 0 && Height == 0)
+	{
+		Width = 1;
+		Height = 1;
+	}
+
 	if (Height == 0)
 	{
 		D3D11_TEXTURE1D_DESC desc;

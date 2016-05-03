@@ -1094,7 +1094,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
             else
             {
                 setviewback();
-                picanm[TILE_TILT].xofs = picanm[TILE_TILT].yofs = 0;
+                picanm[TILE_TILT].flags.xofs = picanm[TILE_TILT].flags.yofs = 0;
 
                 i = (tang&511);
                 if (i > 256)
@@ -5887,7 +5887,7 @@ static void G_Startup(void)
 
     // Make the fullscreen nuke logo background non-fullbright.  Has to be
     // after dynamic tile remapping (from C_Compile) and loading tiles.
-    picanm[LOADSCREEN].sf |= PICANM_NOFULLBRIGHT_BIT;
+    picanm[LOADSCREEN].flags.sf |= PICANM_NOFULLBRIGHT_BIT;
 
 //    initprintf("Loading palette/lookups...\n");
     G_LoadLookups();

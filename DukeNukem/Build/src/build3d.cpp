@@ -44,6 +44,8 @@ int32_t usemodels = 1;
 int32_t usehightile = 1;
 int32_t vsync = 0;
 
+const Build3DPlane		*renderPlanesGlobalPool[60000];
+
 #include <math.h> //<-important!
 #include <float.h>
 
@@ -1536,8 +1538,27 @@ void Build3D::drawpoly(BuildRenderThreadTaskRotateSprite	&taskRotateSprite, vec2
 
 	float pc[4];
 
+	float clamped_shade = min(max(globalshade * 1.0, 0), 38);
+	float modulation = ((38 - clamped_shade) / 38) * 1.29;
+	pc[0] = pc[1] = pc[2] = modulation;
 
-	pc[0] = pc[1] = pc[2] = 1.0f;
+	// Hack hack hack!!!!
+	if (globalpal == 1)
+	{
+		pc[0] *= 0.6f;
+		pc[1] *= 0.6f;
+		pc[2] *= 1.0f;
+	}
+	else if (globalpal == 2)
+	{
+		pc[0] *= 1.0f;
+		pc[1] *= 0.6f;
+		pc[2] *= 0.6f;
+	}
+	
+	//pc[0] *= (float)hictinting[globalpal].r * (1.f / 255.f);
+	//pc[1] *= (float)hictinting[globalpal].g * (1.f / 255.f);
+	//pc[2] *= (float)hictinting[globalpal].b * (1.f / 255.f);
 
 	// spriteext full alpha control
 	pc[3] = 1.0f; // float_trans[method & 3] * (1.f - drawpoly_alpha);
@@ -1730,6 +1751,73 @@ do                                                                              
 #endif
 }
 
+
+/*
+==========================
+Build3D::CalculateFogForPlane
+==========================
+*/
+void Build3D::CalculateFogForPlane(int32_t tile, int32_t shade, int32_t vis, int32_t pal, Build3DPlane *plane)
+{
+	#define FOGDISTCONST 600
+	#define FULLVIS_BEGIN 2.9e30
+	#define FULLVIS_END 3.0e30
+
+	Build3DVector4 fogcol, fogtable[MAXPALOOKUPS];
+
+	if (shade > 0 && getrendermode() == REND_POLYMOST && r_usetileshades == 1 &&
+		!(globalflags & GLOBAL_NO_GL_TILESHADES) &&
+		(!usemodels || md_tilehasmodel(tile, pal) < 0))
+		shade >>= 1;
+
+	for (int i = 0; i <= MAXPALOOKUPS - 1; i++)
+	{
+		fogtable[i].x = palookupfog[i].r * (1.f / 255.f);
+		fogtable[i].y = palookupfog[i].g * (1.f / 255.f);
+		fogtable[i].z = palookupfog[i].b * (1.f / 255.f);
+		fogtable[i].w = 0;
+	}
+
+	fogcol = fogtable[pal];
+
+	float combvis = (float)globalvisibility * (uint8_t)(vis + 16);
+
+	if (combvis == 0)
+	{
+		if (r_usenewshading == 2 && shade > 0)
+		{
+			// beg = -D*shade, end = D*(NUMSHADES-1-shade)
+			//  => end/beg = -(NUMSHADES-1-shade)/shade
+			fogresult = (float)-FULLVIS_BEGIN;
+			fogresult2 = FULLVIS_BEGIN * (float)(numshades - 1 - shade) / shade;
+		}
+		else
+		{
+			fogresult = (float)FULLVIS_BEGIN;
+			fogresult2 = (float)FULLVIS_END;
+		}
+	}
+	else if (r_usenewshading == 3 && shade >= numshades - 1)
+	{
+		fogresult = -1;
+		fogresult2 = 0;
+	}
+	else
+	{
+		combvis = 1.f / combvis;
+		fogresult = (r_usenewshading == 3 && shade > 0) ? 0 : -(FOGDISTCONST * shade) * combvis;
+		fogresult2 = (FOGDISTCONST * (numshades - 1 - shade)) * combvis;
+	}
+
+	plane->fogColor[0] = fogcol.x;
+	plane->fogColor[1] = fogcol.y;
+	plane->fogColor[2] = fogcol.z;
+
+	plane->fogDensity = fogresult;
+	plane->fogStart = fogresult;
+	plane->fogEnd = fogresult2;
+}
+
 /*
 ================
 Build3D::dorotatesprite
@@ -1796,8 +1884,8 @@ void Build3D::dorotatesprite(BuildRenderCommand &command, int32_t sx, int32_t sy
 
 	if (!(dastat & RS_TOPLEFT))
 	{
-		ofs.x = picanm[globalpicnum].xofs + (siz.x >> 1);
-		ofs.y = picanm[globalpicnum].yofs + (siz.y >> 1);
+		ofs.x = picanm[globalpicnum].flags.xofs + (siz.x >> 1);
+		ofs.y = picanm[globalpicnum].flags.yofs + (siz.y >> 1);
 	}
 
 	if (dastat & RS_YFLIP)
@@ -1937,6 +2025,7 @@ void Build3D::dorotatesprite(BuildRenderCommand &command, int32_t sx, int32_t sy
 	gctang = ogctang;
 	gstang = ogstang;
 }
+
 
 const bool Build3DWall::ShouldRenderWall(tsectortype *sector, walltype *mapwall) const
 {

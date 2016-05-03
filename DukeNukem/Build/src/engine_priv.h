@@ -69,14 +69,15 @@ extern int32_t hitallsprites;
 extern int32_t xb1[MAXWALLSB];
 extern int32_t rx1[MAXWALLSB], ry1[MAXWALLSB];
 extern int16_t bunchp2[MAXWALLSB];
-extern int16_t numscans, numbunches;
+extern volatile int16_t numscans, numbunches;
 
-#ifdef USE_OPENGL
+
 
 // For GL_EXP2 fog:
 #define FOGSCALE 0.0000768f
 
 extern palette_t palookupfog[MAXPALOOKUPS];
+#ifdef USE_OPENGL
 void calc_and_apply_fog(int32_t tile, int32_t shade, int32_t vis, int32_t pal);
 void calc_and_apply_fog_factor(int32_t tile, int32_t shade, int32_t vis, int32_t pal, float factor);
 #endif
@@ -98,7 +99,7 @@ int32_t animateoffs(int const tilenum, int fakevar);
 #else
 int32_t animateoffs(int const tilenum);
 #define DO_TILE_ANIM(Picnum, Fakevar) do { \
-        if (picanm[Picnum].sf&PICANM_ANIMTYPE_MASK) Picnum += animateoffs(Picnum); \
+        if (picanm[Picnum].flags.sf&PICANM_ANIMTYPE_MASK) Picnum += animateoffs(Picnum); \
     } while (0)
 #endif
 

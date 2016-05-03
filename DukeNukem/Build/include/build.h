@@ -273,7 +273,7 @@ enum {
 #  define EXTERN extern
 #endif
 
-#ifdef __cplusplus
+#if 0
 
 FORCE_INLINE void sector_tracker_hook(uintptr_t address);
 FORCE_INLINE void wall_tracker_hook(uintptr_t address);
@@ -790,6 +790,8 @@ EXTERN char parallaxtype;
 EXTERN int32_t parallaxyoffs_override, parallaxyscale_override;
 extern int16_t pskybits_override;
 
+extern int32_t forceSkyImage;
+
 // last sprite in the freelist, that is the spritenum for which
 //   .statnum==MAXSTATUS && nextspritestat[spritenum]==-1
 // (or -1 if freelist is empty):
@@ -825,11 +827,23 @@ enum {
 
 // NOTE: If the layout of this struct is changed, loadpics() must be modified
 // accordingly.
-typedef struct {
-    uint8_t num;  // animate number
-    int8_t xofs, yofs;
-    uint8_t sf;  // anim. speed and flags
-} picanm_t;
+
+// jmarshall - the original behaiver is it would do a bitshift on the struct and magically it would match the bitshift to the rest of the variables in the struct,
+// this magic nonsense doesn't happen in newer compilers, so to mimic the magic rawbits is a 32 bit integer, that will replicate into the 4 8 bit variables.
+struct picanmflags_t
+{
+	uint8_t num;  // animate number
+	int8_t xofs, yofs;
+	uint8_t sf;  // anim. speed and flags
+};
+
+struct picanm_t {
+	union
+	{
+		int32_t rawbits;
+		picanmflags_t flags;
+	};
+} ;
 EXTERN picanm_t picanm[MAXTILES];
 EXTERN intptr_t waloff[MAXTILES];  // stores pointers to cache  -- SA
 
@@ -1149,6 +1163,7 @@ extern int32_t clipmoveboxtracenum;
 
 int32_t   clipmove(vec3_t *vect, int16_t *sectnum, int32_t xvect, int32_t yvect, int32_t walldist,
                    int32_t ceildist, int32_t flordist, uint32_t cliptype) ATTRIBUTE((nonnull(1,2)));
+
 int32_t clipmovex(vec3_t *pos, int16_t *sectnum, int32_t xvect, int32_t yvect,
                   int32_t walldist, int32_t ceildist, int32_t flordist, uint32_t cliptype,
                   uint8_t noslidep) ATTRIBUTE((nonnull(1,2)));
@@ -1161,6 +1176,7 @@ void   getzrange(const vec3_t *vect, int16_t sectnum, int32_t *ceilz, int32_t *c
                  int32_t *florhit, int32_t walldist, uint32_t cliptype) ATTRIBUTE((nonnull(1,3,4,5,6)));
 int32_t   hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32_t vz,
                   hitdata_t *hitinfo, uint32_t cliptype) ATTRIBUTE((nonnull(1,6)));
+
 void   neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange,
                int16_t *neartagsector, int16_t *neartagwall, int16_t *neartagsprite,
                int32_t *neartaghitdist, int32_t neartagrange, uint8_t tagsearch,
@@ -1206,6 +1222,7 @@ FORCE_INLINE int32_t logapproach(int32_t val, int32_t targetval)
 }
 
 void      rotatepoint(vec2_t pivot, vec2_t p, int16_t daang, vec2_t *p2) ATTRIBUTE((nonnull(4)));
+
 int32_t   lastwall(int16_t point);
 int32_t   nextsectorneighborz(int16_t sectnum, int32_t refz, int16_t topbottom, int16_t direction);
 
@@ -1546,4 +1563,120 @@ static inline int32_t setspritez_old(int16_t spritenum, int32_t x, int32_t y, in
 }
 #endif
 
+//
+// Shadow Warrior Build Function Wrappers.
+//
+
+__forceinline int32_t   setsprite(int16_t spritenum, int32_t x, int32_t y, int32_t z)
+{
+	vec3_t position;
+	position.x = x;
+	position.y = y;
+	position.z = z;
+	return setsprite(spritenum, &position);
+}
+
+
+__forceinline int32_t hitscan(int32_t nx, int32_t ny, int32_t nz, int32_t vsect, int32_t vx, int32_t vy, int32_t vz, int16_t *hitsect, short *hitwall, short *hitsprite, short *hitx, int32_t *hity, int32_t *hitz, uint32_t cliptype)
+{
+	vec3_t position;
+	hitdata_t hitinfo;
+
+	position.x = nx;
+	position.y = ny;
+	position.z = nz;
+
+	static hitdata_t hit;
+
+	int32_t ret = hitscan(&position, vsect, vx, vy, vz, &hit, cliptype);
+
+	*hitsect = hit.sect;
+	*hitwall = hit.wall;
+	*hitx = hit.pos.x;
+	*hity = hit.pos.y;
+	*hitz = hit.pos.z;
+
+	return ret;
+}
+
+__forceinline int32_t   clipmove(long *x, long *y, long *z, int16_t *sectnum, int32_t xvect, int32_t yvect, int32_t walldist, int32_t ceildist, int32_t flordist, uint32_t cliptype)
+{
+	vec3_t vert;
+
+	vert.x = *x;
+	vert.y = *y;
+	vert.z = *z;
+	int32_t ret = clipmove(&vert, sectnum, xvect, yvect, walldist, ceildist, flordist, cliptype);
+	*x = vert.x;
+	*y = vert.y;
+	*z = vert.z;
+
+	return ret;
+}
+
+__forceinline int32_t hitscan(long nx, long ny, long nz, short vsect, long vx, long vy, long vz, short *hitsect, short *hitwall, short *hitsprite, long *hitx, long *hity, long *hitz, uint32_t cliptype)
+{
+	vec3_t position;
+	hitdata_t hitinfo;
+
+	position.x = nx;
+	position.y = ny;
+	position.z = nz;
+
+	static hitdata_t hit;
+
+	int32_t ret = hitscan(&position, vsect, vx, vy, vz, &hit, cliptype);
+
+	*hitsprite = hit.sprite;
+	*hitsect = hit.sect;
+	*hitwall = hit.wall;
+	*hitx = hit.pos.x;
+	*hity = hit.pos.y;
+	*hitz = hit.pos.z;
+
+	return ret;
+}
+
+
+__forceinline void      rotatepoint(long pivit_x, long pivit_y, long p1, long p2, int16_t daang, long *resultx, long *resulty)
+{
+	vec2_t pivit;
+	vec2_t p;
+
+	static vec2_t result;
+
+	pivit.x = pivit_x;
+	pivit.y = pivit_y;
+	p.x = p1;
+	p.y = p2;
+
+	::rotatepoint(pivit, p, daang, &result);
+
+	*resultx = result.x;
+	*resulty = result.y;
+}
+
+__forceinline int32_t   pushmove(long *nx, long *ny, long *nz, int16_t *sectnum, int32_t walldist, int32_t ceildist, int32_t flordist, uint32_t cliptype)
+{
+	vec3_t vect;
+	vect.x = *nx;
+	vect.y = *ny;
+	vect.z = *nz;
+	int32_t ret = pushmove(&vect, sectnum, walldist, ceildist, flordist, cliptype);
+	*nx = vect.x;
+	*ny = vect.y;
+	*nz = vect.z;
+	return ret;
+}
+
+__forceinline void   getzrange(long x, long y, long z, short sectnum, long *ceilz, long *ceilhit, long *florz, long *florhit, long walldist, long cliptype)
+{
+	vec3_t vert;
+
+	vert.x = x;
+	vert.y = y;
+	vert.z = z;
+
+	::getzrange(&vert, (int16_t)sectnum, (int32_t *)ceilz, (int32_t *)ceilhit, (int32_t *)florz, (int32_t *)florhit, (int32_t)walldist, (uint32_t )cliptype);
+}
 #endif // build_h_

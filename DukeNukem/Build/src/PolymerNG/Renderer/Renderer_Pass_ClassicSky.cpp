@@ -55,6 +55,9 @@ void RendererDrawPassDrawClassicSky::Draw(const BuildRenderCommand &command)
 	rhi.UpdateRHIMesh(classicSkyRHIMesh, 0, sizeof(Build3DVertex), numClassicSkyPlanes * 4, classicSkyVertexes);
 
 	BuildImage *image = static_cast<BuildImage *>(command.taskRenderWorld.skyImageHandle);
+	if (image == NULL)
+		return;
+
 	drawClassicSkyBuffer.mWorldViewProj = command.taskRenderWorld.skyProjMatrix;
 	//drawSpriteBuffer.modelMatrix = sprite->modelMatrix;
 	classicSkyConstantBuffer->UpdateBuffer(&drawClassicSkyBuffer, sizeof(VS_DRAWCLASSICSKY_BUFFER), 0);

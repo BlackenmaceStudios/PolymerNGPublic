@@ -13,13 +13,7 @@ RendererDrawPassDrawUI::Init
 */
 void RendererDrawPassDrawUI::Init()
 {
-//	pso = rhi.CreatePipelineStateObject();
-//	pso->SetInputLayout(ui_VertexElementDescriptor);
-//	pso->SetDepthState(false);
-//	pso->SetBlendMode(false, false, false);
-//	pso->SetRasterizeState(true);
-//	renderer.SetShaderForPSO(pso, renderer.ui_texture_basic);
-//	pso->Finalize(2);
+	drawUIConstantBuffer = rhi.AllocateRHIConstantBuffer(sizeof(PS_DRAWUI_BUFFER), &drawUIBuffer);
 }
 
 /*
@@ -66,8 +60,19 @@ void RendererDrawPassDrawUI::Draw(const BuildRenderCommand &command)
 		initprintf("RendererDrawPassDrawUI::Draw: Tried to draw a NULL image?\n");
 		return;
 	}
+	if (image->GetRHITexture() == NULL)
+	{
+		return;
+	}
 	rhi.SetShader(renderer.ui_texture_basic->GetRHIShader());
 	rhi.SetImageForContext(0, image->GetRHITexture());
 	rhi.SetImageForContext(1, polymerNG.GetPaletteImage()->GetRHITexture());
+
+	drawUIBuffer.modulationColor[0] = command.taskRotateSprite.spriteColor.GetX();
+	drawUIBuffer.modulationColor[1] = command.taskRotateSprite.spriteColor.GetY();
+	drawUIBuffer.modulationColor[2] = command.taskRotateSprite.spriteColor.GetZ();
+
+	drawUIConstantBuffer->UpdateBuffer(&drawUIBuffer, sizeof(PS_DRAWUI_BUFFER), 0);
+	rhi.SetConstantBuffer(0, drawUIConstantBuffer, false, true);
 	rhi.DrawUnoptimized2DQuad(corrected_vertexes);
 }

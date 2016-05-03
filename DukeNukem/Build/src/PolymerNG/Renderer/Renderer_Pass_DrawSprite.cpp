@@ -30,6 +30,7 @@ void RendererDrawPassDrawSprite::Init()
 	spriteRHIMesh = rhi.AllocateRHIMesh(sizeof(Build3DVertex), 8, &spriteVertexes[0], false);
 
 	drawSpriteConstantBuffer = rhi.AllocateRHIConstantBuffer(sizeof(VS_DRAWSPRITE_BUFFER), &drawSpriteBuffer);
+	drawSpritePixelConstantBuffer = rhi.AllocateRHIConstantBuffer(sizeof(PS_DRAWSPRITE_BUFFER), &psDrawSpriteBuffer);
 }
 
 /*
@@ -42,25 +43,31 @@ void RendererDrawPassDrawSprite::Draw(const BuildRenderCommand &command)
 	for (int i = 0; i < command.taskRenderSprites.numSprites; i++)
 	{
 		Build3DSprite *sprite = &command.taskRenderSprites.prsprites[i];
-		// HACK! Hide the first person view sprite!!!!
-		if (sprite->plane.tileNum >= 1400 && sprite->plane.tileNum <= 1518)
+		
+		if (!sprite->isVisible)
 			continue;
 		BuildImage *image = static_cast<BuildImage *>(sprite->plane.renderImageHandle);
 		drawSpriteBuffer.mWorldViewProj = sprite->modelViewProjectionMatrix;
+		drawSpriteBuffer.modelMatrix = sprite->modelMatrix;
 		//drawSpriteBuffer.modelMatrix = sprite->modelMatrix;
 		drawSpriteConstantBuffer->UpdateBuffer(&drawSpriteBuffer, sizeof(VS_DRAWSPRITE_BUFFER), 0);
 
 		rhi.SetConstantBuffer(0, drawSpriteConstantBuffer);
 
+		psDrawSpriteBuffer.shadeOffsetVisibility[0] = sprite->plane.shadeNum;
+		psDrawSpriteBuffer.shadeOffsetVisibility[1] = sprite->plane.visibility;
+		psDrawSpriteBuffer.fogDensistyScaleEnd[0] = sprite->plane.fogDensity;
+		psDrawSpriteBuffer.fogDensistyScaleEnd[1] = sprite->plane.fogStart;
+		psDrawSpriteBuffer.fogDensistyScaleEnd[2] = sprite->plane.fogEnd;
+		drawSpritePixelConstantBuffer->UpdateBuffer(&psDrawSpriteBuffer, sizeof(PS_CONSTANT_BUFFER), 0);
+		rhi.SetConstantBuffer(0, drawSpritePixelConstantBuffer, false, true);
+		if (image == NULL || image->GetRHITexture() == NULL)
+		{
+			continue;
+		}
 		rhi.SetImageForContext(0, image->GetRHITexture());
-		if (polymerNG.GetPaletteImage(sprite->paletteNum))
-		{
-			rhi.SetImageForContext(1, polymerNG.GetPaletteImage(sprite->paletteNum)->GetRHITexture());
-		}
-		else
-		{
-			rhi.SetImageForContext(1, polymerNG.GetPaletteImage()->GetRHITexture());
-		}
+		rhi.SetImageForContext(1, polymerNG.GetPaletteImage()->GetRHITexture());
+		rhi.SetImageForContext(2, polymerNG.GetPaletteLookupImage(sprite->paletteNum)->GetRHITexture());
 		if (sprite->isHorizsprite)
 		{
 			rhi.DrawUnoptimizedQuad(renderer.spriteSimpleProgram->GetRHIShader(), spriteRHIMesh, 4, 4);

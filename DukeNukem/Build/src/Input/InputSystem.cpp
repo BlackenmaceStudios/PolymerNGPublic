@@ -22,6 +22,15 @@ void XBuildInputSystemPrivate::Init(ABI::Windows::UI::Core::ICoreWindow* window)
 	{
 		controllerButtonForcedUp[i] = false;
 	}
+
+	// Find a xbox controller that works.
+	for (int i = 0; i < 4; i++)
+	{
+		if (gamePad->GetCapabilities(i).connected)
+		{
+			currentPlayerId = i;
+		}
+	}
 }
 
 bool XBuildInputSystemPrivate::KB_KeyPressed(unsigned char c)
@@ -34,7 +43,7 @@ extern "C" void readmousexy(int32_t *x, int32_t *y)
 	static int32_t lastMouseX = 0;
 	static int32_t lastMouseY = 0;
 
-	DirectX::GamePad::State controllerState = xBuildInputSystemPrivate.gamePad->GetState(0, DirectX::GamePad::DEAD_ZONE_CIRCULAR);
+	DirectX::GamePad::State controllerState = xBuildInputSystemPrivate.gamePad->GetState(xBuildInputSystemPrivate.GetCurrentPlayerId(), DirectX::GamePad::DEAD_ZONE_CIRCULAR);
 
 	if (controllerState.connected)
 	{
@@ -57,7 +66,7 @@ extern "C" void readmousexy(int32_t *x, int32_t *y)
 
 extern "C" void readmousebstatus(int32_t *b)
 {
-	DirectX::GamePad::State controllerState = xBuildInputSystemPrivate.gamePad->GetState(0, DirectX::GamePad::DEAD_ZONE_CIRCULAR);
+	DirectX::GamePad::State controllerState = xBuildInputSystemPrivate.gamePad->GetState(xBuildInputSystemPrivate.GetCurrentPlayerId(), DirectX::GamePad::DEAD_ZONE_CIRCULAR);
 
 	if (controllerState.connected)
 	{
@@ -77,7 +86,7 @@ extern "C" void readmousebstatus(int32_t *b)
 
 void XHandleControllerMovement(int32_t *dx, int32_t *dy)
 {
-	DirectX::GamePad::State controllerState = xBuildInputSystemPrivate.gamePad->GetState(0, DirectX::GamePad::DEAD_ZONE_INDEPENDENT_AXES);
+	DirectX::GamePad::State controllerState = xBuildInputSystemPrivate.gamePad->GetState(xBuildInputSystemPrivate.GetCurrentPlayerId(), DirectX::GamePad::DEAD_ZONE_INDEPENDENT_AXES);
 
 	if (controllerState.connected)
 	{
@@ -89,7 +98,7 @@ void XHandleControllerMovement(int32_t *dx, int32_t *dy)
 
 bool XBuildInputSystemPrivate::ControllerKeyDown(XControllerButton button)
 {
-	DirectX::GamePad::State controllerState = xBuildInputSystemPrivate.gamePad->GetState(0, DirectX::GamePad::DEAD_ZONE_INDEPENDENT_AXES);
+	DirectX::GamePad::State controllerState = xBuildInputSystemPrivate.gamePad->GetState(currentPlayerId, DirectX::GamePad::DEAD_ZONE_INDEPENDENT_AXES);
 
 	if (controllerState.connected)
 	{
@@ -113,6 +122,8 @@ bool XBuildInputSystemPrivate::ControllerKeyDown(XControllerButton button)
 				return controllerState.dpad.up;
 			case XB_Button_DPAD_Down:
 				return controllerState.dpad.down;
+			case XB_Right_Trigger:
+				return controllerState.IsRightTriggerPressed();
 			case XB_Button_DPAD_Left:
 				return controllerState.dpad.left;
 			case XB_Button_DPAD_Right:
@@ -136,7 +147,7 @@ void XBuildInputSystemPrivate::SetControllerButtonsUp()
 
 void XBuildInputSystemPrivate::Update()
 {
-	DirectX::GamePad::State controllerState = xBuildInputSystemPrivate.gamePad->GetState(0, DirectX::GamePad::DEAD_ZONE_INDEPENDENT_AXES);
+	DirectX::GamePad::State controllerState = xBuildInputSystemPrivate.gamePad->GetState(xBuildInputSystemPrivate.GetCurrentPlayerId(), DirectX::GamePad::DEAD_ZONE_INDEPENDENT_AXES);
 
 	if (controllerState.connected)
 	{

@@ -97,7 +97,8 @@ LUNATIC_EXTERN const int32_t engine_v8 = 0;
 #ifdef DEBUGGINGAIDS
 float debug1, debug2;
 #endif
-
+int32_t globalCurrentSectorNum;
+int32_t forceSkyImage = -1;
 int32_t mapversion=7; // JBF 20040211: default mapversion to 7
 int32_t g_loadedMapVersion = -1;  // -1: none (e.g. started new)
 usermaphack_t g_loadedMapHack;  // used only for the MD4 part
@@ -108,8 +109,22 @@ int32_t compare_usermaphacks(const void *a, const void *b)
 }
 usermaphack_t *usermaphacks;
 int32_t num_usermaphacks;
-
+bool isOcclusionPass = false;
 static int32_t get_mapversion(void);
+
+std::vector<int32_t> pvsVisibleSectors;
+
+void AddUniqueVisibleSector(int32_t sector)
+{
+	if (sector == -1)
+		return;
+
+	if (std::find(pvsVisibleSectors.begin(), pvsVisibleSectors.end(), sector) == pvsVisibleSectors.end()) {
+		// someName not in name, add it
+		pvsVisibleSectors.push_back(sector);
+	}
+
+}
 
 // Handle nonpow2-ysize walls the old way?
 static inline int32_t oldnonpow2(void)
@@ -221,9 +236,8 @@ int32_t globalx1, globaly2, globalx3, globaly3;
 
 int32_t sloptable[16384];
 static intptr_t slopalookup[16384];    // was 2048
-#if defined(USE_OPENGL)
 palette_t palookupfog[MAXPALOOKUPS];
-#endif
+
 
 // For every pal number, whether tsprite pal should not be taken over from
 // floor pal.
@@ -906,6 +920,10 @@ void yax_tweakpicnums(int32_t bunchnum, int32_t cf, int32_t restore)
 
 static void yax_copytsprites()
 {
+	if (isOcclusionPass)
+	{
+		return;
+	}
     int32_t i, spritenum, gotthrough, sectnum;
     int32_t sortcnt = yax_spritesortcnt[yax_globallev];
     const spritetype *spr;
@@ -2368,7 +2386,7 @@ static permfifotype permfifo[MAXPERMS];
 static int32_t permhead = 0, permtail = 0;
 
 EDUKE32_STATIC_ASSERT(MAXWALLSB < INT16_MAX);
-int16_t numscans, numbunches;
+volatile int16_t numscans, numbunches;
 static int16_t numhits;
 int16_t capturecount = 0;
 
@@ -3291,15 +3309,15 @@ int32_t animateoffs(int const tilenum)
     UNREFERENCED_PARAMETER(fakevar);
 #endif
 
-    int const animnum = picanm[tilenum].num;
+    int const animnum = picanm[tilenum].flags.num;
 
     if (animnum <= 0)
         return 0;
 
-    int const i = totalclocklock >> (picanm[tilenum].sf & PICANM_ANIMSPEED_MASK);
+    int const i = totalclocklock >> (picanm[tilenum].flags.sf & PICANM_ANIMSPEED_MASK);
     int offs = 0;
 
-    switch (picanm[tilenum].sf & PICANM_ANIMTYPE_MASK)
+    switch (picanm[tilenum].flags.sf & PICANM_ANIMTYPE_MASK)
     {
         case PICANM_ANIMTYPE_OSC:
         {
@@ -3715,6 +3733,9 @@ static void ceilscan(int32_t x1, int32_t x2, int32_t sectnum)
     int32_t x, y1, y2;
     const sectortype *const sec = &sector[sectnum];
 
+	globalCurrentSectorNum = sectnum;
+	AddUniqueVisibleSector(sectnum);
+
     if (setup_globals_cf1(sec, sec->ceilingpal, sec->ceilingz-globalposz,
                           sec->ceilingpicnum, sec->ceilingshade, sec->ceilingstat,
                           sec->ceilingxpanning, sec->ceilingypanning, x1))
@@ -3817,6 +3838,9 @@ static void florscan(int32_t x1, int32_t x2, int32_t sectnum)
                            sec->floorpicnum, sec->floorshade, sec->floorstat,
                            sec->floorxpanning, sec->floorypanning, x1))
          return;
+
+	 globalCurrentSectorNum = sectnum;
+	 AddUniqueVisibleSector(sectnum);
 
     if (!(globalorientation&0x180))
     {
@@ -4643,7 +4667,7 @@ static void parascan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat, i
     logtilesizy = (picsiz[globalpicnum]>>4);
     tsizy = tilesiz[globalpicnum].y;
 
-    if (tsizy==0)
+   // if (tsizy==0)
         return;
 
     dapskyoff = getpsky(globalpicnum, &dapyscale, &dapskybits);
@@ -4904,6 +4928,9 @@ static void drawalls(int32_t bunch)
     const int32_t sectnum = thesector[z];
     const sectortype *const sec = &sector[sectnum];
 
+	globalCurrentSectorNum = sectnum;
+	AddUniqueVisibleSector(sectnum);
+
     uint8_t andwstat1 = 0xff, andwstat2 = 0xff;
 
     for (; z>=0; z=bunchp2[z]) //uplc/dplc calculation
@@ -5033,6 +5060,8 @@ static void drawalls(int32_t bunch)
 
         const int32_t nextsectnum = wal->nextsector;
         const sectortype *const nextsec = nextsectnum>=0 ? &sector[nextsectnum] : NULL;
+
+		AddUniqueVisibleSector(nextsectnum);
 
         int32_t gotswall = 0;
 
@@ -5855,8 +5884,8 @@ static void drawsprite_classic(int32_t snum)
     if (cstat&2)
         setup_blend(blendidx, cstat&512);
 
-    int32_t xoff = picanm[tilenum].xofs + tspr->xoffset;
-    int32_t yoff = picanm[tilenum].yofs + tspr->yoffset;
+    int32_t xoff = picanm[tilenum].flags.xofs + tspr->xoffset;
+    int32_t yoff = picanm[tilenum].flags.yofs + tspr->yoffset;
 
     if ((cstat&48) == 0)
     {
@@ -7592,8 +7621,8 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
     {
         // Bit 1<<4 clear: origin is center of tile, and per-tile offset is applied.
         // TODO: split the two?
-        xoff = picanm[picnum].xofs + (xsiz>>1);
-        yoff = picanm[picnum].yofs + (ysiz>>1);
+        xoff = picanm[picnum].flags.xofs + (xsiz>>1);
+        yoff = picanm[picnum].flags.yofs + (ysiz>>1);
     }
 
     // Bit 1<<2: invert y
@@ -9412,8 +9441,11 @@ int32_t drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
 
 // jmarshall
 #if 1
-	polymerNG.DrawRooms(daposx, daposy, daposz, daang, dahoriz, dacursectnum);
-	return 0;
+	if (!isOcclusionPass)
+	{
+		polymerNG.DrawRooms(daposx, daposy, daposz, daang, dahoriz, dacursectnum);
+		return 0;
+	}
 #endif
 // jmarshall end
 
@@ -9481,7 +9513,11 @@ int32_t drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
     //      { /* setvmode(0x3);*/ OSD_Printf("Nice try.\n"); Bexit(0); }
 
     numhits = xdimen; numscans = 0; numbunches = 0;
-    maskwallcnt = 0; smostwallcnt = 0; smostcnt = 0; spritesortcnt = 0;
+    maskwallcnt = 0; smostwallcnt = 0; smostcnt = 0; 
+	if (!isOcclusionPass)
+	{
+		spritesortcnt = 0;
+	}
 
 #ifdef YAX_ENABLE
     if (yax_globallev != YAX_MAXDRAWS)
@@ -9728,6 +9764,9 @@ int32_t g_maskDrawMode = 0;
 //
 void drawmasks(void)
 {
+	if (isOcclusionPass)
+		return;
+
 #ifdef DEBUG_MASK_DRAWING
         static struct {
             int16_t di;  // &32768: &32767 is tspriteptr[], else thewall[] index
@@ -9820,7 +9859,7 @@ killsprite:
                 spritesxyz[k].z = s->z;
                 if ((s->cstat&48) != 32)
                 {
-                    int32_t yoff = picanm[s->picnum].yofs + s->yoffset;
+                    int32_t yoff = picanm[s->picnum].flags.yofs + s->yoffset;
                     int32_t yspan = (tilesiz[s->picnum].y*s->yrepeat<<2);
 
                     spritesxyz[k].z -= (yoff*s->yrepeat)<<2;
@@ -12039,12 +12078,12 @@ void E_ConvertARTv1picanmToMemory(int32_t const picnum)
     picanm_t * const thispicanm = &picanm[picnum];
 
     // Old on-disk format: anim type is in the 2 highest bits of the lowest byte.
-    thispicanm->sf &= ~192;
-    thispicanm->sf |= thispicanm->num&192;
-    thispicanm->num &= ~192;
+    thispicanm->flags.sf &= ~192;
+    thispicanm->flags.sf |= thispicanm->flags.num&192;
+    thispicanm->flags.num &= ~192;
 
     // don't allow setting texhitscan/nofullbright from ART
-    thispicanm->sf &= ~PICANM_MISC_MASK;
+    thispicanm->flags.sf &= ~PICANM_MISC_MASK;
 }
 
 void E_ReadArtFileTileInfo(int32_t const fil, artheader_t const * const local)
@@ -12661,7 +12700,7 @@ int32_t spriteheightofsptr(const spritetype *spr, int32_t *height, int32_t alsot
     // NOTE: a positive per-tile yoffset translates the sprite into the
     // negative world z direction (i.e. upward).
     if (alsotileyofs)
-        zofs -= picanm[picnum].yofs*yrepeat<<2;
+        zofs -= picanm[picnum].flags.yofs*yrepeat<<2;
 
     return zofs;
 }
@@ -13033,7 +13072,7 @@ static void get_wallspr_points(const spritetype *spr, int32_t *x1, int32_t *x2,
 
     const int32_t tilenum=spr->picnum, ang=spr->ang;
     const int32_t xrepeat = spr->xrepeat;
-    int32_t xoff = picanm[tilenum].xofs + spr->xoffset;
+    int32_t xoff = picanm[tilenum].flags.xofs + spr->xoffset;
     int32_t k, l, dax, day;
 
     if (spr->cstat&4)
@@ -13068,8 +13107,8 @@ static void get_floorspr_points(const tspritetype *spr, int32_t px, int32_t py,
     const int32_t xspan=tilesiz[tilenum].x, xrepeat=spr->xrepeat;
     const int32_t yspan=tilesiz[tilenum].y, yrepeat=spr->yrepeat;
 
-    int32_t xoff = picanm[tilenum].xofs + spr->xoffset;
-    int32_t yoff = picanm[tilenum].yofs + spr->yoffset;
+    int32_t xoff = picanm[tilenum].flags.xofs + spr->xoffset;
+    int32_t yoff = picanm[tilenum].flags.yofs + spr->yoffset;
     int32_t k, l, dax, day;
 
     if (spr->cstat&4)
@@ -13381,7 +13420,7 @@ restart_grand:
                 daz = spr->z + spriteheightofs(z, &k, 1);
                 if (intz > daz-k && intz < daz)
                 {
-                    if (picanm[tilenum].sf&PICANM_TEXHITSCAN_BIT)
+                    if (picanm[tilenum].flags.sf&PICANM_TEXHITSCAN_BIT)
                     {
                         DO_TILE_ANIM(tilenum, 0);
 
@@ -15494,6 +15533,7 @@ int32_t setpalookup(int32_t palnum, const uint8_t *shtab)
     {
         maybe_alloc_palookup(palnum);
         Bmemcpy(palookup[palnum], shtab, 256*numshades);
+		polymerNG.UpdatePaletteLookupTable(palnum);
     }
 
     return 0;
@@ -15579,12 +15619,11 @@ void makepalookup(int32_t palnum, const char *remapbuf, uint8_t r, uint8_t g, ui
             }
         }
     }
+	polymerNG.UpdatePaletteLookupTable(palnum);
 
-#if defined(USE_OPENGL)
     palookupfog[palnum].r = r;
     palookupfog[palnum].g = g;
     palookupfog[palnum].b = b;
-#endif
 }
 
 //

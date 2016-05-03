@@ -65,9 +65,6 @@
     <Filter Include="Deprecated">
       <UniqueIdentifier>4c1d6018-6f60-417a-8ff9-5cadae54ec4d</UniqueIdentifier>
     </Filter>
-    <Filter Include="Game">
-      <UniqueIdentifier>{19cd18b7-a038-44d9-985c-f93dcf4ec501}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Shaders">
       <UniqueIdentifier>{25798611-dd31-4edd-8166-39a2c01f1091}</UniqueIdentifier>
     </Filter>
@@ -101,139 +98,367 @@
     <Filter Include="Assets\DukeData\Mods\BloodCM\bicons\weapons">
       <UniqueIdentifier>{3e1f043b-61f6-4b14-ab6e-9aff434c9536}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SWGame">
+      <UniqueIdentifier>{95fd70d0-ec6c-48ec-8d02-e168f9d681d5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DukeGame">
+      <UniqueIdentifier>{19cd18b7-a038-44d9-985c-f93dcf4ec501}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MusicShared">
+      <UniqueIdentifier>{2af68c50-96dd-4701-967f-5bc6bfab932a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\SWData">
+      <UniqueIdentifier>{c855f4d8-3317-4c46-ae4e-a3004737bc59}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp" />
     <ClCompile Include="DukeNukemMain.cpp" />
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="Game\actors.cpp">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClCompile>
     <ClCompile Include="Game\anim.cpp">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClCompile>
     <ClCompile Include="Game\animsounds.cpp">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClCompile>
     <ClCompile Include="Game\animvpx.cpp">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClCompile>
     <ClCompile Include="Game\common.cpp">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClCompile>
     <ClCompile Include="Game\config.cpp">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClCompile>
     <ClCompile Include="Game\demo.cpp">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClCompile>
     <ClCompile Include="Game\game.cpp">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClCompile>
     <ClCompile Include="Game\gamedef.cpp">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClCompile>
     <ClCompile Include="Game\gameexec.cpp">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClCompile>
     <ClCompile Include="Game\gamevars.cpp">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClCompile>
     <ClCompile Include="Game\global.cpp">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClCompile>
     <ClCompile Include="Game\grpscan.cpp">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClCompile>
     <ClCompile Include="Game\input.cpp">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClCompile>
     <ClCompile Include="Game\m32common.cpp">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClCompile>
     <ClCompile Include="Game\m32def.cpp">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClCompile>
     <ClCompile Include="Game\m32exec.cpp">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClCompile>
     <ClCompile Include="Game\m32vars.cpp">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClCompile>
     <ClCompile Include="Game\mdump.cpp">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClCompile>
     <ClCompile Include="Game\menus.cpp">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="Game\midi.cpp">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="Game\mpu401.cpp">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="Game\music.cpp">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClCompile>
     <ClCompile Include="Game\namesdyn.cpp">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClCompile>
     <ClCompile Include="Game\net.cpp">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClCompile>
     <ClCompile Include="Game\osdcmds.cpp">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClCompile>
     <ClCompile Include="Game\osdfuncs.cpp">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClCompile>
     <ClCompile Include="Game\player.cpp">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClCompile>
     <ClCompile Include="Game\premap.cpp">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClCompile>
     <ClCompile Include="Game\rev.cpp">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClCompile>
     <ClCompile Include="Game\rts.cpp">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClCompile>
     <ClCompile Include="Game\savegame.cpp">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClCompile>
     <ClCompile Include="Game\sector.cpp">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClCompile>
     <ClCompile Include="Game\sector_inline.cpp">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClCompile>
     <ClCompile Include="Game\sounds.cpp">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClCompile>
     <ClCompile Include="Game\soundsdyn.cpp">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClCompile>
     <ClCompile Include="Game\startwin.game.cpp">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClCompile>
     <ClCompile Include="Game\winbits.cpp">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClCompile>
     <ClCompile Include="Game\Cheats.cpp">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClCompile>
     <ClCompile Include="Game\cmdline.cpp">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClCompile>
     <ClCompile Include="Game\sbar.cpp">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClCompile>
     <ClCompile Include="Game\screens.cpp">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClCompile>
     <ClCompile Include="Game\screentext.cpp">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\actor.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\ai.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\border.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\break.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\bunny.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\cache.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\cheats.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\colormap.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\config.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\console.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\coolg.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\coolie.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\copysect.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\demo.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\draw.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\eel.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\game.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\girlninj.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\goro.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\hornet.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\interp.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\interpsh.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\inv.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\jplayer.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\jsector.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\jweapon.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\lava.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\light.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\mathutil.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\mclip.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\mdastr.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\menus.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\miscactr.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\morph.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\net.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\ninja.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\panel.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\player.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\predict.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\quake.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\ripper.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\ripper2.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\rooms.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\rotator.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\rts.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\save.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\saveable.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\scrip2.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\sector.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\serp.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\setup.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\skel.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\skull.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\slidor.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\sounds.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\spike.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\sprite.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\sumo.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\swconfig.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\sync.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\text.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\track.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\usrhooks.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\util_lib.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\vator.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\vis.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\wallmove.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\warp.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\weapon.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\zilla.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\zombie.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="SWGame\anim.cpp">
+      <Filter>SWGame</Filter>
+    </ClCompile>
+    <ClCompile Include="MusicShared\midi.cpp">
+      <Filter>MusicShared</Filter>
+    </ClCompile>
+    <ClCompile Include="MusicShared\mpu401.cpp">
+      <Filter>MusicShared</Filter>
+    </ClCompile>
+    <ClCompile Include="MusicShared\music.cpp">
+      <Filter>MusicShared</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -241,163 +466,157 @@
     <ClInclude Include="DukeNukemMain.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Game\_functio.h">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClInclude>
     <ClInclude Include="Game\_midi.h">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClInclude>
     <ClInclude Include="Game\_rts.h">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClInclude>
     <ClInclude Include="Game\actors.h">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClInclude>
     <ClInclude Include="Game\actors_inline.h">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClInclude>
     <ClInclude Include="Game\android.h">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClInclude>
     <ClInclude Include="Game\anim.h">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClInclude>
     <ClInclude Include="Game\animsounds.h">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClInclude>
     <ClInclude Include="Game\animvpx.h">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClInclude>
     <ClInclude Include="Game\common_game.h">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClInclude>
     <ClInclude Include="Game\config.h">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClInclude>
     <ClInclude Include="Game\demo.h">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClInclude>
     <ClInclude Include="Game\duke3d.h">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClInclude>
     <ClInclude Include="Game\events_defs.h">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClInclude>
     <ClInclude Include="Game\function.h">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClInclude>
     <ClInclude Include="Game\game.h">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClInclude>
     <ClInclude Include="Game\game_inline.h">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClInclude>
     <ClInclude Include="Game\gamedef.h">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClInclude>
     <ClInclude Include="Game\gamedefs.h">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClInclude>
     <ClInclude Include="Game\gameexec.h">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClInclude>
     <ClInclude Include="Game\GameListSource.game.h">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClInclude>
     <ClInclude Include="Game\gamevars.h">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClInclude>
     <ClInclude Include="Game\global.h">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClInclude>
     <ClInclude Include="Game\GrpFile.game.h">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClInclude>
     <ClInclude Include="Game\grpscan.h">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClInclude>
     <ClInclude Include="Game\input.h">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClInclude>
     <ClInclude Include="Game\keys.h">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClInclude>
     <ClInclude Include="Game\m32def.h">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClInclude>
     <ClInclude Include="Game\macros.h">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClInclude>
     <ClInclude Include="Game\mapster32.h">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClInclude>
     <ClInclude Include="Game\mdump.h">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClInclude>
     <ClInclude Include="Game\menus.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="Game\midi.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="Game\mpu401.h">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClInclude>
     <ClInclude Include="Game\names.h">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClInclude>
     <ClInclude Include="Game\namesdyn.h">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClInclude>
     <ClInclude Include="Game\net.h">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClInclude>
     <ClInclude Include="Game\osdcmds.h">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClInclude>
     <ClInclude Include="Game\osdfuncs.h">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClInclude>
     <ClInclude Include="Game\player.h">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClInclude>
     <ClInclude Include="Game\premap.h">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClInclude>
     <ClInclude Include="Game\quotes.h">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClInclude>
     <ClInclude Include="Game\rts.h">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClInclude>
     <ClInclude Include="Game\savegame.h">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClInclude>
     <ClInclude Include="Game\sector.h">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClInclude>
     <ClInclude Include="Game\sector_inline.h">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClInclude>
     <ClInclude Include="Game\soundefs.h">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClInclude>
     <ClInclude Include="Game\sounds.h">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClInclude>
     <ClInclude Include="Game\sounds_common.h">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClInclude>
     <ClInclude Include="Game\sounds_mapster32.h">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClInclude>
     <ClInclude Include="Game\soundsdyn.h">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClInclude>
     <ClInclude Include="Game\standard.h">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClInclude>
     <ClInclude Include="Game\startwin.game.h">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClInclude>
     <ClInclude Include="Common\GraphicsContext.h">
       <Filter>Common</Filter>
@@ -406,22 +625,223 @@
       <Filter>Assets\DukeData\Mods\BloodCM</Filter>
     </ClInclude>
     <ClInclude Include="Game\Cheats.h">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClInclude>
     <ClInclude Include="Game\cmdline.h">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClInclude>
     <ClInclude Include="Game\inv.h">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClInclude>
     <ClInclude Include="Game\sbar.h">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClInclude>
     <ClInclude Include="Game\screens.h">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
     </ClInclude>
     <ClInclude Include="Game\screentext.h">
-      <Filter>Game</Filter>
+      <Filter>DukeGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\_config.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\_functio.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\_rts.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\actor.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\ai.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\ambient.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\anim.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\bots.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\break.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\cache.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\colormap.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\common.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\config.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\conpic.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\damage.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\demo.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\digi.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\function.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\game.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\gamedefs.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\interp.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\inv.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\jnames.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\jsector.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\jtags.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\keys.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\light.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\lists.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\mclip.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\menus.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\mfile.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\mytypes.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\names.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\names2.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\net.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\ninja.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\pal.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\panel.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\parent.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\parse.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\player.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\quake.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\reserve.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\rts.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\saveable.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\savedef.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\sector.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\settings.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\slidor.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\sounds.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\sprite.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\stag.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\sw_strs.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\tags.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\text.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\track.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\trigger.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\vis.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\warp.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\weapon.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\mathutil.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\develop.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\util_lib.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\types.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGame\usrhooks.h">
+      <Filter>SWGame</Filter>
+    </ClInclude>
+    <ClInclude Include="MusicShared\midi.h">
+      <Filter>MusicShared</Filter>
+    </ClInclude>
+    <ClInclude Include="MusicShared\mpu401.h">
+      <Filter>MusicShared</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -892,6 +1312,99 @@
     </None>
     <None Include="Assets\dukedata\Mods\bloodcm\blcons\weapons\voodoodoll.con">
       <Filter>Assets\DukeData\Mods\BloodCM\bicons\weapons</Filter>
+    </None>
+    <None Include="Assets\dukedata\addons\vacation\doomsday.ogg">
+      <Filter>Assets\DukeData\Addons\vacation</Filter>
+    </None>
+    <None Include="Assets\dukedata\addons\vacation\duke-o.ogg">
+      <Filter>Assets\DukeData\Addons\vacation</Filter>
+    </None>
+    <None Include="Assets\dukedata\addons\vacation\irieprty.ogg">
+      <Filter>Assets\DukeData\Addons\vacation</Filter>
+    </None>
+    <None Include="Assets\dukedata\addons\vacation\jungvein.ogg">
+      <Filter>Assets\DukeData\Addons\vacation</Filter>
+    </None>
+    <None Include="Assets\dukedata\addons\vacation\prtycruz.ogg">
+      <Filter>Assets\DukeData\Addons\vacation</Filter>
+    </None>
+    <None Include="Assets\dukedata\addons\vacation\sol-man1.ogg">
+      <Filter>Assets\DukeData\Addons\vacation</Filter>
+    </None>
+    <None Include="Assets\dukedata\addons\nw\doom.ogg">
+      <Filter>Assets\DukeData\Addons\nw</Filter>
+    </None>
+    <None Include="Assets\dukedata\addons\nw\duke-o.ogg">
+      <Filter>Assets\DukeData\Addons\nw</Filter>
+    </None>
+    <None Include="Assets\dukedata\addons\nw\gremlins.ogg">
+      <Filter>Assets\DukeData\Addons\nw</Filter>
+    </None>
+    <None Include="Assets\dukedata\addons\nw\nw1.ogg">
+      <Filter>Assets\DukeData\Addons\nw</Filter>
+    </None>
+    <None Include="Assets\dukedata\addons\nw\nw2.ogg">
+      <Filter>Assets\DukeData\Addons\nw</Filter>
+    </None>
+    <None Include="Assets\dukedata\addons\nw\nw3.ogg">
+      <Filter>Assets\DukeData\Addons\nw</Filter>
+    </None>
+    <None Include="Assets\dukedata\addons\nw\nw4.ogg">
+      <Filter>Assets\DukeData\Addons\nw</Filter>
+    </None>
+    <None Include="Assets\dukedata\addons\nw\nw5.ogg">
+      <Filter>Assets\DukeData\Addons\nw</Filter>
+    </None>
+    <None Include="Assets\dukedata\addons\nw\nw7.ogg">
+      <Filter>Assets\DukeData\Addons\nw</Filter>
+    </None>
+    <None Include="Assets\dukedata\addons\nw\smk-07.ogg">
+      <Filter>Assets\DukeData\Addons\nw</Filter>
+    </None>
+    <None Include="Assets\SWData\SW.GRP">
+      <Filter>Assets\SWData</Filter>
+    </None>
+    <None Include="Assets\SWData\Track02.ogg">
+      <Filter>Assets\SWData</Filter>
+    </None>
+    <None Include="Assets\SWData\Track03.ogg">
+      <Filter>Assets\SWData</Filter>
+    </None>
+    <None Include="Assets\SWData\Track04.ogg">
+      <Filter>Assets\SWData</Filter>
+    </None>
+    <None Include="Assets\SWData\Track05.ogg">
+      <Filter>Assets\SWData</Filter>
+    </None>
+    <None Include="Assets\SWData\Track06.ogg">
+      <Filter>Assets\SWData</Filter>
+    </None>
+    <None Include="Assets\SWData\Track07.ogg">
+      <Filter>Assets\SWData</Filter>
+    </None>
+    <None Include="Assets\SWData\Track08.ogg">
+      <Filter>Assets\SWData</Filter>
+    </None>
+    <None Include="Assets\SWData\Track09.ogg">
+      <Filter>Assets\SWData</Filter>
+    </None>
+    <None Include="Assets\SWData\Track10.ogg">
+      <Filter>Assets\SWData</Filter>
+    </None>
+    <None Include="Assets\SWData\Track11.ogg">
+      <Filter>Assets\SWData</Filter>
+    </None>
+    <None Include="Assets\SWData\Track12.ogg">
+      <Filter>Assets\SWData</Filter>
+    </None>
+    <None Include="Assets\SWData\Track13.ogg">
+      <Filter>Assets\SWData</Filter>
+    </None>
+    <None Include="Assets\SWData\Track14.ogg">
+      <Filter>Assets\SWData</Filter>
+    </None>
+    <None Include="Assets\SWData\Track15.ogg">
+      <Filter>Assets\SWData</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

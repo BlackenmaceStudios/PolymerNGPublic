@@ -223,9 +223,21 @@ void BuildD3D11GPUBufferConstantBuffer::UpdateBuffer(void *data, int size, int o
 	DX::RHIGetD3DDeviceContext()->Unmap(rhiConstantBufferHandle, 0);
 }
 
-void BuildD3D11GPUBufferConstantBuffer::Bind()
+void BuildD3D11GPUBufferConstantBuffer::Bind(bool bindToVertexShader, bool bindToFragmentShader)
 {
 	UINT offset = 0;
-	DX::RHIGetD3DDeviceContext()->VSSetConstantBuffers(0, 1, &rhiConstantBufferHandle);
-//	DX::RHIGetD3DDeviceContext()->GSSetConstantBuffers(0, 1, &rhiConstantBufferHandle);
+
+	if (bindToVertexShader)
+	{
+		DX::RHIGetD3DDeviceContext()->VSSetConstantBuffers(0, 1, &rhiConstantBufferHandle);
+		//	DX::RHIGetD3DDeviceContext()->GSSetConstantBuffers(0, 1, &rhiConstantBufferHandle);
+	}
+	else if (bindToFragmentShader)
+	{
+		DX::RHIGetD3DDeviceContext()->PSSetConstantBuffers(0, 1, &rhiConstantBufferHandle);
+	}
+	else
+	{
+		initprintf("BuildD3D11GPUBufferConstantBuffer::Bind: Bad input parems\n");
+	}
 }

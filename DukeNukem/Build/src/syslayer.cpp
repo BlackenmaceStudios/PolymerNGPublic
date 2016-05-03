@@ -189,6 +189,8 @@ void BuildEngineApp::Startup()
 
 	polymerNG.Init();
 
+	numpages = 1;
+
 	gameThread = new GameThread(_buildargc, _buildargv);
 }
 

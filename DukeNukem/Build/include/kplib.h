@@ -6,8 +6,12 @@ extern "C" {
 #include "compat.h"
 #endif
 
-typedef struct
+struct kzfilestate
 {
+	kzfilestate()
+	{
+		fil = NULL;
+	}
     FILE *fil;    //0:no file open, !=0:open file (either stand-alone or zip)
     int32_t comptyp; //0:raw data (can be ZIP or stand-alone), 8:PKZIP LZ77 *flate
     int32_t seek0;   //0:stand-alone file, !=0: start of zip compressed stream data
@@ -20,7 +24,7 @@ typedef struct
     int32_t i;       //For stand-alone/ZIP comptyp#0, this is like "uncomptell"
     //For ZIP comptyp#8&btype==0 "<64K store", this saves i state
     int32_t bfinal;  //LZ77 decompression state (for later calls)
-} kzfilestate;
+};
 
 extern kzfilestate kzfs;
 

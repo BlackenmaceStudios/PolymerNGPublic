@@ -49,7 +49,7 @@ public:
 
 	virtual void UpdateBuffer(void *data, int size, int offset);
 
-	void Bind();
+	void Bind(bool bindToVertexShader, bool bindToFragmentShader);
 private:
 	void InitBuffer(int initialSize, void *initialData);
 

@@ -1372,11 +1372,11 @@ int32_t __fastcall VM_GetTileData(register int32_t const iTile, register int32_t
         case TILEDATA_XSIZE: lLabelID = tilesiz[iTile].x; break;
         case TILEDATA_YSIZE: lLabelID = tilesiz[iTile].y; break;
 
-        case TILEDATA_ANIMFRAMES: lLabelID = picanm[iTile].num; break;
-        case TILEDATA_XOFFSET: lLabelID = picanm[iTile].xofs; break;
-        case TILEDATA_YOFFSET: lLabelID = picanm[iTile].yofs; break;
-        case TILEDATA_ANIMSPEED: lLabelID = picanm[iTile].sf & PICANM_ANIMSPEED_MASK; break;
-        case TILEDATA_ANIMTYPE: lLabelID = (picanm[iTile].sf & PICANM_ANIMTYPE_MASK) >> PICANM_ANIMTYPE_SHIFT; break;
+        case TILEDATA_ANIMFRAMES: lLabelID = picanm[iTile].flags.num; break;
+        case TILEDATA_XOFFSET: lLabelID = picanm[iTile].flags.xofs; break;
+        case TILEDATA_YOFFSET: lLabelID = picanm[iTile].flags.yofs; break;
+        case TILEDATA_ANIMSPEED: lLabelID = picanm[iTile].flags.sf & PICANM_ANIMSPEED_MASK; break;
+        case TILEDATA_ANIMTYPE: lLabelID = (picanm[iTile].flags.sf & PICANM_ANIMTYPE_MASK) >> PICANM_ANIMTYPE_SHIFT; break;
 
         case TILEDATA_GAMEFLAGS: lLabelID = g_tile[iTile].flags; break;
 

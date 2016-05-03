@@ -611,7 +611,19 @@ static void CONTROL_ApplyAxis(int32_t axis, ControlInfo *info, controldevice dev
     case analog_elevation:        info->dy     += set[axis].analog; break;
     case analog_rolling:          info->droll  += set[axis].analog; break;
     case analog_moving:           info->dz     += set[axis].analog; break;
-    default: break;
+    default: 
+	{
+		if (axis == 0)
+		{
+			info->dyaw += set[axis].analog;
+		}
+		else if (axis == 1)
+		{
+			info->dpitch += set[axis].analog;
+		}
+	}
+		
+		break;
     }
 }
 

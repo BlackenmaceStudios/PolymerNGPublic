@@ -15,6 +15,8 @@
 #define LIBDIVIDE_VC 1
 #endif
 
+#define LIBDIVIDE_USE_SSE2 1
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>

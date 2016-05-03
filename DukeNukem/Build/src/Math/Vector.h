@@ -45,7 +45,7 @@ namespace Math
 		INLINE void SetX( Scalar x ) { m_vec = XMVectorPermute<4,1,2,3>(m_vec, x); }
 		INLINE void SetY( Scalar y ) { m_vec = XMVectorPermute<0,5,2,3>(m_vec, y); }
 		INLINE void SetZ( Scalar z ) { m_vec = XMVectorPermute<0,1,6,3>(m_vec, z); }
-		INLINE void SetXYZ(float x, float y, float z) { m_vec = XMVectorSet(x, y, z, z); }
+		INLINE void SetXYZ(float x, float y, float z) { m_vec = XMVectorSet(x, y, z, 1.0f); }
 
 		INLINE Vector3 operator- () const { return Vector3(XMVectorNegate(m_vec)); }
 		INLINE Vector3 operator+ ( Vector3 v2 ) const { return Vector3(XMVectorAdd(m_vec, v2)); }
@@ -99,6 +99,7 @@ namespace Math
 		INLINE void SetY( Scalar y ) { m_vec = XMVectorPermute<0,5,2,3>(m_vec, y); }
 		INLINE void SetZ( Scalar z ) { m_vec = XMVectorPermute<0,1,6,3>(m_vec, z); }
 		INLINE void SetW( Scalar w ) { m_vec = XMVectorPermute<0,1,2,7>(m_vec, w); }
+		INLINE void SetXYZW(float x, float y, float z, float w) { m_vec = XMVectorSet(x, y, z, w); }
 
 		INLINE Vector4 operator- () const { return Vector4(XMVectorNegate(m_vec)); }
 		INLINE Vector4 operator+ ( Vector4 v2 ) const { return Vector4(XMVectorAdd(m_vec, v2)); }

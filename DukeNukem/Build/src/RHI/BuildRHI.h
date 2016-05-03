@@ -174,7 +174,7 @@ public:
 	static const BuildRHITexture* LoadTextureFromMemory(const std::wstring &textureName, size_t Width, size_t Height, BuildRHITextureFormat Format, const void* InitData, bool allowCPUWrites = false);
 	static const BuildRHITexture* LoadTexture3DFromMemory(const std::wstring &textureName, size_t Width, size_t Height, size_t Depth, BuildRHITextureFormat Format, const void* InitData, bool allowCPUWrites = false);
 	static void SetShader(BuildRHIShader *shader);
-	static void SetConstantBuffer(int index, BuildRHIConstantBuffer *constantBuffer);
+	static void SetConstantBuffer(int index, BuildRHIConstantBuffer *constantBuffer, bool bindToVertexShader = true, bool bindToPixelShader = false);
 	static void DrawUnoptimized2DQuad( BuildRHIUIVertex *vertexes);
 	static BuildRHIMesh *AllocateRHIMesh(int vertexSize, int numVertexes, void * initialData, bool isDynamic);
 	static void UpdateRHIMesh(BuildRHIMesh *mesh, int startVertex, int vertexSize, int numVertexes, void *initialData);

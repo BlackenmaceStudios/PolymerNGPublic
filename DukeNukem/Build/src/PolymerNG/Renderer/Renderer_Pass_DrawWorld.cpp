@@ -14,6 +14,7 @@ RendererDrawPassDrawWorld::Init
 void RendererDrawPassDrawWorld::Init()
 {
 	drawWorldConstantBuffer = rhi.AllocateRHIConstantBuffer(sizeof(VS_DRAWWORLD_BUFFER), &drawWorldBuffer);
+	drawWorldPixelConstantBuffer = rhi.AllocateRHIConstantBuffer(sizeof(PS_CONSTANT_BUFFER), &drawWorldPixelBuffer);
 }
 
 /*
@@ -27,8 +28,22 @@ void RendererDrawPassDrawWorld::DrawPlane(BuildRHIMesh *rhiMesh, const BaseModel
 
 	if (image != NULL)
 	{
+		drawWorldPixelBuffer.shadeOffsetVisibility[0] = plane->shadeNum;
+		drawWorldPixelBuffer.shadeOffsetVisibility[1] = plane->visibility;
+		drawWorldPixelBuffer.fogColor[0] = plane->fogColor[0];
+		drawWorldPixelBuffer.fogColor[1] = plane->fogColor[1];
+		drawWorldPixelBuffer.fogColor[2] = plane->fogColor[2];
+
+		drawWorldPixelBuffer.fogDensistyScaleEnd[0] = plane->fogDensity;
+		drawWorldPixelBuffer.fogDensistyScaleEnd[1] = plane->fogStart;
+		drawWorldPixelBuffer.fogDensistyScaleEnd[2] = plane->fogEnd;
+
+		drawWorldPixelConstantBuffer->UpdateBuffer(&drawWorldPixelBuffer, sizeof(PS_CONSTANT_BUFFER), 0);
+		rhi.SetConstantBuffer(0, drawWorldPixelConstantBuffer, false, true);
+
 		rhi.SetImageForContext(0, image->GetRHITexture());
 		rhi.SetImageForContext(1, polymerNG.GetPaletteImage()->GetRHITexture());
+		rhi.SetImageForContext(2, polymerNG.GetPaletteLookupImage(plane->paletteNum)->GetRHITexture());
 
 		if (plane->ibo_offset != -1)
 		{
@@ -50,7 +65,7 @@ void RendererDrawPassDrawWorld::Draw(const BuildRenderCommand &command)
 {
 	drawWorldBuffer.mWorldViewProj = command.taskRenderWorld.viewProjMatrix;
 	drawWorldConstantBuffer->UpdateBuffer(&drawWorldBuffer, sizeof(VS_DRAWWORLD_BUFFER), 0);
-
+	
 	rhi.SetConstantBuffer(0, drawWorldConstantBuffer);
 
 	const Build3DBoard *board = command.taskRenderWorld.board;

@@ -36,7 +36,7 @@ protected:
 #include "Renderer_Pass_ClassicSky.h"
 
 #define MAX_SMP_FRAMES		2
-
+#define MAX_RENDER_COMMANDS 400
 //
 // Renderer
 //
@@ -57,7 +57,14 @@ public:
 
 	void		RenderFrame2D(class GraphicsContext& Context);
 
-	void		AddRenderCommand(BuildRenderCommand &command) { commands[currentFrame].push_back(command); }
+	void		AddRenderCommand(BuildRenderCommand &command) {
+		if (numRenderCommands[currentFrame] >= MAX_RENDER_COMMANDS)
+		{ 
+			initprintf("AddRenderCommand: MAX_RENDER_COMMANDS exceeded!!!...\n"); 
+			return;
+		} 
+		commands[currentFrame][numRenderCommands[currentFrame]++] = command;
+	}
 
 	int			GetCurrentFrameNum() { return currentFrame; }
 
@@ -66,15 +73,20 @@ public:
 	PolymerNGRenderProgram *spriteSimpleProgram;
 	PolymerNGRenderProgram *spriteSimpleHorizProgram;
 private:
-	std::vector<BuildRenderCommand>	commands[MAX_SMP_FRAMES];
+	int numRenderCommands[MAX_SMP_FRAMES];
+	BuildRenderCommand	commands[MAX_SMP_FRAMES][MAX_RENDER_COMMANDS];
 
-	std::vector<BuildRenderCommand> _2dcommands;
+	int num2DRenderCommands;
+	BuildRenderCommand *_2dcommands[MAX_RENDER_COMMANDS];
 
 	RendererDrawPassDrawUI drawUIPass;
 	RendererDrawPassDrawWorld drawWorldPass;
 	RendererDrawPassDrawSprite drawSpritePass;
 	RendererDrawPassDrawClassicSky drawClassicSkyPass;
 	int			currentFrame;
+
+	BuildRenderCommand *currentRenderCommand;
+	int currentNumRenderCommand;
 };
 
 extern Renderer renderer;

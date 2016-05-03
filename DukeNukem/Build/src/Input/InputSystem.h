@@ -18,6 +18,7 @@ enum XControllerButton
 	XB_Button_DPAD_Right,
 	XB_Shoulder_Left,
 	XB_Shoulder_Right,
+	XB_Right_Trigger,
 	XB_NumButtons,
 };
 

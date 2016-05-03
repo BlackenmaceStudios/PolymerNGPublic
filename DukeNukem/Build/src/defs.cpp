@@ -761,13 +761,13 @@ static int32_t defsparser(scriptfile *script)
             }
 
             // set anim speed
-            picanm[tile1].sf &= ~PICANM_ANIMSPEED_MASK;
-            picanm[tile1].sf |= spd;
+            picanm[tile1].flags.sf &= ~PICANM_ANIMSPEED_MASK;
+            picanm[tile1].flags.sf |= spd;
             // set anim type
-            picanm[tile1].sf &= ~PICANM_ANIMTYPE_MASK;
-            picanm[tile1].sf |= type<<PICANM_ANIMTYPE_SHIFT;
+            picanm[tile1].flags.sf &= ~PICANM_ANIMTYPE_MASK;
+            picanm[tile1].flags.sf |= type<<PICANM_ANIMTYPE_SHIFT;
             // set anim number
-            picanm[tile1].num = num;
+            picanm[tile1].flags.num = num;
 
             break;
         }
@@ -842,11 +842,11 @@ static int32_t defsparser(scriptfile *script)
             if (!fn)
             {
                 // tilefromtexture <tile> { texhitscan }  sets the bit but doesn't change tile data
-                picanm[tile].sf |= flags;
+                picanm[tile].flags.sf |= flags;
                 if (havexoffset)
-                    picanm[tile].xofs = xoffset;
+                    picanm[tile].flags.xofs = xoffset;
                 if (haveyoffset)
-                    picanm[tile].yofs = yoffset;
+                    picanm[tile].flags.yofs = yoffset;
 
                 if (EDUKE32_PREDICT_FALSE(flags == 0 && !havexoffset && !haveyoffset))
                     initprintf("\nError: missing 'file name' for tilefromtexture definition near line %s:%d",
@@ -864,17 +864,17 @@ static int32_t defsparser(scriptfile *script)
             if (texstatus < 0)
                 break;
 
-            picanm[tile].sf |= flags;
+            picanm[tile].flags.sf |= flags;
 
             if (havexoffset)
-                picanm[tile].xofs = xoffset;
+                picanm[tile].flags.xofs = xoffset;
             else if (texstatus == 0)
-                picanm[tile].xofs = 0;
+                picanm[tile].flags.xofs = 0;
 
             if (haveyoffset)
-                picanm[tile].yofs = yoffset;
+                picanm[tile].flags.yofs = yoffset;
             else if (texstatus == 0)
-                picanm[tile].yofs = 0;
+                picanm[tile].flags.yofs = 0;
         }
         break;
         case T_COPYTILE:
@@ -982,9 +982,9 @@ static int32_t defsparser(scriptfile *script)
             }
 
             set_tilesiz(tile, tilesiz[source].x, tilesiz[source].y);
-            picanm[tile].xofs = havexoffset ? clamp(xoffset, -128, 127) : picanm[source].xofs;
-            picanm[tile].yofs = haveyoffset ? clamp(yoffset, -128, 127) : picanm[source].yofs;
-            picanm[tile].sf = (picanm[tile].sf & ~PICANM_MISC_MASK) | (picanm[source].sf & PICANM_MISC_MASK) | flags;
+            picanm[tile].flags.xofs = havexoffset ? clamp(xoffset, -128, 127) : picanm[source].flags.xofs;
+            picanm[tile].flags.yofs = haveyoffset ? clamp(yoffset, -128, 127) : picanm[source].flags.yofs;
+            picanm[tile].flags.sf = (picanm[tile].flags.sf & ~PICANM_MISC_MASK) | (picanm[source].flags.sf & PICANM_MISC_MASK) | flags;
 
         }
         break;
@@ -2510,7 +2510,7 @@ static int32_t defsparser(scriptfile *script)
             e = min(e, MAXUSERTILES-1);
 
             for (i=b; i<=e; i++)
-                picanm[i].sf |= (tokn==T_TEXHITSCANRANGE) ?
+                picanm[i].flags.sf |= (tokn==T_TEXHITSCANRANGE) ?
                     PICANM_TEXHITSCAN_BIT : PICANM_NOFULLBRIGHT_BIT;
         }
         break;

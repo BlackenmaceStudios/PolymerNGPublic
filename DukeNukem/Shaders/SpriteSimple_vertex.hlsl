@@ -3,7 +3,7 @@
 cbuffer VS_CONSTANT_BUFFER : register(b0)
 {
 	matrix mWorldViewProjection;
-	//matrix spriteTransformMatrix;
+	matrix mWorldView;
 };
 
 
@@ -29,7 +29,8 @@ VertexShaderOutput main(VertexShaderInput input)
 
 	float4 vertex = mul(mWorldViewProjection, float4(TransformPoint(input.position.xyz), 1.0));
 	output.position = vertex;
+	output.position.w += 0.001;
 	output.texcoord0 = input.texcoord0;
-
+	output.texcoord1 = mul(mWorldView, float4(input.position.xyz, 1.0));
 	return output;
 }

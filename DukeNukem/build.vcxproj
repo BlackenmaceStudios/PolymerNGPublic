@@ -1,9 +1,25 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="DebugSW|Win32">
+      <Configuration>DebugSW</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="DebugSW|x64">
+      <Configuration>DebugSW</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
       <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ReleaseSW|Win32">
+      <Configuration>ReleaseSW</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ReleaseSW|x64">
+      <Configuration>ReleaseSW</Configuration>
+      <Platform>x64</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
       <Configuration>Release</Configuration>
@@ -96,18 +112,6 @@
     <ClInclude Include="Build\src\Math\Scalar.h" />
     <ClInclude Include="Build\src\Math\Transform.h" />
     <ClInclude Include="Build\src\Math\Vector.h" />
-    <ClInclude Include="Build\src\OcclusionEngine\DepthBuffer.h" />
-    <ClInclude Include="Build\src\OcclusionEngine\Occludee.h" />
-    <ClInclude Include="Build\src\OcclusionEngine\Occluder.h" />
-    <ClInclude Include="Build\src\OcclusionEngine\OcclusionEngine.h" />
-    <ClInclude Include="Build\src\OcclusionEngine\OcclusionEngineLib.h" />
-    <ClInclude Include="Build\src\OcclusionEngine\Rasterizer.h" />
-    <ClInclude Include="Build\src\OcclusionEngine\stdafx.h" />
-    <ClInclude Include="Build\src\OcclusionEngine\targetver.h" />
-    <ClInclude Include="Build\src\OcclusionEngine\Tile.h" />
-    <ClInclude Include="Build\src\OcclusionEngine\TiledDepthBuffer.h" />
-    <ClInclude Include="Build\src\OcclusionEngine\TiledRasterizer.h" />
-    <ClInclude Include="Build\src\OcclusionEngine\Utils.h" />
     <ClInclude Include="Build\src\PolymerNG\Models\Models.h" />
     <ClInclude Include="build\src\PolymerNG\PolymerNG.h" />
     <ClInclude Include="build\src\PolymerNG\PolymerNG_Image.h" />
@@ -115,6 +119,7 @@
     <ClInclude Include="build\src\PolymerNG\PolymerNG_RenderParam.h" />
     <ClInclude Include="build\src\PolymerNG\PolymerNG_RenderProgram.h" />
     <ClInclude Include="build\src\PolymerNG\PolymerNG_Board.h" />
+    <ClInclude Include="Build\src\PolymerNG\PolymerNG_SoftwareRasterizer.h" />
     <ClInclude Include="build\src\PolymerNG\Renderer\Renderer.h" />
     <ClInclude Include="Build\src\PolymerNG\Renderer\Renderer_Pass_ClassicSky.h" />
     <ClInclude Include="Build\src\PolymerNG\Renderer\Renderer_Pass_DrawSprite.h" />
@@ -169,21 +174,12 @@
     <ClCompile Include="build\src\mdsprite.cpp" />
     <ClCompile Include="build\src\mmulti_null.cpp" />
     <ClCompile Include="build\src\mutex.cpp" />
-    <ClCompile Include="Build\src\OcclusionEngine\DepthBuffer.cpp" />
-    <ClCompile Include="Build\src\OcclusionEngine\Occludee.cpp" />
-    <ClCompile Include="Build\src\OcclusionEngine\Occluder.cpp" />
-    <ClCompile Include="Build\src\OcclusionEngine\OcclusionEngine.cpp" />
-    <ClCompile Include="Build\src\OcclusionEngine\OcclusionEngineLib.cpp" />
-    <ClCompile Include="Build\src\OcclusionEngine\Rasterizer.cpp" />
-    <ClCompile Include="Build\src\OcclusionEngine\stdafx.cpp" />
-    <ClCompile Include="Build\src\OcclusionEngine\Tile.cpp" />
-    <ClCompile Include="Build\src\OcclusionEngine\TiledDepthBuffer.cpp" />
-    <ClCompile Include="Build\src\OcclusionEngine\TiledRasterizer.cpp" />
     <ClCompile Include="build\src\osd.cpp" />
     <ClCompile Include="build\src\polymer.cpp" />
     <ClCompile Include="Build\src\PolymerNG\Models\BaseModel.cpp" />
     <ClCompile Include="build\src\PolymerNG\PolymerNG.cpp" />
     <ClCompile Include="Build\src\PolymerNG\PolymerNG_Board.cpp" />
+    <ClCompile Include="Build\src\PolymerNG\PolymerNG_SoftwareRasterizer.cpp" />
     <ClCompile Include="build\src\PolymerNG\PolymerNG_Image.cpp" />
     <ClCompile Include="Build\src\PolymerNG\PolymerNG_Occlusion.cpp" />
     <ClCompile Include="build\src\PolymerNG\PolymerNG_RenderParam.cpp" />
@@ -206,39 +202,57 @@
     <ClCompile Include="Build\src\RHI\Direct3D11\Direct3D11_RHI_Shader.cpp" />
     <ClCompile Include="build\src\RHI\Direct3D12\Direct3D12_RHI.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugSW|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseSW|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="build\src\RHI\Direct3D12\Direct3D12_RHI_Blob.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugSW|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseSW|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="build\src\RHI\Direct3D12\Direct3D12_RHI_GPUBuffer.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugSW|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseSW|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="build\src\RHI\Direct3D12\Direct3D12_RHI_GraphicsDebug.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugSW|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseSW|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="build\src\RHI\Direct3D12\Direct3D12_RHI_Images.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugSW|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseSW|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="build\src\RHI\Direct3D12\Direct3D12_RHI_Info.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugSW|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseSW|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="build\src\RHI\Direct3D12\Direct3D12_RHI_InputElementDesc.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugSW|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseSW|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="build\src\RHI\Direct3D12\Direct3D12_RHI_PipelineStateObject.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugSW|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseSW|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="build\src\RHI\Direct3D12\Direct3D12_RHI_Shader.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugSW|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseSW|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="build\src\scriptfile.cpp" />
     <ClCompile Include="build\src\scriptfile_wrapper.cpp" />
@@ -254,6 +268,7 @@
     <ClCompile Include="build\src\Tesselation\priorityq.cpp" />
     <ClCompile Include="build\src\Tesselation\render.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugSW|x64'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="build\src\Tesselation\sweep.cpp" />
     <ClCompile Include="build\src\Tesselation\tess.cpp" />
@@ -265,6 +280,7 @@
     <ClCompile Include="build\src\winbits.cpp" />
     <ClCompile Include="build\src\winlayer.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugSW|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="build\src\xxhash.cpp" />
     <ClCompile Include="platform\Windows\src\compat-to-msvc\dll_math.cpp" />
@@ -294,7 +310,20 @@
     <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugSW|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseSW|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
@@ -307,7 +336,20 @@
     <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugSW|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseSW|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
@@ -324,7 +366,17 @@
     <Import Project="PropertySheets\BuildCommon.props" />
     <Import Project="PropertySheets\BuildEngine.props" />
   </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='DebugSW|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="PropertySheets\BuildCommon.props" />
+    <Import Project="PropertySheets\BuildEngine.props" />
+  </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="PropertySheets\BuildCommon.props" />
+    <Import Project="PropertySheets\BuildEngine.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseSW|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="PropertySheets\BuildCommon.props" />
     <Import Project="PropertySheets\BuildEngine.props" />
@@ -334,7 +386,17 @@
     <Import Project="PropertySheets\BuildCommon.props" />
     <Import Project="PropertySheets\BuildEngine.props" />
   </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='DebugSW|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="PropertySheets\BuildCommon.props" />
+    <Import Project="PropertySheets\BuildEngine.props" />
+  </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="PropertySheets\BuildCommon.props" />
+    <Import Project="PropertySheets\BuildEngine.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseSW|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="PropertySheets\BuildCommon.props" />
     <Import Project="PropertySheets\BuildEngine.props" />
@@ -355,7 +417,40 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugSW|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <CompileAsWinRT>false</CompileAsWinRT>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <Lib>
+      <AdditionalOptions>/WINMD %(AdditionalOptions)</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugSW|x64'">
     <ClCompile>
       <PrecompiledHeader>
       </PrecompiledHeader>
@@ -392,7 +487,48 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseSW|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <CompileAsWinRT>false</CompileAsWinRT>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <Lib>
+      <AdditionalOptions>/WINMD %(AdditionalOptions)</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseSW|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <PrecompiledHeader>

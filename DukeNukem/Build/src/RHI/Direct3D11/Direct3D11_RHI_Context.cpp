@@ -67,12 +67,12 @@ void BuildRHIDirect3D11Private::SetInputLayout(ID3D11InputLayout *layout)
 	}
 }
 
-void BuildRHI::SetConstantBuffer(int index, BuildRHIConstantBuffer *constantBuffer)
+void BuildRHI::SetConstantBuffer(int index, BuildRHIConstantBuffer *constantBuffer, bool bindToVertexShader, bool bindToPixelShader)
 {
 	static BuildRHIConstantBuffer *currentConstantBuffer = NULL;
 	if (currentConstantBuffer != constantBuffer)
 	{
-		static_cast<BuildD3D11GPUBufferConstantBuffer *>(constantBuffer)->Bind();
+		static_cast<BuildD3D11GPUBufferConstantBuffer *>(constantBuffer)->Bind(bindToVertexShader, bindToPixelShader);
 		constantBuffer = currentConstantBuffer;
 	}
 }
@@ -106,6 +106,7 @@ void BuildRHI::DrawIndexedQuad(BuildRHIShader *shader, BuildRHIMesh *mesh, int s
 	mesh_internal->indexBuffer->Bind();
 	mesh_internal->vertexbuffer->Bind();
 	static_cast<BuildRHIDirect3D11Shader *>(shader)->Bind(RHI_INPUTSHADER_WORLD);
+	DX::RHIGetD3DDeviceContext()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 
 	//	for (int i = 0; i < RHIMAX_BOUNDTEXTURES; i++)
