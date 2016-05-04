@@ -3658,6 +3658,8 @@ int32_t app_main ( int32_t argc, char const * const * argv )
 	
 	forceSkyImage = 36;
 
+	buildNGOptions.shouldUseHighSpriteValueHide = false;
+
     if ( !DetectShareware() )
     {
         if ( SW_SHAREWARE ) { initprintf ( "Detected shareware GRP\n" ); }

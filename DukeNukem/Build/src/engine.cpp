@@ -103,6 +103,8 @@ int32_t mapversion=7; // JBF 20040211: default mapversion to 7
 int32_t g_loadedMapVersion = -1;  // -1: none (e.g. started new)
 usermaphack_t g_loadedMapHack;  // used only for the MD4 part
 
+BuildNGOptions buildNGOptions;
+
 int32_t compare_usermaphacks(const void *a, const void *b)
 {
     return Bmemcmp(((usermaphack_t*) a)->md4, ((usermaphack_t*) b)->md4, 16);

@@ -342,8 +342,8 @@ bool PolymerNGBoard::ComputeSpritePlane(Math::Matrix4 &viewMatrix, Math::Matrix4
 	//if ((tspr->cstat & 8192) )
 	//	return;
 
-	//if ((tspr->cstat & 16384))
-	//	return false;
+	if ((tspr->cstat & 16384) && buildNGOptions.shouldUseHighSpriteValueHide)
+		return false;
 
 	if (((tspr->cstat >> 4) & 3) == 0)
 		xratio = (float)(tspr->xrepeat) * 0.20f; // 32 / 160

@@ -1679,4 +1679,14 @@ __forceinline void   getzrange(long x, long y, long z, short sectnum, long *ceil
 
 	::getzrange(&vert, (int16_t)sectnum, (int32_t *)ceilz, (int32_t *)ceilhit, (int32_t *)florz, (int32_t *)florhit, (int32_t)walldist, (uint32_t )cliptype);
 }
+
+struct BuildNGOptions
+{
+	BuildNGOptions()
+	{
+		shouldUseHighSpriteValueHide = true;
+	}
+	bool shouldUseHighSpriteValueHide;
+};
+
 #endif // build_h_
