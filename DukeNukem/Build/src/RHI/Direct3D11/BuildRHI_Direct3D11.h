@@ -29,6 +29,34 @@ enum BuildRHIDirect3D11InputShaderType
 };
 
 //
+// BuildRHIDirect3D11GPUPerformanceCounter
+//
+class BuildRHIDirect3D11GPUPerformanceCounter : public BuildRHIGPUPerformanceCounter
+{
+public:
+	BuildRHIDirect3D11GPUPerformanceCounter();
+
+	virtual void			Begin();
+	virtual void			End();
+	virtual UINT64			GetTime();
+private:
+	ID3D11Query	*			rhiQueryStart;
+	ID3D11Query	*			rhiQueryEnd;
+	ID3D11Query	*			rhiQueryDisjoint;
+};
+
+class BuildRHIDirect3D11GPUOcclusionQuery : public BuildRHIGPUOcclusionQuery
+{
+public:
+	BuildRHIDirect3D11GPUOcclusionQuery();
+	virtual void			Begin();
+	virtual void			End();
+	virtual bool			IsVisible();
+private:
+	ID3D11Query	*			rhiQuery;
+};
+
+//
 // BuildRHIDirect3D11Shader
 //
 class BuildRHIDirect3D11Shader : public BuildRHIShader
@@ -36,7 +64,7 @@ class BuildRHIDirect3D11Shader : public BuildRHIShader
 public:
 	BuildRHIDirect3D11Shader();
 
-	virtual bool LoadShader(BuildShaderTarget target, const char *buffer, int length);
+	virtual bool LoadShader(BuildShaderTarget target, const char *buffer, int length, bool useGUIVertexLayout);
 	void Bind(BuildRHIDirect3D11InputShaderType shaderType);
 private:
 	ID3D11VertexShader		*m_vertexShader;
@@ -55,16 +83,48 @@ class BuildRHITextureDirect3D11 : public BuildRHITexture
 public:
 	BuildRHITextureDirect3D11();
 
-	virtual int			GetWidth() { return 0; }
-	virtual int			GetHeight() { return 0; }
+	virtual int			GetWidth() { return _width; }
+	virtual int			GetHeight() { return _height; }
 	virtual void		UploadRegion(int x, int y, int width, int height, const void *buffer)  const;
+
+	ID3D11Resource      *GetTextureRHI();
 
 	ID3D11Texture1D		*texture1D;
 	ID3D11Texture2D		*texture2D;
 	ID3D11ShaderResourceView *resourceView;
 
 	BuildRHITextureFormat format;
+	int _width;
+	int _height;
 };
+
+//
+// BuildRHIRenderTarget
+//
+class BuildRHIRenderTargetDirect3D11 : public BuildRHIRenderTarget
+{
+public:
+	BuildRHIRenderTargetDirect3D11(BuildRHITexture *diffuseTexture, BuildRHITexture *depthTexture, BuildRHITexture *stencilTexture);
+
+	void Bind();
+
+	virtual void AddRenderTarget(BuildRHITexture *image);
+private:
+	
+
+	BuildRHITextureDirect3D11 *diffuseTexture[MAX_RENDER_TARGETS];
+	BuildRHITextureDirect3D11 *depthTexture;
+	BuildRHITextureDirect3D11 *stencilTexture;
+
+	ID3D11RenderTargetView *renderTargetViewRHI[MAX_RENDER_TARGETS];
+	ID3D11DepthStencilView *renderDepthStencilViewRHI;
+	ID3D11ShaderResourceView *renderTargetRVRHI;
+	
+
+	int numRenderTargets;
+};
+
+void RHIAppSwitchBackToDeviceRenderBuffers();
 
 //
 // BuildRHIDirect3DMesh
@@ -103,6 +163,9 @@ public:
 public:
 	ID3D11SamplerState		*pointSampleState;
 	ID3D11RasterizerState   *cullModeBuildState;
+	ID3D11BlendState1		*alphaBlendState;
 };
+
+void RHIProtected_SetPrimitiveType(D3D11_PRIMITIVE_TOPOLOGY topology);
 
 extern BuildRHIDirect3D11Private rhiPrivate;

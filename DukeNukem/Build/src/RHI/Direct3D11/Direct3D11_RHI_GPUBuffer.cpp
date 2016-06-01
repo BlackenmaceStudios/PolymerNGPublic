@@ -25,13 +25,13 @@ void BuildD3D11GPUBufferVertexBuffer::InitBuffer(int initialSize, int stride, vo
 	}
 	else
 	{
-		bufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+		bufferDesc.Usage = D3D11_USAGE_DEFAULT;
 
 		if (initialData == NULL)
 		{
 			initialData = (void *)new byte[stride * initialSize];
 		}
-		bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		bufferDesc.CPUAccessFlags = 0;
 	}
 	bufferDesc.ByteWidth = stride * initialSize;
 	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
@@ -58,20 +58,26 @@ void BuildD3D11GPUBufferVertexBuffer::InitBuffer(int initialSize, int stride, vo
 //
 void BuildD3D11GPUBufferVertexBuffer::UpdateBuffer(void *data, int size, int offset)
 {
-	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	ZeroMemory(&mappedResource, sizeof(D3D11_MAPPED_SUBRESOURCE));
-
-	DX::RHIGetD3DDeviceContext()->Map(rhiVertexBufferHandle, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-
-		//	Update the vertex buffer here.
-		memcpy(((byte *)mappedResource.pData) + offset, data, size);
-
-	//	Reenable GPU access to the vertex buffer data.
-	DX::RHIGetD3DDeviceContext()->Unmap(rhiVertexBufferHandle, 0);
+	
+	D3D11_BOX box;
+	box.left = offset;
+	box.right = offset + size;
+	box.top = 0;
+	box.bottom = 1;
+	box.front = 0;
+	box.back = 1;
+	DX::RHIGetD3DDeviceContext()->UpdateSubresource(rhiVertexBufferHandle, 0, &box, (uint8_t*)data, 0, 0);
 }
 
 void BuildD3D11GPUBufferVertexBuffer::Bind()
 {
+	static BuildD3D11GPUBufferVertexBuffer *currentVertexBuffer = NULL;
+
+	if (this == currentVertexBuffer)
+		return;
+
+	currentVertexBuffer = this;
+
 	UINT offset = 0;
 	DX::RHIGetD3DDeviceContext()->IASetVertexBuffers(0, 1, &rhiVertexBufferHandle, (UINT *)&rhiStride, &offset);
 	
@@ -110,11 +116,11 @@ void BuildD3D11GPUBufferIndexBuffer::InitBuffer(int initialSize, int stride, voi
 		bufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 		if (initialData == NULL)
 		{
-			initialData = (void *)new byte[sizeof(unsigned short) * initialSize];
+			initialData = (void *)new byte[sizeof(unsigned int) * initialSize];
 		}
 		bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	}
-	bufferDesc.ByteWidth = sizeof( unsigned short ) * initialSize;
+	bufferDesc.ByteWidth = sizeof( unsigned int ) * initialSize;
 	bufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	bufferDesc.MiscFlags = 0;
 
@@ -153,8 +159,15 @@ void BuildD3D11GPUBufferIndexBuffer::UpdateBuffer(void *data, int size, int offs
 
 void BuildD3D11GPUBufferIndexBuffer::Bind()
 {
+	static BuildD3D11GPUBufferIndexBuffer *currentIndexBuffer = NULL;
+
+	if (this == currentIndexBuffer)
+		return;
+
+	currentIndexBuffer = this;
+
 	UINT offset = 0;
-	DX::RHIGetD3DDeviceContext()->IASetIndexBuffer(rhiIndexBufferHandle, DXGI_FORMAT_R16_UINT, offset);
+	DX::RHIGetD3DDeviceContext()->IASetIndexBuffer(rhiIndexBufferHandle, DXGI_FORMAT_R32_UINT, offset);
 
 }
 

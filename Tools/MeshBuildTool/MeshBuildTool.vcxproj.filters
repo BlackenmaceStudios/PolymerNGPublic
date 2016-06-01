@@ -1,0 +1,1223 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="AssetImport">
+      <UniqueIdentifier>{f063da8c-5e84-4e82-9042-6a71a52c9bf5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="AssetImport\Code">
+      <UniqueIdentifier>{5907a4cd-585b-43cd-a96b-c9d94d422e4a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="AssetImport\Contrib">
+      <UniqueIdentifier>{d59fa454-2e16-4c72-a887-1612af59e45e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="AssetImport\Contrib\Clipper">
+      <UniqueIdentifier>{2a960bef-92bc-4361-9b9d-334fb9df9d7c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="AssetImport\Contrib\ConvertUTF">
+      <UniqueIdentifier>{5e2855ff-e7eb-469b-9387-665703a47995}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="AssetImport\Contrib\irrXML">
+      <UniqueIdentifier>{7b62bfe0-5a47-49c1-869e-750078f7ae64}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="AssetImport\Contrib\zlib">
+      <UniqueIdentifier>{01ca48a7-1ecc-4d27-b06c-7be5ef976d25}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="AssetImport\Contrib\unzip">
+      <UniqueIdentifier>{7b7b93e3-59d1-406b-8616-43e6857a23e4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="AssetImport\Contrib\poly2tri">
+      <UniqueIdentifier>{0df4cc3b-233a-481e-8c2e-f0303198dda5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="AssetImport\code\3DSConverter.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\3DSExporter.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\3DSLoader.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\ACLoader.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\ASELoader.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\ASEParser.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\AssbinExporter.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\AssbinLoader.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\Assimp.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\AssimpCExport.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\AssxmlExporter.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\B3DImporter.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\BaseImporter.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\BaseProcess.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\Bitmap.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\BlenderBMesh.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\BlenderDNA.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\BlenderLoader.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\BlenderModifier.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\BlenderScene.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\BlenderTessellator.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\BVHLoader.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\C4DImporter.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\CalcTangentsProcess.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\COBLoader.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\ColladaExporter.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\ColladaLoader.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\ColladaParser.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\ComputeUVMappingProcess.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\ConvertToLHProcess.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\CSMLoader.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\DeboneProcess.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\DefaultIOStream.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\DefaultIOSystem.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\DefaultLogger.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\DXFLoader.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\Exporter.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\FBXAnimation.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\FBXBinaryTokenizer.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\FBXConverter.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\FBXDeformer.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\FBXDocument.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\FBXDocumentUtil.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\FBXImporter.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\FBXMaterial.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\FBXMeshGeometry.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\FBXModel.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\FBXNodeAttribute.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\FBXParser.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\FBXProperties.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\FBXTokenizer.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\FBXUtil.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\FindDegenerates.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\FindInstancesProcess.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\FindInvalidDataProcess.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\FixNormalsStep.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\GenFaceNormalsProcess.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\GenVertexNormalsProcess.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\HMPLoader.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\IFCBoolean.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\IFCCurve.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\IFCGeometry.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\IFCLoader.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\IFCMaterial.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\IFCOpenings.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\IFCProfile.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\IFCReaderGen.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\IFCUtil.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\Importer.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\ImporterRegistry.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\ImproveCacheLocality.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\IRRLoader.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\IRRMeshLoader.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\IRRShared.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\JoinVerticesProcess.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\LimitBoneWeightsProcess.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\LWOAnimation.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\LWOBLoader.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\LWOLoader.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\LWOMaterial.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\LWSLoader.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\MakeVerboseFormat.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\MaterialSystem.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\MD2Loader.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\MD3Loader.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\MD5Loader.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\MD5Parser.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\MDCLoader.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\MDLLoader.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\MDLMaterialLoader.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\MS3DLoader.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\NDOLoader.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\NFFLoader.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\ObjExporter.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\ObjFileImporter.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\ObjFileMtlImporter.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\ObjFileParser.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\OFFLoader.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\OgreBinarySerializer.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\OgreImporter.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\OgreMaterial.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\OgreStructs.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\OgreXmlSerializer.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\OpenGEXExporter.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\OpenGEXImporter.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\OptimizeGraph.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\OptimizeMeshes.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\PlyExporter.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\PlyLoader.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\PlyParser.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\PostStepRegistry.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\PretransformVertices.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\ProcessHelper.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\Q3BSPFileImporter.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\Q3BSPFileParser.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\Q3BSPZipArchive.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\Q3DLoader.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\RawLoader.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\RemoveComments.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\RemoveRedundantMaterials.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\RemoveVCProcess.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\SceneCombiner.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\ScenePreprocessor.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\SGSpatialSort.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\SkeletonMeshBuilder.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\SMDLoader.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\SortByPTypeProcess.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\SpatialSort.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\SplitByBoneCountProcess.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\SplitLargeMeshes.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\StandardShapes.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\StepExporter.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\STEPFileEncoding.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\STEPFileReader.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\STLExporter.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\STLLoader.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\Subdivision.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\TargetAnimation.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\TerragenLoader.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\TextureTransform.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\TriangulateProcess.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\UnrealLoader.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\ValidateDataStructure.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\Version.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\VertexTriangleAdjacency.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\XFileExporter.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\XFileImporter.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\XFileParser.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\XGLLoader.cpp">
+      <Filter>AssetImport\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\contrib\clipper\clipper.cpp">
+      <Filter>AssetImport\Contrib\Clipper</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\contrib\ConvertUTF\ConvertUTF.c">
+      <Filter>AssetImport\Contrib\ConvertUTF</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\contrib\irrXML\irrXML.cpp">
+      <Filter>AssetImport\Contrib\irrXML</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\contrib\zlib\adler32.c">
+      <Filter>AssetImport\Contrib\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\contrib\zlib\compress.c">
+      <Filter>AssetImport\Contrib\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\contrib\zlib\crc32.c">
+      <Filter>AssetImport\Contrib\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\contrib\zlib\deflate.c">
+      <Filter>AssetImport\Contrib\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\contrib\zlib\gzclose.c">
+      <Filter>AssetImport\Contrib\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\contrib\zlib\gzlib.c">
+      <Filter>AssetImport\Contrib\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\contrib\zlib\gzread.c">
+      <Filter>AssetImport\Contrib\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\contrib\zlib\gzwrite.c">
+      <Filter>AssetImport\Contrib\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\contrib\zlib\infback.c">
+      <Filter>AssetImport\Contrib\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\contrib\zlib\inffast.c">
+      <Filter>AssetImport\Contrib\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\contrib\zlib\inflate.c">
+      <Filter>AssetImport\Contrib\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\contrib\zlib\inftrees.c">
+      <Filter>AssetImport\Contrib\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\contrib\zlib\trees.c">
+      <Filter>AssetImport\Contrib\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\contrib\zlib\uncompr.c">
+      <Filter>AssetImport\Contrib\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\contrib\zlib\zutil.c">
+      <Filter>AssetImport\Contrib\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\contrib\unzip\ioapi.c">
+      <Filter>AssetImport\Contrib\unzip</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\contrib\unzip\unzip.c">
+      <Filter>AssetImport\Contrib\unzip</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\contrib\poly2tri\poly2tri\sweep\advancing_front.cc">
+      <Filter>AssetImport\Contrib\poly2tri</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\contrib\poly2tri\poly2tri\sweep\cdt.cc">
+      <Filter>AssetImport\Contrib\poly2tri</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\contrib\poly2tri\poly2tri\sweep\sweep.cc">
+      <Filter>AssetImport\Contrib\poly2tri</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\contrib\poly2tri\poly2tri\sweep\sweep_context.cc">
+      <Filter>AssetImport\Contrib\poly2tri</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetImport\contrib\poly2tri\poly2tri\common\shapes.cc">
+      <Filter>AssetImport\Contrib\poly2tri</Filter>
+    </ClCompile>
+    <ClCompile Include="Main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="AssetImport\code\3DSExporter.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\3DSHelper.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\3DSLoader.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\ACLoader.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\ASELoader.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\ASEParser.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\assbin_chunks.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\AssbinExporter.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\AssbinLoader.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\AssxmlExporter.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\B3DImporter.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\BaseImporter.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\BaseProcess.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\Bitmap.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\BlenderBMesh.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\BlenderDNA.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\BlenderIntermediate.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\BlenderLoader.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\BlenderModifier.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\BlenderScene.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\BlenderSceneGen.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\BlenderTessellator.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\BlobIOSystem.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\BVHLoader.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\ByteSwapper.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\C4DImporter.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\CalcTangentsProcess.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\CInterfaceIOWrapper.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\COBLoader.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\COBScene.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\ColladaExporter.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\ColladaHelper.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\ColladaLoader.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\ColladaParser.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\ComputeUVMappingProcess.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\ConvertToLHProcess.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\CSMLoader.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\DeboneProcess.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\DefaultIOStream.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\DefaultIOSystem.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\DefaultProgressHandler.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\Defines.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\DXFHelper.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\DXFLoader.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\Exceptional.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\fast_atof.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\FBXCompileConfig.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\FBXConverter.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\FBXDocument.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\FBXDocumentUtil.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\FBXImporter.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\FBXImportSettings.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\FBXParser.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\FBXProperties.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\FBXTokenizer.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\FBXUtil.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\FileLogStream.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\FileSystemFilter.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\FindDegenerates.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\FindInstancesProcess.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\FindInvalidDataProcess.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\FixNormalsStep.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\GenericProperty.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\GenFaceNormalsProcess.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\GenVertexNormalsProcess.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\HalfLifeFileData.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\Hash.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\HMPFileData.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\HMPLoader.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\IFCLoader.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\IFCReaderGen.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\IFCUtil.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\IFF.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\Importer.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\ImproveCacheLocality.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\IRRLoader.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\IRRMeshLoader.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\IRRShared.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\irrXMLWrapper.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\JoinVerticesProcess.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\LimitBoneWeightsProcess.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\LineSplitter.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\LogAux.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\LWOAnimation.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\LWOFileData.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\LWOLoader.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\LWSLoader.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\Macros.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\MakeVerboseFormat.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\MaterialSystem.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\MD2FileData.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\MD2Loader.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\MD2NormalTable.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\MD3FileData.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\MD3Loader.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\MD4FileData.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\MD5Loader.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\MD5Parser.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\MDCFileData.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\MDCLoader.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\MDCNormalTable.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\MDLDefaultColorMap.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\MDLFileData.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\MDLLoader.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\MemoryIOWrapper.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\MS3DLoader.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\NDOLoader.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\NFFLoader.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\ObjExporter.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\ObjFileData.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\ObjFileImporter.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\ObjFileMtlImporter.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\ObjFileParser.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\ObjTools.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\OFFLoader.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\OgreBinarySerializer.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\OgreImporter.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\OgreParsingUtils.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\OgreStructs.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\OgreXmlSerializer.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\OpenGEXExporter.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\OpenGEXImporter.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\OpenGEXStructs.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\OptimizeGraph.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\OptimizeMeshes.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\ParsingUtils.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\PlyExporter.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\PlyLoader.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\PlyParser.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\PolyTools.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\PretransformVertices.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\ProcessHelper.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\Profiler.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\Q3BSPFileData.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\Q3BSPFileImporter.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\Q3BSPFileParser.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\Q3BSPZipArchive.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\Q3DLoader.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\qnan.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\RawLoader.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\RemoveComments.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\RemoveRedundantMaterials.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\RemoveVCProcess.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\SceneCombiner.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\ScenePreprocessor.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\ScenePrivate.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\SGSpatialSort.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\SkeletonMeshBuilder.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\SMDLoader.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\SmoothingGroups.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\SortByPTypeProcess.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\SpatialSort.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\SplitByBoneCountProcess.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\SplitLargeMeshes.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\StandardShapes.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\StdOStreamLogStream.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\StepExporter.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\STEPFile.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\STEPFileEncoding.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\STEPFileReader.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\STLExporter.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\STLLoader.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\StreamReader.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\StreamWriter.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\StringComparison.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\Subdivision.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\TargetAnimation.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\TerragenLoader.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\TextureTransform.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\TinyFormatter.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\TriangulateProcess.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\UnrealLoader.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\ValidateDataStructure.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\Vertex.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\VertexTriangleAdjacency.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\Win32DebugLogStream.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\XFileExporter.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\XFileHelper.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\XFileImporter.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\XFileParser.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\XGLLoader.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\code\XMLTools.h">
+      <Filter>AssetImport\Code</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\contrib\clipper\clipper.hpp">
+      <Filter>AssetImport\Contrib\Clipper</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\contrib\ConvertUTF\ConvertUTF.h">
+      <Filter>AssetImport\Contrib\ConvertUTF</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\contrib\irrXML\CXMLReaderImpl.h">
+      <Filter>AssetImport\Contrib\irrXML</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\contrib\irrXML\heapsort.h">
+      <Filter>AssetImport\Contrib\irrXML</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\contrib\irrXML\irrArray.h">
+      <Filter>AssetImport\Contrib\irrXML</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\contrib\irrXML\irrString.h">
+      <Filter>AssetImport\Contrib\irrXML</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\contrib\irrXML\irrTypes.h">
+      <Filter>AssetImport\Contrib\irrXML</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\contrib\irrXML\irrXML.h">
+      <Filter>AssetImport\Contrib\irrXML</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\contrib\zlib\crc32.h">
+      <Filter>AssetImport\Contrib\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\contrib\zlib\deflate.h">
+      <Filter>AssetImport\Contrib\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\contrib\zlib\gzguts.h">
+      <Filter>AssetImport\Contrib\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\contrib\zlib\inffast.h">
+      <Filter>AssetImport\Contrib\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\contrib\zlib\inffixed.h">
+      <Filter>AssetImport\Contrib\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\contrib\zlib\inflate.h">
+      <Filter>AssetImport\Contrib\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\contrib\zlib\inftrees.h">
+      <Filter>AssetImport\Contrib\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\contrib\zlib\trees.h">
+      <Filter>AssetImport\Contrib\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\contrib\zlib\zconf.in.h">
+      <Filter>AssetImport\Contrib\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\contrib\zlib\zlib.h">
+      <Filter>AssetImport\Contrib\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\contrib\zlib\zutil.h">
+      <Filter>AssetImport\Contrib\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\contrib\zlib\zconf.h">
+      <Filter>AssetImport\Contrib\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\contrib\unzip\crypt.h">
+      <Filter>AssetImport\Contrib\unzip</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\contrib\unzip\ioapi.h">
+      <Filter>AssetImport\Contrib\unzip</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\contrib\unzip\unzip.h">
+      <Filter>AssetImport\Contrib\unzip</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\contrib\poly2tri\poly2tri\sweep\advancing_front.h">
+      <Filter>AssetImport\Contrib\poly2tri</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\contrib\poly2tri\poly2tri\sweep\cdt.h">
+      <Filter>AssetImport\Contrib\poly2tri</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\contrib\poly2tri\poly2tri\sweep\sweep.h">
+      <Filter>AssetImport\Contrib\poly2tri</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetImport\contrib\poly2tri\poly2tri\sweep\sweep_context.h">
+      <Filter>AssetImport\Contrib\poly2tri</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="AssetImport\code\BlenderDNA.inl">
+      <Filter>AssetImport\Code</Filter>
+    </None>
+    <None Include="AssetImport\code\makefile.mingw">
+      <Filter>AssetImport\Code</Filter>
+    </None>
+    <None Include="AssetImport\code\SmoothingGroups.inl">
+      <Filter>AssetImport\Code</Filter>
+    </None>
+    <None Include="AssetImport\contrib\zlib\README">
+      <Filter>AssetImport\Contrib\zlib</Filter>
+    </None>
+    <None Include="AssetImport\contrib\zlib\zconf.h.cmakein">
+      <Filter>AssetImport\Contrib\zlib</Filter>
+    </None>
+    <None Include="AssetImport\contrib\zlib\zconf.h.included">
+      <Filter>AssetImport\Contrib\zlib</Filter>
+    </None>
+    <None Include="AssetImport\contrib\zlib\zlib.pc.cmakein">
+      <Filter>AssetImport\Contrib\zlib</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="AssetImport\code\CMakeLists.txt">
+      <Filter>AssetImport\Code</Filter>
+    </Text>
+    <Text Include="AssetImport\contrib\zlib\CMakeLists.txt">
+      <Filter>AssetImport\Contrib\zlib</Filter>
+    </Text>
+  </ItemGroup>
+</Project>

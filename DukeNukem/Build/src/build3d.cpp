@@ -19,6 +19,7 @@
 #include "common.h"
 
 #include "Tesselation/GLU.h"
+#include "PolymerNG/PolymerNG.h"
 #include "PolymerNG/Models/Models.h"
 #pragma optimize( "", off )
 Build3D	build3D;
@@ -45,6 +46,7 @@ int32_t usehightile = 1;
 int32_t vsync = 0;
 
 const Build3DPlane		*renderPlanesGlobalPool[60000];
+const Build3DPlane		*renderPlanesGlobalPool2[60000];
 
 #include <math.h> //<-important!
 #include <float.h>
@@ -696,14 +698,16 @@ bool Build3DBoard::updatewall(int16_t wallnum)
 		computeplane(&w->over);
 	computeplane(&w->mask);
 
+	w->wall.sectorNum = sectorofwall(wallnum);
+
 	if (w->wall.vbo_offset == -1)
 	{
 		w->wall.tileNum = wal->picnum;
-		w->wall.vbo_offset = model->AddVertexesToBuffer(4, w->wall.buffer);
+		w->wall.vbo_offset = model->AddVertexesToBuffer(4, w->wall.buffer, w->wall.sectorNum);
 		unsigned short indexes[6] = { 0, 1, 2, 3, 0, 2 };
 		w->wall.indices = new unsigned short[6];
 		memcpy(&w->wall.indices[0], &indexes[0], sizeof(unsigned short) * 6);
-		w->wall.ibo_offset = model->AddIndexesToBuffer(6, indexes);
+		w->wall.ibo_offset = model->AddIndexesToBuffer(6, indexes, w->wall.vbo_offset);
 		w->wall.indicescount = 6;
 
 		//	newBoardPlanes.push_back(&w->wall);
@@ -711,11 +715,15 @@ bool Build3DBoard::updatewall(int16_t wallnum)
 	else
 	{
 		w->wall.isDynamicPlane = true;
-		model->UpdateBuffer(w->wall.vbo_offset, 4, w->wall.buffer);
+		w->wall.dynamic_vbo_offset = model->UpdateBuffer(w->wall.vbo_offset, 4, w->wall.buffer, w->wall.sectorNum);
+		w->wall.vbo_offset = w->wall.dynamic_vbo_offset;
 	}
+
+	
 
 	if (w->over.buffer)
 	{
+		w->over.sectorNum = sectorofwall(wallnum);
 		if (w->over.vbo_offset == -1)
 		{
 			w->over.tileNum = wal->overpicnum; // is this right?
@@ -723,38 +731,52 @@ bool Build3DBoard::updatewall(int16_t wallnum)
 			{
 				w->over.tileNum = wal->picnum;
 			}
-			w->over.vbo_offset = model->AddVertexesToBuffer(4, w->over.buffer);
+			w->over.vbo_offset = model->AddVertexesToBuffer(4, w->over.buffer, w->over.sectorNum);
 			unsigned short indexes[6] = { 0, 1, 2, 3, 0, 2 };
 			w->over.indices = new unsigned short[6];
 			memcpy(&w->over.indices[0], &indexes[0], sizeof(unsigned short) * 6);
-			w->over.ibo_offset = model->AddIndexesToBuffer(6, indexes);
+			w->over.ibo_offset = model->AddIndexesToBuffer(6, indexes, w->over.vbo_offset);
 			w->over.indicescount = 6;
 			//	newBoardPlanes.push_back(&w->over);
 		}
 		else
 		{
 			w->over.isDynamicPlane = true;
-			model->UpdateBuffer(w->over.vbo_offset, 4, w->over.buffer);
+		//	model->UpdateBuffer(w->over.vbo_offset, 4, w->over.buffer);
+			w->over.dynamic_vbo_offset = model->UpdateBuffer(w->over.vbo_offset, 4, w->over.buffer, w->over.sectorNum);
+			w->over.vbo_offset = w->over.dynamic_vbo_offset;
 		}
+
+		
 	}
 
 	if (w->mask.buffer)
 	{
-		if (w->mask.vbo_offset == -1)
+		if ((::wall[wallnum].cstat & 32) && (::wall[wallnum].nextsector >= 0))
 		{
-			w->mask.tileNum = wal->picnum; // wrong?
-			w->mask.vbo_offset = model->AddVertexesToBuffer(4, w->mask.buffer);
-			//newBoardPlanes.push_back(&w->mask);
-			unsigned short indexes[6] = { 0, 1, 2, 3, 0, 2 };
-			w->mask.indices = new unsigned short[6];
-			memcpy(&w->mask.indices[0], &indexes[0], sizeof(unsigned short) * 6);
-			w->mask.ibo_offset = model->AddIndexesToBuffer(6, indexes);
-			w->mask.indicescount = 6;
+			w->mask.sectorNum = sectorofwall(wallnum);
+			if (w->mask.vbo_offset == -1)
+			{
+				w->mask.tileNum = wal->picnum; // wrong?
+				w->mask.vbo_offset = model->AddVertexesToBuffer(4, w->mask.buffer, w->mask.sectorNum);
+				//newBoardPlanes.push_back(&w->mask);
+				unsigned short indexes[6] = { 0, 1, 2, 3, 0, 2 };
+				w->mask.indices = new unsigned short[6];
+				memcpy(&w->mask.indices[0], &indexes[0], sizeof(unsigned short) * 6);
+				w->mask.ibo_offset = model->AddIndexesToBuffer(6, indexes, w->mask.vbo_offset);
+				w->mask.indicescount = 6;
+			}
+			else
+			{
+				w->mask.isDynamicPlane = true;
+				//model->UpdateBuffer(w->mask.vbo_offset, 4, w->mask.buffer);
+				w->mask.dynamic_vbo_offset = model->UpdateBuffer(w->mask.vbo_offset, 4, w->mask.buffer, w->mask.sectorNum);
+				w->mask.vbo_offset = w->mask.dynamic_vbo_offset;
+			}
 		}
 		else
 		{
-			w->mask.isDynamicPlane = true;
-			model->UpdateBuffer(w->mask.vbo_offset, 4, w->mask.buffer);
+			w->mask.tileNum = -1;
 		}
 	}
 
@@ -1109,26 +1131,34 @@ attributes:
 		if (s->floor.vbo_offset == -1)
 		{
 			s->floor.tileNum = sec->floorpicnum;
-			s->floor.vbo_offset = model->AddVertexesToBuffer(sec->wallnum, s->floor.buffer);
+			s->floor.vbo_offset = model->AddVertexesToBuffer(sec->wallnum, s->floor.buffer, sectnum);
 			//	newBoardPlanes.push_back(&s->floor);
 		}
 		else
 		{
 			s->floor.isDynamicPlane = true;
-			model->UpdateBuffer(s->floor.vbo_offset, sec->wallnum, s->floor.buffer);
+			//model->UpdateBuffer(s->floor.vbo_offset, sec->wallnum, s->floor.buffer);
+			s->floor.dynamic_vbo_offset = model->UpdateBuffer(s->floor.vbo_offset, sec->wallnum, s->floor.buffer, sectnum);
+			s->floor.vbo_offset = s->floor.dynamic_vbo_offset;
 		}
+
+		s->floor.sectorNum = sectnum;
 
 		if (s->ceil.vbo_offset == -1)
 		{
 			s->ceil.tileNum = sec->ceilingpicnum;
-			s->ceil.vbo_offset = model->AddVertexesToBuffer(sec->wallnum, s->ceil.buffer);
+			s->ceil.vbo_offset = model->AddVertexesToBuffer(sec->wallnum, s->ceil.buffer, sectnum);
 			//	newBoardPlanes.push_back(&s->ceil);
 		}
 		else
 		{
 			s->ceil.isDynamicPlane = true;
-			model->UpdateBuffer(s->ceil.vbo_offset, sec->wallnum, s->ceil.buffer);
+			//model->UpdateBuffer(s->ceil.vbo_offset, sec->wallnum, s->ceil.buffer);
+			s->ceil.dynamic_vbo_offset = model->UpdateBuffer(s->ceil.vbo_offset, sec->wallnum, s->ceil.buffer, sectnum);
+			s->ceil.vbo_offset = s->ceil.dynamic_vbo_offset;
 		}
+
+		s->ceil.sectorNum = sectnum;
 	}
 
 	//if ((pr_vbos > 0) && ((i == -1) || (wallinvalidate)))
@@ -1208,12 +1238,12 @@ finish:
 
 		if (s->floor.ibo_offset == -1)
 		{
-			s->floor.ibo_offset = model->AddIndexesToBuffer(s->indicescount, s->floor.indices);
+			s->floor.ibo_offset = model->AddIndexesToBuffer(s->indicescount, s->floor.indices, s->floor.vbo_offset);
 		}
 
 		if (s->ceil.ibo_offset == -1)
 		{
-			s->ceil.ibo_offset = model->AddIndexesToBuffer(s->indicescount, s->ceil.indices);
+			s->ceil.ibo_offset = model->AddIndexesToBuffer(s->indicescount, s->ceil.indices, s->ceil.vbo_offset);
 		}
 
 		//if ((pr_vbos > 0))
@@ -1364,7 +1394,6 @@ void Build3D::drawpoly(BuildRenderThreadTaskRotateSprite	&taskRotateSprite, vec2
 
 	// 2D Stuff's should only get drawn here.
 	taskRotateSprite.is2D = true;
-
 	// jmarshall end
 
 	if (method == -1 || (uint32_t)globalpicnum >= MAXTILES) return;
@@ -1749,6 +1778,11 @@ do                                                                              
 #if 0
 	}
 #endif
+
+// jmarshall
+// this is the only render call we use here.
+	taskRotateSprite.renderMaterialHandle = materialManager.LoadMaterialForTile(globalpicnum);
+// jmarshall end
 }
 
 

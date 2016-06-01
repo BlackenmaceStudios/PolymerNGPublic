@@ -36,7 +36,7 @@ const char *g_gameNamePtr = NULL;
 // grp/con handling
 
 static const char *defaultgamegrp[GAMECOUNT] = { "DUKE3D.GRP", "NAM.GRP", "NAPALM.GRP", "WW2GI.GRP" };
-static const char *defaultdeffilename[GAMECOUNT] = { "duke3d.def", "nam.def", "napalm.def", "ww2gi.def" };
+static const char *defaultdeffilename[GAMECOUNT] = { "Assets/DukeData/duke3d.def", "nam.def", "napalm.def", "ww2gi.def" };
 static const char *defaultconfilename = "GAME.CON";
 static const char *defaultgameconfilename[GAMECOUNT] = { "EDUKE.CON", "NAM.CON", "NAPALM.CON", "WW2GI.CON" };
 

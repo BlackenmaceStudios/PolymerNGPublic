@@ -13,8 +13,51 @@ RendererDrawPassDrawWorld::Init
 */
 void RendererDrawPassDrawWorld::Init()
 {
+	BuildImage *diffuseRenderBuffer;
+	BuildImage *glowRenderBuffer;
+	BuildImage *depthRenderBuffer;
+
 	drawWorldConstantBuffer = rhi.AllocateRHIConstantBuffer(sizeof(VS_DRAWWORLD_BUFFER), &drawWorldBuffer);
 	drawWorldPixelConstantBuffer = rhi.AllocateRHIConstantBuffer(sizeof(PS_CONSTANT_BUFFER), &drawWorldPixelBuffer);
+
+	{
+		BuildImageOpts opts;
+		opts.width = globalWindowWidth;
+		opts.height = globalWindowHeight;
+		opts.format = IMAGE_FORMAT_RGBA32;
+		opts.isHighQualityImage = true;
+		opts.isRenderTargetImage = true;
+
+		diffuseRenderBuffer = new BuildImage(opts);
+		diffuseRenderBuffer->UpdateImagePost(NULL);
+	}
+
+	{
+		BuildImageOpts opts;
+		opts.width = globalWindowWidth;
+		opts.height = globalWindowHeight;
+		opts.format = IMAGE_FORMAT_RGBA32;
+		opts.isHighQualityImage = true;
+		opts.isRenderTargetImage = true;
+
+		glowRenderBuffer = new BuildImage(opts);
+		glowRenderBuffer->UpdateImagePost(NULL);
+	}
+
+	{
+		BuildImageOpts opts;
+		opts.width = globalWindowWidth;
+		opts.height = globalWindowHeight;
+		opts.format = IMAGE_FORMAT_DEPTH;
+		opts.isHighQualityImage = true;
+		opts.isRenderTargetImage = false;
+
+		depthRenderBuffer = new BuildImage(opts);
+		depthRenderBuffer->UpdateImagePost(NULL);
+	}
+
+	renderTarget = new PolymerNGRenderTarget(diffuseRenderBuffer, depthRenderBuffer, NULL);
+	renderTarget->AddRenderTaret(glowRenderBuffer);
 }
 
 /*
@@ -24,36 +67,51 @@ RendererDrawPassDrawWorld::DrawPlane
 */
 void RendererDrawPassDrawWorld::DrawPlane(BuildRHIMesh *rhiMesh, const BaseModel *model, const Build3DPlane *plane)
 {
-	BuildImage *image = static_cast<BuildImage *>(plane->renderImageHandle);
+	PolymerNGMaterial *material = static_cast<PolymerNGMaterial *>(plane->renderMaterialHandle);
 
-	if (image != NULL)
+	if (material != NULL)
 	{
-		drawWorldPixelBuffer.shadeOffsetVisibility[0] = plane->shadeNum;
-		drawWorldPixelBuffer.shadeOffsetVisibility[1] = plane->visibility;
-		drawWorldPixelBuffer.fogColor[0] = plane->fogColor[0];
-		drawWorldPixelBuffer.fogColor[1] = plane->fogColor[1];
-		drawWorldPixelBuffer.fogColor[2] = plane->fogColor[2];
+		//drawWorldPixelBuffer.shadeOffsetVisibility[0] = plane->shadeNum;
+		//drawWorldPixelBuffer.shadeOffsetVisibility[1] = plane->visibility;
+		//drawWorldPixelBuffer.fogColor[0] = plane->fogColor[0];
+		//drawWorldPixelBuffer.fogColor[1] = plane->fogColor[1];
+		//drawWorldPixelBuffer.fogColor[2] = plane->fogColor[2];
+		//
+		//drawWorldPixelBuffer.fogDensistyScaleEnd[0] = plane->fogDensity;
+		//drawWorldPixelBuffer.fogDensistyScaleEnd[1] = plane->fogStart;
+		//drawWorldPixelBuffer.fogDensistyScaleEnd[2] = plane->fogEnd;
 
-		drawWorldPixelBuffer.fogDensistyScaleEnd[0] = plane->fogDensity;
-		drawWorldPixelBuffer.fogDensistyScaleEnd[1] = plane->fogStart;
-		drawWorldPixelBuffer.fogDensistyScaleEnd[2] = plane->fogEnd;
+		
 
-		drawWorldPixelConstantBuffer->UpdateBuffer(&drawWorldPixelBuffer, sizeof(PS_CONSTANT_BUFFER), 0);
-		rhi.SetConstantBuffer(0, drawWorldPixelConstantBuffer, false, true);
+		rhi.SetImageForContext(0, material->GetDiffuseTexture()->GetRHITexture());
+		rhi.SetImageForContext(1, imageManager.GetPaletteManager()->GetPaletteImage()->GetRHITexture());
+		rhi.SetImageForContext(2, imageManager.GetPaletteManager()->GetPaletteLookupImage(plane->paletteNum)->GetRHITexture());
 
-		rhi.SetImageForContext(0, image->GetRHITexture());
-		rhi.SetImageForContext(1, polymerNG.GetPaletteImage()->GetRHITexture());
-		rhi.SetImageForContext(2, polymerNG.GetPaletteLookupImage(plane->paletteNum)->GetRHITexture());
+		BuildRHIShader *shader = renderer.albedoSimpleProgram->GetRHIShader();
+		if (material->GetDiffuseTexture()->GetOpts().isHighQualityImage)
+			shader = renderer.albedoHQProgram->GetRHIShader();
 
 		if (plane->ibo_offset != -1)
 		{
-			rhi.DrawIndexedQuad(renderer.albedoSimpleProgram->GetRHIShader(), rhiMesh, plane->vbo_offset, plane->ibo_offset, plane->indicescount);
+			rhi.DrawIndexedQuad(shader, rhiMesh, 0, plane->ibo_offset, plane->indicescount);
 		}
 		else
 		{
-			rhi.DrawUnoptimizedQuad(renderer.albedoSimpleProgram->GetRHIShader(), rhiMesh, plane->vbo_offset, plane->vertcount);
+			rhi.DrawUnoptimizedQuad(shader, rhiMesh, plane->vbo_offset, plane->vertcount);
 		}
 	}
+}
+/*
+========================
+RendererDrawPassDrawWorld::BindDrawWorldRenderTarget
+========================
+*/
+void RendererDrawPassDrawWorld::BindDrawWorldRenderTarget(bool enable)
+{
+	if(enable)
+		renderTarget->Bind();
+	else
+		PolymerNGRenderTarget::BindDeviceBuffer();
 }
 
 /*
@@ -63,81 +121,22 @@ RendererDrawPassDrawWorld::Draw
 */
 void RendererDrawPassDrawWorld::Draw(const BuildRenderCommand &command)
 {
+	
 	drawWorldBuffer.mWorldViewProj = command.taskRenderWorld.viewProjMatrix;
 	drawWorldConstantBuffer->UpdateBuffer(&drawWorldBuffer, sizeof(VS_DRAWWORLD_BUFFER), 0);
-	
+
 	rhi.SetConstantBuffer(0, drawWorldConstantBuffer);
 
 	const Build3DBoard *board = command.taskRenderWorld.board;
 
 	int currentSMPFrame = renderer.GetCurrentFrameNum();
 
+	drawWorldPixelConstantBuffer->UpdateBuffer(&drawWorldPixelBuffer, sizeof(PS_CONSTANT_BUFFER), 0);
+	rhi.SetConstantBuffer(0, drawWorldPixelConstantBuffer, false, true);
+
 	// Render all of the static sectors.
 	for (int i = 0; i < command.taskRenderWorld.numRenderPlanes; i++)
 	{
-		if (!command.taskRenderWorld.renderplanes[i]->isDynamicPlane)
-		{
-			DrawPlane(board->GetBaseModel()->rhiVertexBufferStatic, board->GetBaseModel(), command.taskRenderWorld.renderplanes[i]);
-		}
-		else
-		{
-			DrawPlane(board->GetBaseModel()->rhiVertexBufferDynamic[currentSMPFrame], board->GetBaseModel(), command.taskRenderWorld.renderplanes[i]);
-		}
+		DrawPlane(board->GetBaseModel()->rhiVertexBufferStatic, board->GetBaseModel(), command.taskRenderWorld.renderplanes[i]);
 	}
-
-//	((Build3DBoard *)board)->GetBaseModel()->geoUpdateQueue[command.taskRenderWorld.gameSmpFrame].clear();
-
-	//for (int i = 0; i < numsectors; i++)
-	//{
-	//	// Draw the sectors.
-	//	const Build3DSector *sector = board->GetSector(i);
-	//	tsectortype *mapSector = (tsectortype *)&::sector[i];
-	//	
-	//	if (!sector->IsCeilParalaxed())
-	//	{
-	//		DrawPlane(board->GetBaseModel(), &sector->ceil);
-	//	}
-	//
-	//	if (!sector->IsFloorParalaxed())
-	//	{
-	//		DrawPlane(board->GetBaseModel(), &sector->floor);
-	//	}
-	//
-	//	// Draw all the walls for this sector.
-	//	for (int d = 0; d < mapSector->wallnum; d++)
-	//	{
-	//		const Build3DWall *wall = board->GetWall(mapSector->wallptr + d);
-	//		const Build3DSector *neighborSector = NULL;
-	//	
-	//		/*
-	//		==============================================
-	//		
-	//		Hidden walls
-	//	
-	//		The logic here is if there is a parralax sector, wrapped inside of another paralax sector, don't draw the walls.
-	//	
-	//		==============================================
-	//		*/
-	//		
-	//		if (::wall[mapSector->wallptr + d].nextsector >= 0)
-	//		{
-	//			neighborSector = board->GetSector(::wall[mapSector->wallptr + d].nextsector);
-	//		}
-	//	
-	//		if (wallvisible(globalposx, globalposy, mapSector->wallptr + d))
-	//		{
-	//			if ((wall->underover & 1) && neighborSector == NULL || neighborSector && !sector->IsFloorParalaxed() && !neighborSector->IsFloorParalaxed())
-	//			{
-	//				DrawPlane(board->GetBaseModel(), &wall->wall);
-	//			}
-	//	
-	//			if ((wall->underover & 2) && neighborSector == NULL || neighborSector && !sector->IsCeilParalaxed() && !neighborSector->IsCeilParalaxed())
-	//			{
-	//				DrawPlane(board->GetBaseModel(), &wall->over);
-	//			}
-	//		}
-	//	}
-	//}
-
-
 }

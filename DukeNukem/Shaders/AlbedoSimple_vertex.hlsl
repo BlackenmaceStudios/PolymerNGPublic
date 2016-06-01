@@ -1,4 +1,5 @@
 #include "AlbedoSimple.hlsli"
+#include "VertexShaderShared.hlsli"
 
 cbuffer VS_CONSTANT_BUFFER : register(b0)
 {
@@ -6,12 +7,6 @@ cbuffer VS_CONSTANT_BUFFER : register(b0)
 	matrix mWorldView;
 };
 
-
-struct VertexShaderInput
-{
-	float4 position  : POSITION;
-	float2 texcoord0 : TEXCOORD0;
-};
 
 VertexShaderOutput main(VertexShaderInput input)
 {

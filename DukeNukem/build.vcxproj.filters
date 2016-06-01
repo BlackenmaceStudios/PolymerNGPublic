@@ -48,6 +48,15 @@
     <Filter Include="Source Files\Xbox">
       <UniqueIdentifier>{f9dbf8ca-82a0-4d2d-9cd2-3da0a09714c2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\ZLib">
+      <UniqueIdentifier>{fea4bdfa-a264-4071-afa8-a041ef5445a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\PolymerNG\TextureCache">
+      <UniqueIdentifier>{fdaa200e-3f1e-4d69-a32c-c973b219fa76}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\IntelBuildCPUT">
+      <UniqueIdentifier>{f3adf924-a946-4b38-b5f8-ac4cce2b0d02}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="build\include\a.h">
@@ -227,9 +236,6 @@
     <ClInclude Include="build\src\PolymerNG\PolymerNG.h">
       <Filter>Source Files\PolymerNG</Filter>
     </ClInclude>
-    <ClInclude Include="build\src\PolymerNG\PolymerNG_Image.h">
-      <Filter>Source Files\PolymerNG</Filter>
-    </ClInclude>
     <ClInclude Include="build\src\Threading\thread.h">
       <Filter>Source Files\Threading</Filter>
     </ClInclude>
@@ -238,9 +244,6 @@
     </ClInclude>
     <ClInclude Include="build\include\build3d.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="build\src\PolymerNG\Renderer\Renderer.h">
-      <Filter>Source Files\PolymerNG\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="build\src\PolymerNG\PolymerNG_RenderProgram.h">
       <Filter>Source Files\PolymerNG</Filter>
@@ -383,8 +386,95 @@
     <ClInclude Include="Build\src\PolymerNG\Renderer\Renderer_Pass_ClassicSky.h">
       <Filter>Source Files\PolymerNG\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="Build\src\PolymerNG\PolymerNG_SoftwareRasterizer.h">
+    <ClInclude Include="Third-Party\zlib\crc32.h">
+      <Filter>Source Files\ZLib</Filter>
+    </ClInclude>
+    <ClInclude Include="Third-Party\zlib\deflate.h">
+      <Filter>Source Files\ZLib</Filter>
+    </ClInclude>
+    <ClInclude Include="Third-Party\zlib\gzguts.h">
+      <Filter>Source Files\ZLib</Filter>
+    </ClInclude>
+    <ClInclude Include="Third-Party\zlib\inffast.h">
+      <Filter>Source Files\ZLib</Filter>
+    </ClInclude>
+    <ClInclude Include="Third-Party\zlib\inffixed.h">
+      <Filter>Source Files\ZLib</Filter>
+    </ClInclude>
+    <ClInclude Include="Third-Party\zlib\inflate.h">
+      <Filter>Source Files\ZLib</Filter>
+    </ClInclude>
+    <ClInclude Include="Third-Party\zlib\inftrees.h">
+      <Filter>Source Files\ZLib</Filter>
+    </ClInclude>
+    <ClInclude Include="Third-Party\zlib\trees.h">
+      <Filter>Source Files\ZLib</Filter>
+    </ClInclude>
+    <ClInclude Include="Third-Party\zlib\zconf.h">
+      <Filter>Source Files\ZLib</Filter>
+    </ClInclude>
+    <ClInclude Include="Third-Party\zlib\zconf.in.h">
+      <Filter>Source Files\ZLib</Filter>
+    </ClInclude>
+    <ClInclude Include="Third-Party\zlib\zlib.h">
+      <Filter>Source Files\ZLib</Filter>
+    </ClInclude>
+    <ClInclude Include="Third-Party\zlib\zutil.h">
+      <Filter>Source Files\ZLib</Filter>
+    </ClInclude>
+    <ClInclude Include="Build\src\PolymerNG\TextureCache\TextureCacheFormat.h">
+      <Filter>Source Files\PolymerNG\TextureCache</Filter>
+    </ClInclude>
+    <ClInclude Include="Build\src\PolymerNG\TextureCache\TextureCache.h">
+      <Filter>Source Files\PolymerNG\TextureCache</Filter>
+    </ClInclude>
+    <ClInclude Include="Build\src\PolymerNG\PolymerNG_Image.h">
       <Filter>Source Files\PolymerNG</Filter>
+    </ClInclude>
+    <ClInclude Include="Build\src\IntelBuildCPUT\CPUTFrustum.h">
+      <Filter>Source Files\IntelBuildCPUT</Filter>
+    </ClInclude>
+    <ClInclude Include="Build\src\IntelBuildCPUT\CPUTMath.h">
+      <Filter>Source Files\IntelBuildCPUT</Filter>
+    </ClInclude>
+    <ClInclude Include="Build\src\IntelBuildCPUT\CPUTCamera.h">
+      <Filter>Source Files\IntelBuildCPUT</Filter>
+    </ClInclude>
+    <ClInclude Include="Build\src\IntelBuildCPUT\CPUT.h">
+      <Filter>Source Files\IntelBuildCPUT</Filter>
+    </ClInclude>
+    <ClInclude Include="Build\src\PolymerNG\PolymerNG_Visibility.h">
+      <Filter>Source Files\PolymerNG</Filter>
+    </ClInclude>
+    <ClInclude Include="Build\src\PolymerNG\PolymerNG_RenderTarget.h">
+      <Filter>Source Files\PolymerNG</Filter>
+    </ClInclude>
+    <ClInclude Include="Build\src\PolymerNG\PolymerNG_Light.h">
+      <Filter>Source Files\PolymerNG</Filter>
+    </ClInclude>
+    <ClInclude Include="Build\src\PolymerNG\Models\ModelCacheFormat.h">
+      <Filter>Source Files\PolymerNG\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="Build\src\PolymerNG\Models\CacheModel.h">
+      <Filter>Source Files\PolymerNG\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="Build\src\PolymerNG\PolymerNG_ImageManager.h">
+      <Filter>Source Files\PolymerNG</Filter>
+    </ClInclude>
+    <ClInclude Include="Build\src\PolymerNG\PolymerNG_Material.h">
+      <Filter>Source Files\PolymerNG</Filter>
+    </ClInclude>
+    <ClInclude Include="build\src\PolymerNG\Renderer\Renderer.h">
+      <Filter>Source Files\PolymerNG\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Build\src\PolymerNG\Models\ModelCacheSystem.h">
+      <Filter>Source Files\PolymerNG\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="Build\src\PolymerNG\PolymerNG_public.h">
+      <Filter>Source Files\PolymerNG</Filter>
+    </ClInclude>
+    <ClInclude Include="Build\src\PolymerNG\Renderer\Renderer_Pass_Lighting.h">
+      <Filter>Source Files\PolymerNG\Renderer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -480,9 +570,6 @@
     </ClCompile>
     <ClCompile Include="build\src\rawinput.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="build\src\PolymerNG\PolymerNG_Image.cpp">
-      <Filter>Source Files\PolymerNG</Filter>
     </ClCompile>
     <ClCompile Include="build\src\syslayer.cpp">
       <Filter>Source Files</Filter>
@@ -634,17 +721,107 @@
     <ClCompile Include="Build\src\Input\InputSystem.cpp">
       <Filter>Source Files\Input</Filter>
     </ClCompile>
-    <ClCompile Include="Build\src\PolymerNG\PolymerNG_Occlusion.cpp">
-      <Filter>Source Files\PolymerNG</Filter>
-    </ClCompile>
     <ClCompile Include="Build\src\PolymerNG\Renderer\Renderer_Pass_DrawSprite.cpp">
       <Filter>Source Files\PolymerNG\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="Build\src\PolymerNG\Renderer\Renderer_Pass_ClassicSky.cpp">
       <Filter>Source Files\PolymerNG\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="Build\src\PolymerNG\PolymerNG_SoftwareRasterizer.cpp">
+    <ClCompile Include="Third-Party\zlib\adler32.c">
+      <Filter>Source Files\ZLib</Filter>
+    </ClCompile>
+    <ClCompile Include="Third-Party\zlib\compress.c">
+      <Filter>Source Files\ZLib</Filter>
+    </ClCompile>
+    <ClCompile Include="Third-Party\zlib\deflate.c">
+      <Filter>Source Files\ZLib</Filter>
+    </ClCompile>
+    <ClCompile Include="Third-Party\zlib\gzclose.c">
+      <Filter>Source Files\ZLib</Filter>
+    </ClCompile>
+    <ClCompile Include="Third-Party\zlib\gzlib.c">
+      <Filter>Source Files\ZLib</Filter>
+    </ClCompile>
+    <ClCompile Include="Third-Party\zlib\gzread.c">
+      <Filter>Source Files\ZLib</Filter>
+    </ClCompile>
+    <ClCompile Include="Third-Party\zlib\gzwrite.c">
+      <Filter>Source Files\ZLib</Filter>
+    </ClCompile>
+    <ClCompile Include="Third-Party\zlib\infback.c">
+      <Filter>Source Files\ZLib</Filter>
+    </ClCompile>
+    <ClCompile Include="Third-Party\zlib\inffast.c">
+      <Filter>Source Files\ZLib</Filter>
+    </ClCompile>
+    <ClCompile Include="Third-Party\zlib\inflate.c">
+      <Filter>Source Files\ZLib</Filter>
+    </ClCompile>
+    <ClCompile Include="Third-Party\zlib\inftrees.c">
+      <Filter>Source Files\ZLib</Filter>
+    </ClCompile>
+    <ClCompile Include="Third-Party\zlib\trees.c">
+      <Filter>Source Files\ZLib</Filter>
+    </ClCompile>
+    <ClCompile Include="Third-Party\zlib\uncompr.c">
+      <Filter>Source Files\ZLib</Filter>
+    </ClCompile>
+    <ClCompile Include="Third-Party\zlib\zutil.c">
+      <Filter>Source Files\ZLib</Filter>
+    </ClCompile>
+    <ClCompile Include="Build\src\PolymerNG\TextureCache\TextureCache.cpp">
+      <Filter>Source Files\PolymerNG\TextureCache</Filter>
+    </ClCompile>
+    <ClCompile Include="Third-Party\zlib\crc32_zlib.c">
+      <Filter>Source Files\ZLib</Filter>
+    </ClCompile>
+    <ClCompile Include="Build\src\PolymerNG\PolymerNG_Image.cpp">
       <Filter>Source Files\PolymerNG</Filter>
+    </ClCompile>
+    <ClCompile Include="Build\src\IntelBuildCPUT\CPUTFrustum.cpp">
+      <Filter>Source Files\IntelBuildCPUT</Filter>
+    </ClCompile>
+    <ClCompile Include="Build\src\IntelBuildCPUT\CPUTCamera.cpp">
+      <Filter>Source Files\IntelBuildCPUT</Filter>
+    </ClCompile>
+    <ClCompile Include="Build\src\PolymerNG\PolymerNG_Visibility.cpp">
+      <Filter>Source Files\PolymerNG</Filter>
+    </ClCompile>
+    <ClCompile Include="Build\src\PolymerNG\PolymerNG_Board_Gather.cpp">
+      <Filter>Source Files\PolymerNG</Filter>
+    </ClCompile>
+    <ClCompile Include="Build\src\PolymerNG\PolymerNG_RenderTarget.cpp">
+      <Filter>Source Files\PolymerNG</Filter>
+    </ClCompile>
+    <ClCompile Include="Build\src\RHI\Direct3D11\Direct3D11_RHI_RenderTarget.cpp">
+      <Filter>Source Files\RHI\Direct3D11</Filter>
+    </ClCompile>
+    <ClCompile Include="Build\src\RHI\Direct3D11\Direct3D11_RHI_PerfCounter.cpp">
+      <Filter>Source Files\RHI\Direct3D11</Filter>
+    </ClCompile>
+    <ClCompile Include="Build\src\RHI\Direct3D11\Direct3D11_RHI_OcclusionQuery.cpp">
+      <Filter>Source Files\RHI\Direct3D11</Filter>
+    </ClCompile>
+    <ClCompile Include="Build\src\PolymerNG\PolymerNG_Light.cpp">
+      <Filter>Source Files\PolymerNG</Filter>
+    </ClCompile>
+    <ClCompile Include="Build\src\PolymerNG\Models\CacheModel.cpp">
+      <Filter>Source Files\PolymerNG\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="Build\src\build3d_polymost3D.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Build\src\PolymerNG\PolymerNG_ImageManager.cpp">
+      <Filter>Source Files\PolymerNG</Filter>
+    </ClCompile>
+    <ClCompile Include="Build\src\PolymerNG\PolymerNG_Material.cpp">
+      <Filter>Source Files\PolymerNG</Filter>
+    </ClCompile>
+    <ClCompile Include="Build\src\PolymerNG\Models\ModelCacheSystem.cpp">
+      <Filter>Source Files\PolymerNG\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="Build\src\PolymerNG\Renderer\Renderer_Pass_Lighting.cpp">
+      <Filter>Source Files\PolymerNG\Renderer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

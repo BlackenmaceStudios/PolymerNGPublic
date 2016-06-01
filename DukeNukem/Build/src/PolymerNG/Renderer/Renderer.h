@@ -10,10 +10,10 @@
 
 class BuildRHIPipelineStateObject;
 
+#include "../../engine_priv.h"
+
+extern float fydimen;
 extern float gtang;
-extern float fxdim, fydim, fydimen, fviewingrange;
-extern float fxdimen;
-extern int32_t globalposx, globalposy, globalposz, globalhoriz;
 
 //
 // RendererDrawPassBase
@@ -34,9 +34,14 @@ protected:
 #include "Renderer_Pass_DrawWorld.h"
 #include "Renderer_Pass_DrawSprite.h"
 #include "Renderer_Pass_ClassicSky.h"
+#include "Renderer_Pass_Lighting.h"
 
 #define MAX_SMP_FRAMES		2
 #define MAX_RENDER_COMMANDS 400
+
+#define VISPASS_WIDTH		274
+#define VISPASS_HEIGHT		154
+
 //
 // Renderer
 //
@@ -68,10 +73,17 @@ public:
 
 	int			GetCurrentFrameNum() { return currentFrame; }
 
+	PolymerNGRenderTarget  *GetWorldRenderTarget() { return drawWorldPass.GetDrawWorldRenderTarget(); }
+
 	PolymerNGRenderProgram *ui_texture_basic;
+	PolymerNGRenderProgram *ui_texture_hq_basic;
 	PolymerNGRenderProgram *albedoSimpleProgram;
+	PolymerNGRenderProgram *albedoHQProgram;
 	PolymerNGRenderProgram *spriteSimpleProgram;
+	PolymerNGRenderProgram *spriteHQProgram;
 	PolymerNGRenderProgram *spriteSimpleHorizProgram;
+
+	PolymerNGRenderProgram *deferredLightingProgram;
 private:
 	int numRenderCommands[MAX_SMP_FRAMES];
 	BuildRenderCommand	commands[MAX_SMP_FRAMES][MAX_RENDER_COMMANDS];
@@ -83,6 +95,9 @@ private:
 	RendererDrawPassDrawWorld drawWorldPass;
 	RendererDrawPassDrawSprite drawSpritePass;
 	RendererDrawPassDrawClassicSky drawClassicSkyPass;
+	RendererDrawPassLighting drawLightingPass;
+	BuildRHIGPUPerformanceCounter *gpuPerfCounter;
+
 	int			currentFrame;
 
 	BuildRenderCommand *currentRenderCommand;

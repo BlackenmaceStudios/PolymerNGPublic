@@ -14,11 +14,16 @@ SamplerState paletteTextureSampler : register(s1);
 float4 main(VertexShaderOutput input) : SV_TARGET
 {
 	float2 st = input.texcoord0.xy;
+#ifdef GUISHADER_HIGHQUALITY
+	float4 result = diffuseTexture.Sample(paletteTextureSampler, st);
+	return result;
+#else
 	float r = diffuseTexture.Sample(diffuseTextureSampler,st);
 	if (r == 1)
 	{
 		discard;
 	}
 	float3 result = paletteTexture.Sample(paletteTextureSampler, r).xyz * modulationColor;
+#endif
 	return float4(result.x,result.y,result.z,1);
 }

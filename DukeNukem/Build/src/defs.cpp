@@ -17,6 +17,10 @@
 #include "mdsprite.h"  // md3model_t
 #include "colmatch.h"
 
+// jmarshall
+#include "PolymerNG/PolymerNG.h"
+// jmarshall end
+
 #ifdef USE_OPENGL
 # include "hightile.h"
 #endif
@@ -117,6 +121,17 @@ static int32_t lastmodelid = -1, lastvoxid = -1, modelskin = -1, lastmodelskin =
 static int32_t nextvoxid = 0;
 static char *faketilebuffer = NULL;
 static int32_t faketilebuffersiz = 0;
+
+static int32_t globalStartTile;
+static int32_t globalNumTiles;
+
+struct ModelMaterial
+{
+	std::string skinfn;
+};
+
+ModelMaterial lastModelMaterialInfo;
+
 
 #ifdef USE_OPENGL
 extern uint8_t alphahackarray[MAXTILES];
@@ -1347,15 +1362,18 @@ static int32_t defsparser(scriptfile *script)
 
             if (scriptfile_getstring(script,&modelfn)) break;
             if (scriptfile_getbraces(script,&modelend)) break;
-#ifdef USE_OPENGL
-            lastmodelid = md_loadmodel(modelfn);
-            if (EDUKE32_PREDICT_FALSE(lastmodelid < 0))
-            {
-                initprintf("Warning: Failed loading MD2/MD3 model \"%s\"\n", modelfn);
-                script->textptr = modelend+1;
-                break;
-            }
-#endif
+
+// jmarshall
+//#ifdef USE_OPENGL
+//            lastmodelid = md_loadmodel(modelfn);
+//            if (EDUKE32_PREDICT_FALSE(lastmodelid < 0))
+//            {
+//                initprintf("Warning: Failed loading MD2/MD3 model \"%s\"\n", modelfn);
+//                script->textptr = modelend+1;
+//                break;
+//            }
+//#endif
+// jmarshall end
             while (script->textptr < modelend)
             {
                 int32_t token = getatoken(script,modeltokens,ARRAY_SIZE(modeltokens));
@@ -1376,10 +1394,10 @@ static int32_t defsparser(scriptfile *script)
                 {
                     char *frametokptr = script->ltextptr;
                     char *frameend, *framename = 0;
-#ifdef USE_OPENGL
+
                     char happy=1;
                     int32_t tilex = 0, framei;
-#endif
+
                     int32_t ftilenume = -1, ltilenume = -1;
                     double smoothduration = 0.1f;
 
@@ -1419,48 +1437,61 @@ static int32_t defsparser(scriptfile *script)
                         model_ok = 0;
                         break;
                     }
-
-                    if (EDUKE32_PREDICT_FALSE(lastmodelid < 0))
-                    {
-#ifdef USE_OPENGL
-                        initprintf("Warning: ignoring frame definition on line %s:%d.\n",
-                                   script->filename, scriptfile_getlinum(script,frametokptr));
-#endif
-                        break;
-                    }
-
+// jmarshall
+//                    if (EDUKE32_PREDICT_FALSE(lastmodelid < 0))
+//                    {
+//#ifdef USE_OPENGL
+//                        initprintf("Warning: ignoring frame definition on line %s:%d.\n",
+//                                   script->filename, scriptfile_getlinum(script,frametokptr));
+//#endif
+//                        break;
+//                    }
+// jmarshall end
                     if (smoothduration > 1.0)
                     {
                         initprintf("Warning: smoothduration out of range on line %s:%d.\n",
                                    script->filename, scriptfile_getlinum(script,frametokptr));
                         smoothduration = 1.0;
                     }
-#ifdef USE_OPENGL
+
+					globalStartTile = ftilenume;
+					globalNumTiles = ltilenume;
                     for (tilex = ftilenume; tilex <= ltilenume && happy; tilex++)
                     {
-                        framei = md_defineframe(lastmodelid, framename, tilex, max(0,modelskin), smoothduration,pal);
-                        switch (framei)
-                        {
-                        case -1:
-                            happy = 0; break; // invalid model id!?
-                        case -2:
-                            initprintf("Invalid tile number on line %s:%d\n",
-                                       script->filename, scriptfile_getlinum(script,frametokptr));
-                            happy = 0;
-                            break;
-                        case -3:
-                            initprintf("Invalid frame name on line %s:%d\n",
-                                       script->filename, scriptfile_getlinum(script,frametokptr));
-                            happy = 0;
-                            break;
-                        default:
-                            if (framei >= 0 && framei<1024)
-                                usedframebitmap[framei>>3] |= (1<<(framei&7));
-                        }
+						if (!modelCacheSystem.SetModelTile(modelfn, tilex))
+						{
+							initprintf("Warning: Failed load model \"%s\"\n", modelfn);
+							happy = 0;
+							model_ok &= happy;
+							continue;
+						}
+
+						modelCacheSystem.DefineTextureForModelSurface(tilex, 0, lastModelMaterialInfo.skinfn.c_str());
+						
+						happy = 1;
+                        //framei = md_defineframe(lastmodelid, framename, tilex, max(0,modelskin), smoothduration,pal);
+                        //switch (framei)
+                        //{
+                        //case -1:
+                        //    happy = 0; break; // invalid model id!?
+                        //case -2:
+                        //    initprintf("Invalid tile number on line %s:%d\n",
+                        //               script->filename, scriptfile_getlinum(script,frametokptr));
+                        //    happy = 0;
+                        //    break;
+                        //case -3:
+                        //    initprintf("Invalid frame name on line %s:%d\n",
+                        //               script->filename, scriptfile_getlinum(script,frametokptr));
+                        //    happy = 0;
+                        //    break;
+                        //default:
+                        //    if (framei >= 0 && framei<1024)
+                        //        usedframebitmap[framei>>3] |= (1<<(framei&7));
+                        //}
 
                         model_ok &= happy;
                     }
-#endif
+					model_ok = 0;
                     seenframe = 1;
                 }
                 break;
@@ -1614,9 +1645,18 @@ static int32_t defsparser(scriptfile *script)
                         break;
                     }
 
-                    if (check_file_exist(skinfn))
-                        break;
-
+                   // if (check_file_exist(skinfn))
+                   //     break;
+// jmarshall
+					if (token == T_SKIN)
+					{
+						lastModelMaterialInfo.skinfn = skinfn;
+						//for (int i = globalStartTile; i <= globalNumTiles; i++)
+						//{
+						//	modelCacheSystem.DefineTextureForModelSurface(i, 0, skinfn);
+						//}
+					}
+// jmarshall end
 #ifdef USE_OPENGL
                     switch (md_defineskin(lastmodelid, skinfn, palnum, max(0,modelskin), surfnum, param, specpower, specfactor, flags))
                     {
@@ -1744,7 +1784,11 @@ static int32_t defsparser(scriptfile *script)
                 break;
                 }
             }
-
+			for (int i = globalStartTile; i <= globalNumTiles; i++)
+			{
+				modelCacheSystem.SetMiscForModelSurface(i, (float)scale, shadeoffs, (float)mzadd, (float)myoffset, flags);
+			}
+			
 #ifdef USE_OPENGL
             if (EDUKE32_PREDICT_FALSE(!model_ok))
             {
@@ -2282,6 +2326,11 @@ static int32_t defsparser(scriptfile *script)
                                    script->filename, scriptfile_getlinum(script,paltokptr));
                         break;
                     }
+
+// jmarshall
+					if (polymerNG.SetHighQualityTextureForTile(fn, tile))
+						break;
+// jmarshall end
 
                     if (EDUKE32_PREDICT_FALSE(check_file_exist(fn)))
                         break;

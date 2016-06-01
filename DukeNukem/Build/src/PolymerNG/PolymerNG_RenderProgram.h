@@ -16,7 +16,7 @@ class PolymerNGRenderProgram
 {
 public:
 	// Loads in a render program.
-	static PolymerNGRenderProgram *LoadRenderProgram(const char *fileName);
+	static PolymerNGRenderProgram *LoadRenderProgram(const char *fileName, bool useGUIVertexLayout);
 
 	BuildRHIShader *GetRHIShader() { return rhiShader; }
 

@@ -54,8 +54,8 @@ void RendererDrawPassDrawClassicSky::Draw(const BuildRenderCommand &command)
 
 	rhi.UpdateRHIMesh(classicSkyRHIMesh, 0, sizeof(Build3DVertex), numClassicSkyPlanes * 4, classicSkyVertexes);
 
-	BuildImage *image = static_cast<BuildImage *>(command.taskRenderWorld.skyImageHandle);
-	if (image == NULL)
+	PolymerNGMaterial *material = static_cast<PolymerNGMaterial *>(command.taskRenderWorld.skyMaterialHandle);
+	if (material == NULL)
 		return;
 
 	drawClassicSkyBuffer.mWorldViewProj = command.taskRenderWorld.skyProjMatrix;
@@ -64,8 +64,8 @@ void RendererDrawPassDrawClassicSky::Draw(const BuildRenderCommand &command)
 
 	rhi.SetConstantBuffer(0, classicSkyConstantBuffer);
 
-	rhi.SetImageForContext(0, image->GetRHITexture());
-	rhi.SetImageForContext(1, polymerNG.GetPaletteImage()->GetRHITexture());
+	rhi.SetImageForContext(0, material->GetDiffuseTexture()->GetRHITexture());
+	rhi.SetImageForContext(1, imageManager.GetPaletteManager()->GetPaletteImage()->GetRHITexture());
 
 	rhi.DrawUnoptimizedQuad(renderer.albedoSimpleProgram->GetRHIShader(), classicSkyRHIMesh, 0, numClassicSkyPlanes * 4);
 }

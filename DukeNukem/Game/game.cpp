@@ -40,6 +40,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "screens.h"
 #include "cmdline.h"
 
+#include "../Build/src/PolymerNG/PolymerNG_Public.h"
+
 #ifdef __ANDROID__
 #include "android.h"
 #endif
@@ -2731,6 +2733,27 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 for (TRAVERSE_SPRITE_SECT(headspritesect[sp->sectnum], j, nextj))
                     if (sprite[j].picnum == ACTIVATOR || sprite[j].picnum == ACTIVATORLOCKED)
                         actor[i].flags |= SFLAG_USEACTIVATOR;
+
+				PolymerNGLightOpts opts;
+				
+				if (sp->lotag == SE_49_POINT_LIGHT)
+				{
+					opts.lightType = POLYMERNG_LIGHTTYPE_POINT;
+				}
+				else if (sp->lotag == SE_50_SPOT_LIGHT)
+				{
+					opts.lightType = POLYMERNG_LIGHTTYPE_SPOT;
+				}
+
+				opts.radius = sp->hitag;
+				opts.position[0] = sprite[j].x;
+				opts.position[1] = sprite[j].y;
+				opts.position[2] = sprite[j].z;
+				opts.color[0] = 255;
+				opts.color[1] = 255;
+				opts.color[2] = 255;
+				opts.sector = sprite[j].sectnum;
+				actor[i].light = polymerNGPublic->AddLightToCurrentBoard(opts);
             }
             changespritestat(i, sp->lotag==46 ? STAT_EFFECTOR : STAT_LIGHT);
             goto SPAWN_END;

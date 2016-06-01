@@ -3,6 +3,17 @@
 
 #include "BuildRHI_Direct3D11.h"
 
+void RHIProtected_SetPrimitiveType(D3D11_PRIMITIVE_TOPOLOGY topology)
+{
+	static D3D11_PRIMITIVE_TOPOLOGY current_topology = (D3D11_PRIMITIVE_TOPOLOGY)-1;
+
+	if (current_topology == topology)
+		return;
+
+	current_topology = topology;
+	DX::RHIGetD3DDeviceContext()->IASetPrimitiveTopology(current_topology);
+}
+
 void BuildRHIDirect3D11Private::ResetContext()
 {
 	for (int i = 0; i < RHIMAX_BOUNDTEXTURES; i++)
@@ -10,7 +21,7 @@ void BuildRHIDirect3D11Private::ResetContext()
 		rhiPrivate.boundTextures[i] = NULL;
 	}
 
-	DX::RHIGetD3DDeviceContext()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+//	
 }
 
 void BuildRHI::SetImageForContext(int rootIndex, const BuildRHITexture *image)
@@ -81,10 +92,12 @@ void BuildRHI::DrawUnoptimizedQuad(BuildRHIShader *shader, BuildRHIMesh *mesh, i
 {
 	BuildRHIDirect3DMesh *mesh_internal = static_cast<BuildRHIDirect3DMesh *>(mesh);
 
-	DX::RHIGetD3DDeviceContext()->IASetIndexBuffer(NULL, DXGI_FORMAT_R16_UINT, 0);
+	//DX::RHIGetD3DDeviceContext()->IASetIndexBuffer(NULL, DXGI_FORMAT_R16_UINT, 0);
 
 	mesh_internal->vertexbuffer->Bind();
 	static_cast<BuildRHIDirect3D11Shader *>(shader)->Bind(RHI_INPUTSHADER_WORLD);
+
+	RHIProtected_SetPrimitiveType(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
 	
 	//	for (int i = 0; i < RHIMAX_BOUNDTEXTURES; i++)
@@ -106,7 +119,7 @@ void BuildRHI::DrawIndexedQuad(BuildRHIShader *shader, BuildRHIMesh *mesh, int s
 	mesh_internal->indexBuffer->Bind();
 	mesh_internal->vertexbuffer->Bind();
 	static_cast<BuildRHIDirect3D11Shader *>(shader)->Bind(RHI_INPUTSHADER_WORLD);
-	DX::RHIGetD3DDeviceContext()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	RHIProtected_SetPrimitiveType(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 
 	//	for (int i = 0; i < RHIMAX_BOUNDTEXTURES; i++)

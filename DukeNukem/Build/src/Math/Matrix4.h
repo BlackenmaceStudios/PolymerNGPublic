@@ -76,6 +76,8 @@ namespace Math
 		static INLINE Matrix4 MakeScale( float scale ) { return Matrix4(XMMatrixScaling(scale, scale, scale)); }
 		static INLINE Matrix4 MakeScale( Vector3 scale ) { return Matrix4(XMMatrixScalingFromVector(scale)); }
 
+		static INLINE Matrix4 MakeScale2(Vector3 scale) { return Matrix4(XMMatrixScaling(scale.GetX(), scale.GetY(), scale.GetZ())); }
+
 		static INLINE Matrix4 MakeTranslation(float x, float y, float z) {
 			return Matrix4(XMMatrixTranslation(x, y, z));
 		}

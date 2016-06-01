@@ -54,19 +54,27 @@ void RendererDrawPassDrawUI::Draw(const BuildRenderCommand &command)
 		return;
 	}
 
-	BuildImage *image = polymerNG.GetImage(command.taskRotateSprite.texnum);
-	if (image == NULL)
+	PolymerNGMaterial *material = static_cast<PolymerNGMaterial *>(command.taskRotateSprite.renderMaterialHandle);
+	if (material == NULL)
 	{
 		initprintf("RendererDrawPassDrawUI::Draw: Tried to draw a NULL image?\n");
 		return;
 	}
-	if (image->GetRHITexture() == NULL)
+	if (material->GetDiffuseTexture()->GetRHITexture() == NULL)
 	{
 		return;
 	}
-	rhi.SetShader(renderer.ui_texture_basic->GetRHIShader());
-	rhi.SetImageForContext(0, image->GetRHITexture());
-	rhi.SetImageForContext(1, polymerNG.GetPaletteImage()->GetRHITexture());
+
+	if (material->GetDiffuseTexture()->GetOpts().isHighQualityImage)
+	{
+		rhi.SetShader(renderer.ui_texture_hq_basic->GetRHIShader());
+	}
+	else
+	{
+		rhi.SetShader(renderer.ui_texture_basic->GetRHIShader());
+	}
+	rhi.SetImageForContext(0, material->GetDiffuseTexture()->GetRHITexture());
+	rhi.SetImageForContext(1, imageManager.GetPaletteManager()->GetPaletteImage()->GetRHITexture());
 
 	drawUIBuffer.modulationColor[0] = command.taskRotateSprite.spriteColor.GetX();
 	drawUIBuffer.modulationColor[1] = command.taskRotateSprite.spriteColor.GetY();

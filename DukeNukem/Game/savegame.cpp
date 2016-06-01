@@ -1686,7 +1686,7 @@ static void sv_preactordatasave()
 
     for (i=0; i<MAXSPRITES; i++)
     {
-        actor[i].lightptr = NULL;
+//        actor[i].lightptr = NULL;
         actor[i].lightId = -1;
     }
 }
@@ -1697,7 +1697,7 @@ static void sv_postactordata()
 
     for (i=0; i<MAXSPRITES; i++)
     {
-        actor[i].lightptr = NULL;
+//        actor[i].lightptr = NULL;
         actor[i].lightId = -1;
     }
 }
@@ -2242,7 +2242,7 @@ static void postloadplayer(int32_t savegamep)
     // change to Polymer later
     for (i=0; i<MAXSPRITES; i++)
     {
-        actor[i].lightptr = NULL;
+//        actor[i].lightptr = NULL;
         actor[i].lightId = -1;
     }
 }

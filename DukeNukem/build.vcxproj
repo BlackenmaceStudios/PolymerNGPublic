@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="DebugSW|Win32">
@@ -100,6 +100,10 @@
     <ClInclude Include="Build\src\Input\XGamePad.h" />
     <ClInclude Include="Build\src\Input\XKeyboard.h" />
     <ClInclude Include="Build\src\Input\XMouse.h" />
+    <ClInclude Include="Build\src\IntelBuildCPUT\CPUT.h" />
+    <ClInclude Include="Build\src\IntelBuildCPUT\CPUTCamera.h" />
+    <ClInclude Include="Build\src\IntelBuildCPUT\CPUTFrustum.h" />
+    <ClInclude Include="Build\src\IntelBuildCPUT\CPUTMath.h" />
     <ClInclude Include="Build\src\Math\BoundingPlane.h" />
     <ClInclude Include="Build\src\Math\BoundingSphere.h" />
     <ClInclude Include="Build\src\Math\Common.h" />
@@ -112,19 +116,30 @@
     <ClInclude Include="Build\src\Math\Scalar.h" />
     <ClInclude Include="Build\src\Math\Transform.h" />
     <ClInclude Include="Build\src\Math\Vector.h" />
+    <ClInclude Include="Build\src\PolymerNG\Models\CacheModel.h" />
+    <ClInclude Include="Build\src\PolymerNG\Models\ModelCacheFormat.h" />
+    <ClInclude Include="Build\src\PolymerNG\Models\ModelCacheSystem.h" />
     <ClInclude Include="Build\src\PolymerNG\Models\Models.h" />
     <ClInclude Include="build\src\PolymerNG\PolymerNG.h" />
-    <ClInclude Include="build\src\PolymerNG\PolymerNG_Image.h" />
+    <ClInclude Include="Build\src\PolymerNG\PolymerNG_Image.h" />
+    <ClInclude Include="Build\src\PolymerNG\PolymerNG_ImageManager.h" />
+    <ClInclude Include="Build\src\PolymerNG\PolymerNG_Light.h" />
     <ClInclude Include="build\src\PolymerNG\PolymerNG_local.h" />
+    <ClInclude Include="Build\src\PolymerNG\PolymerNG_Material.h" />
+    <ClInclude Include="Build\src\PolymerNG\PolymerNG_public.h" />
     <ClInclude Include="build\src\PolymerNG\PolymerNG_RenderParam.h" />
     <ClInclude Include="build\src\PolymerNG\PolymerNG_RenderProgram.h" />
     <ClInclude Include="build\src\PolymerNG\PolymerNG_Board.h" />
-    <ClInclude Include="Build\src\PolymerNG\PolymerNG_SoftwareRasterizer.h" />
+    <ClInclude Include="Build\src\PolymerNG\PolymerNG_RenderTarget.h" />
+    <ClInclude Include="Build\src\PolymerNG\PolymerNG_Visibility.h" />
     <ClInclude Include="build\src\PolymerNG\Renderer\Renderer.h" />
     <ClInclude Include="Build\src\PolymerNG\Renderer\Renderer_Pass_ClassicSky.h" />
     <ClInclude Include="Build\src\PolymerNG\Renderer\Renderer_Pass_DrawSprite.h" />
     <ClInclude Include="build\src\PolymerNG\Renderer\Renderer_Pass_DrawUI.h" />
     <ClInclude Include="Build\src\PolymerNG\Renderer\Renderer_Pass_DrawWorld.h" />
+    <ClInclude Include="Build\src\PolymerNG\Renderer\Renderer_Pass_Lighting.h" />
+    <ClInclude Include="Build\src\PolymerNG\TextureCache\TextureCache.h" />
+    <ClInclude Include="Build\src\PolymerNG\TextureCache\TextureCacheFormat.h" />
     <ClInclude Include="build\src\RHI\BuildRHI.h" />
     <ClInclude Include="Build\src\RHI\Direct3D11\BuildRHI_Direct3D11.h" />
     <ClInclude Include="Build\src\RHI\Direct3D11\BuildRHI_Direct3D11_GPUBuffer.h" />
@@ -147,11 +162,24 @@
     <ClInclude Include="build\src\Threading\thread.h" />
     <ClInclude Include="Build\src\Xbox\PlatformHelpers.h" />
     <ClInclude Include="Build\src\Xbox\xboxutilpch.h" />
+    <ClInclude Include="Third-Party\zlib\crc32.h" />
+    <ClInclude Include="Third-Party\zlib\deflate.h" />
+    <ClInclude Include="Third-Party\zlib\gzguts.h" />
+    <ClInclude Include="Third-Party\zlib\inffast.h" />
+    <ClInclude Include="Third-Party\zlib\inffixed.h" />
+    <ClInclude Include="Third-Party\zlib\inflate.h" />
+    <ClInclude Include="Third-Party\zlib\inftrees.h" />
+    <ClInclude Include="Third-Party\zlib\trees.h" />
+    <ClInclude Include="Third-Party\zlib\zconf.h" />
+    <ClInclude Include="Third-Party\zlib\zconf.in.h" />
+    <ClInclude Include="Third-Party\zlib\zlib.h" />
+    <ClInclude Include="Third-Party\zlib\zutil.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="build\src\a-c.cpp" />
     <ClCompile Include="build\src\baselayer.cpp" />
     <ClCompile Include="build\src\build3d.cpp" />
+    <ClCompile Include="Build\src\build3d_polymost3D.cpp" />
     <ClCompile Include="build\src\cache1d.cpp" />
     <ClCompile Include="build\src\cache1d_wrapper.cpp" />
     <ClCompile Include="build\src\colmatch.cpp" />
@@ -168,6 +196,8 @@
     <ClCompile Include="Build\src\Input\XGamePad.cpp" />
     <ClCompile Include="Build\src\Input\XKeyboard.cpp" />
     <ClCompile Include="Build\src\Input\XMouse.cpp" />
+    <ClCompile Include="Build\src\IntelBuildCPUT\CPUTCamera.cpp" />
+    <ClCompile Include="Build\src\IntelBuildCPUT\CPUTFrustum.cpp" />
     <ClCompile Include="build\src\kplib.cpp" />
     <ClCompile Include="build\src\lz4.cpp" />
     <ClCompile Include="build\src\md4.cpp" />
@@ -177,28 +207,39 @@
     <ClCompile Include="build\src\osd.cpp" />
     <ClCompile Include="build\src\polymer.cpp" />
     <ClCompile Include="Build\src\PolymerNG\Models\BaseModel.cpp" />
+    <ClCompile Include="Build\src\PolymerNG\Models\CacheModel.cpp" />
+    <ClCompile Include="Build\src\PolymerNG\Models\ModelCacheSystem.cpp" />
     <ClCompile Include="build\src\PolymerNG\PolymerNG.cpp" />
     <ClCompile Include="Build\src\PolymerNG\PolymerNG_Board.cpp" />
-    <ClCompile Include="Build\src\PolymerNG\PolymerNG_SoftwareRasterizer.cpp" />
-    <ClCompile Include="build\src\PolymerNG\PolymerNG_Image.cpp" />
-    <ClCompile Include="Build\src\PolymerNG\PolymerNG_Occlusion.cpp" />
+    <ClCompile Include="Build\src\PolymerNG\PolymerNG_Board_Gather.cpp" />
+    <ClCompile Include="Build\src\PolymerNG\PolymerNG_Image.cpp" />
+    <ClCompile Include="Build\src\PolymerNG\PolymerNG_ImageManager.cpp" />
+    <ClCompile Include="Build\src\PolymerNG\PolymerNG_Light.cpp" />
+    <ClCompile Include="Build\src\PolymerNG\PolymerNG_Material.cpp" />
     <ClCompile Include="build\src\PolymerNG\PolymerNG_RenderParam.cpp" />
     <ClCompile Include="build\src\PolymerNG\PolymerNG_RenderProgram.cpp" />
+    <ClCompile Include="Build\src\PolymerNG\PolymerNG_RenderTarget.cpp" />
+    <ClCompile Include="Build\src\PolymerNG\PolymerNG_Visibility.cpp" />
     <ClCompile Include="build\src\PolymerNG\Renderer\Renderer.cpp" />
     <ClCompile Include="Build\src\PolymerNG\Renderer\Renderer_Pass_ClassicSky.cpp" />
     <ClCompile Include="Build\src\PolymerNG\Renderer\Renderer_Pass_DrawSprite.cpp" />
     <ClCompile Include="build\src\PolymerNG\Renderer\Renderer_Pass_DrawUI.cpp" />
     <ClCompile Include="Build\src\PolymerNG\Renderer\Renderer_Pass_DrawWorld.cpp" />
+    <ClCompile Include="Build\src\PolymerNG\Renderer\Renderer_Pass_Lighting.cpp" />
+    <ClCompile Include="Build\src\PolymerNG\TextureCache\TextureCache.cpp" />
     <ClCompile Include="build\src\polymost.cpp" />
     <ClCompile Include="build\src\pragmas.cpp" />
     <ClCompile Include="build\src\rawinput.cpp" />
     <ClCompile Include="Build\src\RHI\Direct3D11\Direct3D11_RHI.cpp" />
     <ClCompile Include="Build\src\RHI\Direct3D11\Direct3D11_RHI_Context.cpp" />
+    <ClCompile Include="Build\src\RHI\Direct3D11\Direct3D11_RHI_OcclusionQuery.cpp" />
+    <ClCompile Include="Build\src\RHI\Direct3D11\Direct3D11_RHI_PerfCounter.cpp" />
     <ClCompile Include="Build\src\RHI\Direct3D11\Direct3D11_RHI_GPUBuffer.cpp" />
     <ClCompile Include="Build\src\RHI\Direct3D11\Direct3D11_RHI_GUI.cpp" />
     <ClCompile Include="Build\src\RHI\Direct3D11\Direct3D11_RHI_Blob.cpp" />
     <ClCompile Include="Build\src\RHI\Direct3D11\Direct3D11_RHI_Images.cpp" />
     <ClCompile Include="Build\src\RHI\Direct3D11\Direct3D11_RHI_InputElementDesc.cpp" />
+    <ClCompile Include="Build\src\RHI\Direct3D11\Direct3D11_RHI_RenderTarget.cpp" />
     <ClCompile Include="Build\src\RHI\Direct3D11\Direct3D11_RHI_Shader.cpp" />
     <ClCompile Include="build\src\RHI\Direct3D12\Direct3D12_RHI.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
@@ -286,6 +327,21 @@
     <ClCompile Include="platform\Windows\src\compat-to-msvc\dll_math.cpp" />
     <ClCompile Include="platform\Windows\src\compat-to-msvc\io_math.cpp" />
     <ClCompile Include="platform\Windows\src\compat-to-msvc\vsnprintf.cpp" />
+    <ClCompile Include="Third-Party\zlib\adler32.c" />
+    <ClCompile Include="Third-Party\zlib\compress.c" />
+    <ClCompile Include="Third-Party\zlib\crc32_zlib.c" />
+    <ClCompile Include="Third-Party\zlib\deflate.c" />
+    <ClCompile Include="Third-Party\zlib\gzclose.c" />
+    <ClCompile Include="Third-Party\zlib\gzlib.c" />
+    <ClCompile Include="Third-Party\zlib\gzread.c" />
+    <ClCompile Include="Third-Party\zlib\gzwrite.c" />
+    <ClCompile Include="Third-Party\zlib\infback.c" />
+    <ClCompile Include="Third-Party\zlib\inffast.c" />
+    <ClCompile Include="Third-Party\zlib\inflate.c" />
+    <ClCompile Include="Third-Party\zlib\inftrees.c" />
+    <ClCompile Include="Third-Party\zlib\trees.c" />
+    <ClCompile Include="Third-Party\zlib\uncompr.c" />
+    <ClCompile Include="Third-Party\zlib\zutil.c" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Build\src\Math\Functions.inl" />
@@ -441,6 +497,7 @@
       <SDLCheck>true</SDLCheck>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <CompileAsWinRT>false</CompileAsWinRT>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -517,6 +574,8 @@
       <SDLCheck>true</SDLCheck>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <CompileAsWinRT>false</CompileAsWinRT>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

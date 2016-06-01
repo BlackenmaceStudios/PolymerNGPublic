@@ -38,6 +38,22 @@ void BuildRHI::Init()
 		DX::RHIGetD3DDeviceContext()->RSSetState(rhiPrivate.cullModeBuildState);
 	}
 
+	{
+		// Always have alpha blend enabled.
+		D3D11_BLEND_DESC1 BlendState;
+		
+		ZeroMemory(&BlendState, sizeof(D3D11_BLEND_DESC1));
+		BlendState.RenderTarget[0].BlendEnable = TRUE;
+		BlendState.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+		BlendState.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+		BlendState.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+		BlendState.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+		BlendState.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
+		BlendState.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+		BlendState.RenderTarget[0].RenderTargetWriteMask = 0x0f;
+		DX::RHIGetD3DDevice()->CreateBlendState1(&BlendState, &rhiPrivate.alphaBlendState);
+		DX::RHIGetD3DDeviceContext()->OMSetBlendState(rhiPrivate.alphaBlendState, 0, 0xffffffff);
+	}
 }
 
 BuildRHIMesh *BuildRHI::AllocateRHIMesh(int vertexSize, int numVertexes, void * initialData, bool isDynamic)

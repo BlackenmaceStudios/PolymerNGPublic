@@ -5,10 +5,15 @@
 
 void BuildRHI::DrawUnoptimized2DQuad( BuildRHIUIVertex *vertexes)
 {
-	DX::RHIGetD3DDeviceContext()->IASetIndexBuffer(NULL, DXGI_FORMAT_R16_UINT, 0);
+	RHIProtected_SetPrimitiveType(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+//	DX::RHIGetD3DDeviceContext()->IASetIndexBuffer(NULL, DXGI_FORMAT_R16_UINT, 0);
 
-	rhiPrivate.guiRHIMesh.vertexbuffer->UpdateBuffer(vertexes, 4 * sizeof(BuildRHIUIVertex), 0);
-	rhiPrivate.guiRHIMesh.vertexbuffer->Bind();
+	// This is allowed.
+	if (vertexes != NULL)
+	{
+		rhiPrivate.guiRHIMesh.vertexbuffer->UpdateBuffer(vertexes, 4 * sizeof(BuildRHIUIVertex), 0);
+		rhiPrivate.guiRHIMesh.vertexbuffer->Bind();
+	}
 
 	rhiPrivate.currentShader->Bind(RHI_INPUTSHADER_GUI);
 //	for (int i = 0; i < RHIMAX_BOUNDTEXTURES; i++)

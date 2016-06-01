@@ -46,35 +46,59 @@ void RendererDrawPassDrawSprite::Draw(const BuildRenderCommand &command)
 		
 		if (!sprite->isVisible)
 			continue;
-		BuildImage *image = static_cast<BuildImage *>(sprite->plane.renderImageHandle);
+
+		PolymerNGMaterial *material = static_cast<PolymerNGMaterial *>(sprite->plane.renderMaterialHandle);
 		drawSpriteBuffer.mWorldViewProj = sprite->modelViewProjectionMatrix;
 		drawSpriteBuffer.modelMatrix = sprite->modelMatrix;
 		//drawSpriteBuffer.modelMatrix = sprite->modelMatrix;
 		drawSpriteConstantBuffer->UpdateBuffer(&drawSpriteBuffer, sizeof(VS_DRAWSPRITE_BUFFER), 0);
-
 		rhi.SetConstantBuffer(0, drawSpriteConstantBuffer);
 
-		psDrawSpriteBuffer.shadeOffsetVisibility[0] = sprite->plane.shadeNum;
-		psDrawSpriteBuffer.shadeOffsetVisibility[1] = sprite->plane.visibility;
-		psDrawSpriteBuffer.fogDensistyScaleEnd[0] = sprite->plane.fogDensity;
-		psDrawSpriteBuffer.fogDensistyScaleEnd[1] = sprite->plane.fogStart;
-		psDrawSpriteBuffer.fogDensistyScaleEnd[2] = sprite->plane.fogEnd;
-		drawSpritePixelConstantBuffer->UpdateBuffer(&psDrawSpriteBuffer, sizeof(PS_CONSTANT_BUFFER), 0);
-		rhi.SetConstantBuffer(0, drawSpritePixelConstantBuffer, false, true);
-		if (image == NULL || image->GetRHITexture() == NULL)
+		if (sprite->cacheModel)
 		{
-			continue;
-		}
-		rhi.SetImageForContext(0, image->GetRHITexture());
-		rhi.SetImageForContext(1, polymerNG.GetPaletteImage()->GetRHITexture());
-		rhi.SetImageForContext(2, polymerNG.GetPaletteLookupImage(sprite->paletteNum)->GetRHITexture());
-		if (sprite->isHorizsprite)
-		{
-			rhi.DrawUnoptimizedQuad(renderer.spriteSimpleProgram->GetRHIShader(), spriteRHIMesh, 4, 4);
+			for (int d = 0; d < sprite->cacheModel->GetNumSurfaces(); d++)
+			{
+				CacheModelSurface *surface = sprite->cacheModel->GetCacheSurface(d);
+
+				if (surface->material == NULL || surface->material->GetDiffuseTexture() == NULL || sprite->cacheModel->GetBaseModel() == NULL)
+					continue;
+				
+				rhi.SetImageForContext(0, surface->material->GetDiffuseTexture()->GetRHITexture());
+
+				BuildRHIShader *shader = renderer.albedoHQProgram->GetRHIShader();
+
+				rhi.DrawIndexedQuad(shader, sprite->cacheModel->GetBaseModel()->rhiVertexBufferStatic, 0, surface->startIndex, surface->numIndexes);
+			}
 		}
 		else
 		{
-			rhi.DrawUnoptimizedQuad(renderer.spriteSimpleProgram->GetRHIShader(), spriteRHIMesh, 0, 4);
+			psDrawSpriteBuffer.shadeOffsetVisibility[0] = sprite->plane.shadeNum;
+			psDrawSpriteBuffer.shadeOffsetVisibility[1] = sprite->plane.visibility;
+			psDrawSpriteBuffer.fogDensistyScaleEnd[0] = sprite->plane.fogDensity;
+			psDrawSpriteBuffer.fogDensistyScaleEnd[1] = sprite->plane.fogStart;
+			psDrawSpriteBuffer.fogDensistyScaleEnd[2] = sprite->plane.fogEnd;
+			drawSpritePixelConstantBuffer->UpdateBuffer(&psDrawSpriteBuffer, sizeof(PS_CONSTANT_BUFFER), 0);
+			rhi.SetConstantBuffer(0, drawSpritePixelConstantBuffer, false, true);
+			if (material->GetDiffuseTexture() == NULL || material->GetDiffuseTexture()->GetRHITexture() == NULL)
+			{
+				continue;
+			}
+			rhi.SetImageForContext(0, material->GetDiffuseTexture()->GetRHITexture());
+			rhi.SetImageForContext(1, imageManager.GetPaletteManager()->GetPaletteImage()->GetRHITexture());
+			rhi.SetImageForContext(2, imageManager.GetPaletteManager()->GetPaletteLookupImage(sprite->paletteNum)->GetRHITexture());
+
+			BuildRHIShader *shader = renderer.albedoSimpleProgram->GetRHIShader();
+			if (material->GetDiffuseTexture()->GetOpts().isHighQualityImage)
+				shader = renderer.spriteHQProgram->GetRHIShader();
+
+			if (sprite->isHorizsprite)
+			{
+				rhi.DrawUnoptimizedQuad(shader, spriteRHIMesh, 4, 4);
+			}
+			else
+			{
+				rhi.DrawUnoptimizedQuad(shader, spriteRHIMesh, 0, 4);
+			}
 		}
 	}
 }

@@ -27,6 +27,13 @@ struct BuildImageOpts
 
 	int tileNum; // If TileNum is > 0 then width and height are not used here.
 
+	bool isHighQualityImage;
+
+	bool allowCPUReads;
+	bool isRenderTargetImage;
+
+	byte *inputBuffer;
+
 	BuildImageType imageType;
 	BuildImageHeapType heapType;
 	BuildImageFormat format;
@@ -46,6 +53,10 @@ POLYMER_INLINE BuildImageOpts::BuildImageOpts()
 	imageType = IMAGETYPE_2D;
 	heapType = BUILDIMAGE_CPU_HEAP_NONE;
 	format = IMAGE_FORMAT_R8;
+	inputBuffer = NULL;
+	isHighQualityImage = false;
+	isRenderTargetImage = false;
+	allowCPUReads = false;
 	name = L"not_set";
 }
 
@@ -57,7 +68,7 @@ class BuildImage
 public:
 	BuildImage(BuildImageOpts imageOpts);
 
-	void					UpdateImage();
+	void					LoadInArtData();
 	void					UpdateImagePost(byte *buffer);
 
 	int						GetWidth();

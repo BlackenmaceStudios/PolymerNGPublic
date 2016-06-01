@@ -158,8 +158,10 @@ typedef struct {
 #ifdef POLYMER
     _prlight *lightptr; //4b/8b
 #else
-    void *lightptr;
+   // void *lightptr;
 #endif
+
+	class PolymerNGLight *light;
 
 // pad struct to 128 bytes
 #if !defined UINTPTR_MAX

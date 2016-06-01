@@ -8,6 +8,18 @@
 
 Renderer renderer;
 
+int currentGameSubmitTime = 0;
+int startTimeForGameFrame = 0;
+int gameExecTimeInMilliseconds = 0;
+int gpuExecTimeInMilliseconds = 0;
+
+int GetCurrentTimeInMilliseconds()
+{
+	SYSTEMTIME st;
+	GetSystemTime(&st);
+	return st.wMilliseconds;
+}
+
 Renderer::Renderer()
 {
 	currentFrame = 0;
@@ -21,16 +33,23 @@ Renderer::Renderer()
 void Renderer::Init()
 {
 	// Load in all of our shaders.
-	ui_texture_basic = PolymerNGRenderProgram::LoadRenderProgram("guishader");
-	albedoSimpleProgram = PolymerNGRenderProgram::LoadRenderProgram("AlbedoSimple");
-	spriteSimpleProgram = PolymerNGRenderProgram::LoadRenderProgram("SpriteSimple");
-	spriteSimpleHorizProgram = PolymerNGRenderProgram::LoadRenderProgram("SpriteSimpleHoriz");
+	ui_texture_basic = PolymerNGRenderProgram::LoadRenderProgram("guishader", true);
+	ui_texture_hq_basic = PolymerNGRenderProgram::LoadRenderProgram("guishaderHighQuality", true);
+	albedoSimpleProgram = PolymerNGRenderProgram::LoadRenderProgram("AlbedoSimple", false);
+	albedoHQProgram = PolymerNGRenderProgram::LoadRenderProgram("AlbedoHighQuality", false);
+	spriteSimpleProgram = PolymerNGRenderProgram::LoadRenderProgram("SpriteSimple", false);
+	spriteHQProgram = PolymerNGRenderProgram::LoadRenderProgram("SpriteHighQuality", false);
+	spriteSimpleHorizProgram = PolymerNGRenderProgram::LoadRenderProgram("SpriteSimpleHoriz", false);
+	deferredLightingProgram = PolymerNGRenderProgram::LoadRenderProgram("DeferredLighting", false);
 
 	// Initilizes the different draw passes.
 	drawUIPass.Init();
 	drawWorldPass.Init();
 	drawSpritePass.Init();
 	drawClassicSkyPass.Init();
+	drawLightingPass.Init();
+
+	gpuPerfCounter = BuildRHI::AllocatePerformanceCounter();
 }
 
 void Renderer::SetShaderForPSO(BuildRHIPipelineStateObject *pso, PolymerNGRenderProgram *program)
@@ -40,6 +59,10 @@ void Renderer::SetShaderForPSO(BuildRHIPipelineStateObject *pso, PolymerNGRender
 
 void Renderer::SubmitFrame()
 {
+	currentGameSubmitTime = GetCurrentTimeInMilliseconds();
+
+	gameExecTimeInMilliseconds = currentGameSubmitTime - startTimeForGameFrame;
+
 	while (HasWork())
 		Sleep(0);
 
@@ -47,6 +70,8 @@ void Renderer::SubmitFrame()
 	currentFrame = !currentFrame;
 	currentNumRenderCommand = numRenderCommands[!currentFrame];
 	numRenderCommands[!currentFrame] = 0;
+
+	startTimeForGameFrame = GetCurrentTimeInMilliseconds();
 }
 
 bool Renderer::HasWork()
@@ -57,6 +82,8 @@ bool Renderer::HasWork()
 void Renderer::RenderFrame()
 {
 	polymerNG.UploadPendingImages();
+
+	gpuPerfCounter->Begin();
 
 	// Ensure all images loaded(we need a precache system, this is temporary).
 	for (int i = 0; i < currentNumRenderCommand; i++)
@@ -72,11 +99,6 @@ void Renderer::RenderFrame()
 				return;
 			}
 
-			BuildImage *image = polymerNG.GetImage(command.taskRotateSprite.texnum);
-
-			if (!image->IsLoaded())
-				image->UpdateImagePost(NULL);
-
 			_2dcommands[num2DRenderCommands++] = &command;
 		}
 		else if (command.taskId == BUILDRENDER_TASK_CREATEMODEL)
@@ -84,7 +106,7 @@ void Renderer::RenderFrame()
 			BaseModel *model = command.taskCreateModel.model;
 			if (model->rhiVertexBufferStatic == NULL)
 			{
-				BuildRHIMesh *rhiMeshData = rhi.AllocateRHIMesh(sizeof(Build3DVertex), command.taskCreateModel.numVertexes, &model->meshVertexes[0], false);
+				BuildRHIMesh *rhiMeshData = rhi.AllocateRHIMesh(sizeof(Build3DVertex), model->meshVertexes.size(), &model->meshVertexes[0], true);
 				if (model->meshIndexes.size() > 0)
 				{
 					rhi.AllocateRHIMeshIndexes(rhiMeshData, model->meshIndexes.size(), &model->meshIndexes[0], false);
@@ -93,48 +115,64 @@ void Renderer::RenderFrame()
 			}
 
 			// Create the dynamic buffers.
-			if (command.taskCreateModel.createDynamicBuffers)
-			{
-				for (int d = 0; d < 2; d++)
-				{
-					BuildRHIMesh *rhiMeshData = rhi.AllocateRHIMesh(sizeof(Build3DVertex), command.taskCreateModel.numVertexes, &model->meshVertexes[0], true);
-					if (model->meshIndexes.size() > 0)
-					{
-						rhi.SetRHIMeshIndexBuffer(rhiMeshData, model->rhiVertexBufferStatic);
-					}
-					model->rhiVertexBufferDynamic[d] = rhiMeshData;
-				}
-			}
+			//if (command.taskCreateModel.createDynamicBuffers)
+			//{
+			//	for (int d = 0; d < 2; d++)
+			//	{
+			//		BuildRHIMesh *rhiMeshData = rhi.AllocateRHIMesh(sizeof(Build3DVertex), command.taskCreateModel.numVertexes, &model->meshVertexes[0], true);
+			//		if (model->meshIndexes.size() > 0)
+			//		{
+			//			rhi.SetRHIMeshIndexBuffer(rhiMeshData, model->rhiVertexBufferStatic);
+			//		}
+			//		model->rhiVertexBufferDynamic[d] = rhiMeshData;
+			//	}
+			//}
 		}
 		else if (command.taskId == BUILDRENDER_TASK_UPDATEMODEL)
 		{
 			BuildRHIMesh *model = command.taskUpdateModel.rhiMesh;
 
-			//int32_t numUpdateItems = command.taskUpdateModel.modelUpdateQueuedItems.size();
-			//ModelUpdateQueuedItem *queuedItems = &command.taskUpdateModel.modelUpdateQueuedItems[0];
-			//for (int d = 0; d < numUpdateItems; d++)
-			//{
-			//	rhi.UpdateRHIMesh(model, queuedItems[d].startPosition, sizeof(Build3DVertex), queuedItems[d].numVertexes, &command.taskUpdateModel.model->meshVertexes[queuedItems[d].startPosition]);
-			//}
-			rhi.UpdateRHIMesh(model, 0, sizeof(Build3DVertex), command.taskUpdateModel.model->meshVertexes.size(), &command.taskUpdateModel.model->meshVertexes[0]);
-
-			command.taskUpdateModel.modelUpdateQueuedItems.clear();
+			if (!model)
+				continue;
+			int32_t numUpdateItems = command.taskUpdateModel.model->numUpdateQueues;
+			ModelUpdateQueuedItem *queuedItems = &command.taskUpdateModel.model->modelUpdateQueue[0];
+			for (int d = 0; d < numUpdateItems; d++)
+			{
+				rhi.UpdateRHIMesh(model, queuedItems[d].startPosition, sizeof(Build3DVertex), queuedItems[d].numVertexes, &command.taskUpdateModel.model->meshVertexes[queuedItems[d].startPosition]);
+			}
+			command.taskUpdateModel.model->numUpdateQueues = 0;
 		}
 		else if (command.taskId == BUILDRENDER_TASK_RENDERWORLD)
 		{
+			// Draw the visibility logic.
+			//drawVisSectors.Draw(command);
+
+			// Normal albedo pass.
 			rhi.SetDepthEnable(false);
 			drawClassicSkyPass.Draw(command);
 			rhi.SetDepthEnable(true);
+
+			drawWorldPass.BindDrawWorldRenderTarget(true);
 			drawWorldPass.Draw(command);
+
+			// Fancy stuff goes here :).
 		}
 		else if (command.taskId == BUILDRENDER_TASK_DRAWSPRITES)
 		{
 			drawSpritePass.Draw(command);
+			drawWorldPass.BindDrawWorldRenderTarget(false);
+		}
+		else if (command.taskId == BUILDRENDER_TASK_DRAWLIGHTS)
+		{
+			drawLightingPass.Draw(command);
 		}
 	}
 	
-	
+	gpuPerfCounter->End();
+
+	gpuExecTimeInMilliseconds = gpuPerfCounter->GetTime();
 }
+
 
 void Renderer::RenderFrame2D(class GraphicsContext& Context)
 {

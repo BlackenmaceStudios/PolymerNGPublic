@@ -1574,9 +1574,25 @@
     <None Include="Assets\dukedata\duke3d.cfg">
       <DeploymentContent>true</DeploymentContent>
     </None>
+    <None Include="Assets\dukedata\duke3d.def">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <DeploymentContent>true</DeploymentContent>
+    </None>
     <None Include="Assets\dukedata\duke3d.grp">
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='DebugSW|x64'">true</DeploymentContent>
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\duke3d_hrp.def">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\duke3d_hrp_polymer.def">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\duke3d_hrp_polymost.def">
       <DeploymentContent>true</DeploymentContent>
     </None>
     <None Include="Assets\dukedata\fatcmdr.ogg">
@@ -1586,6 +1602,14 @@
       <DeploymentContent>true</DeploymentContent>
     </None>
     <None Include="Assets\dukedata\futurmil.ogg">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\game_meshes.payloads">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\game_textures.payloads">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
       <DeploymentContent>true</DeploymentContent>
     </None>
     <None Include="Assets\dukedata\gloomy.ogg">
@@ -1598,6 +1622,194 @@
       <DeploymentContent>true</DeploymentContent>
     </None>
     <None Include="Assets\dukedata\gutwrnch.ogg">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\highpal\highpal.def">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\highres\music.def">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\highres\projections.def">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\highres\screen.def">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\highres\screen\fonts.def">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\highres\screen\hud.def">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\highres\screen\hud_polymost.def">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\highres\screen\menu.def">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\highres\screen\menu_polymost.def">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\highres\screen_polymost.def">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\highres\skyboxes.def">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\highres\sounds.def">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\highres\sprites.def">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\highres\sprites\build.def">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\highres\sprites\characters.def">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\highres\sprites\characters_polymost.def">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\highres\sprites\decals.def">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\highres\sprites\decals_polymost.def">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\highres\sprites\effects.def">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\highres\sprites\effects_megaton.def">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\highres\sprites\effects_polymost.def">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\highres\sprites\firstperson.def">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\highres\sprites\firstperson_polymost.def">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\highres\sprites\ice.def">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\highres\sprites\ice_polymost.def">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\highres\sprites\jibs.def">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\highres\sprites\jibs_polymost.def">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\highres\sprites\monsters.def">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\highres\sprites\monsters_polymost.def">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\highres\sprites\pickups.def">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\highres\sprites\pickups_polymost.def">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\highres\sprites\projectiles.def">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\highres\sprites\projectiles_polymost.def">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\highres\sprites\props.def">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\highres\sprites\props_polymost.def">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\highres\sprites\signs.def">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\highres\sprites\signs_polymost.def">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\highres\sprites\switches.def">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\highres\sprites\switches_polymost.def">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\highres\sprites_megaton.def">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\highres\sprites_polymost.def">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\highres\textures.def">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\highres\textures_polymost.def">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
       <DeploymentContent>true</DeploymentContent>
     </None>
     <None Include="Assets\dukedata\inhiding.ogg">
@@ -1616,6 +1828,171 @@
       <DeploymentContent>true</DeploymentContent>
     </None>
     <None Include="Assets\dukedata\lordofla.ogg">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\3drealms_mhk.def">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E1L1.mhk">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E1L1_13d.mhk">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E1L2.mhk">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E1L2_13d.mhk">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E1L3.mhk">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E1L4.mhk">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E1L5.mhk">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E1L6.mhk">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E1L7.mhk">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E1L8.mhk">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E1L8_13d.mhk">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E2L1.mhk">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E2L10.mhk">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E2L11.mhk">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E2L2.mhk">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E2L3.mhk">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E2L4.mhk">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E2L5.mhk">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E2L6.mhk">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E2L7.mhk">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E2L8.mhk">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E2L9.mhk">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E3L1.mhk">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E3L10.mhk">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E3L11.mhk">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E3L11_13d.mhk">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E3L2.mhk">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E3L3.mhk">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E3L4.mhk">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E3L5.mhk">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E3L6.mhk">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E3L7.mhk">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E3L8.mhk">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E3L9.mhk">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E4L1.mhk">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E4L10.mhk">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E4L11.mhk">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E4L2.mhk">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E4L3.mhk">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E4L4.mhk">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E4L5.mhk">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E4L6.mhk">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E4L7.mhk">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E4L8.mhk">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E4L9.mhk">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\_SE.mhk">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\_SE_13d.mhk">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\_ST.mhk">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\_ST_13d.mhk">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\_ZOO.mhk">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\_ZOO_13d.mhk">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\maphacks\maphacks.def">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\maphacks\maphacks_polymost.def">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\maphacks\usermaps_mhk.def">
       <DeploymentContent>true</DeploymentContent>
     </None>
     <None Include="Assets\dukedata\missimp.ogg">
@@ -1864,7 +2241,13 @@
     <None Include="Assets\dukedata\subway.ogg">
       <DeploymentContent>true</DeploymentContent>
     </None>
+    <None Include="Assets\dukedata\testmodel.map">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
     <None Include="Assets\dukedata\thecall.ogg">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\dukedata\trueror1.map">
       <DeploymentContent>true</DeploymentContent>
     </None>
     <None Include="Assets\dukedata\urban.ogg">
@@ -1881,6 +2264,63 @@
     </None>
     <None Include="Assets\dukedata\xplasma.ogg">
       <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\SWData\game_textures.payloads">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\SWData\highres\screen\fonts.def">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\SWData\highres\screen\hud.def">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\SWData\highres\screen\menu.def">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\SWData\highres\skyboxes\skyboxes.def">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\SWData\highres\sprites\characters.def">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\SWData\highres\sprites\decals.def">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\SWData\highres\sprites\effects.def">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\SWData\highres\sprites\firstperson.def">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\SWData\highres\sprites\monsters.def">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\SWData\highres\sprites\pickups.def">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\SWData\highres\sprites\projectiles.def">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\SWData\highres\sprites\props.def">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\SWData\highres\sprites\signs.def">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\SWData\highres\sprites\switches.def">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\SWData\highres\sprites\voxels.def">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\SWData\highres\Sw.def">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\SWData\highres\textures.def">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="Assets\SWData\PVSTest.map">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
     </None>
     <None Include="Assets\SWData\SW.GRP">
       <DeploymentContent>true</DeploymentContent>
@@ -1928,15 +2368,149 @@
       <DeploymentContent>true</DeploymentContent>
     </None>
     <None Include="DukeNukem_TemporaryKey.pfx" />
-    <None Include="Shaders\AlbedoSimple.hlsli" />
     <None Include="Shaders\guishader.hlsli" />
+    <FxCompile Include="Shaders\AlbedoHighQualityGlow_pixel.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugSW|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugSW|ARM'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugSW|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='ReleaseSW|ARM'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='ReleaseSW|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='ReleaseSW|Win32'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="Shaders\AlbedoHighQualityGlow_vertex.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugSW|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugSW|ARM'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugSW|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='ReleaseSW|ARM'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='ReleaseSW|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='ReleaseSW|Win32'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="Shaders\DeferredLighting_pixel.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugSW|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugSW|ARM'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugSW|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='ReleaseSW|ARM'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='ReleaseSW|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='ReleaseSW|Win32'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='ReleaseSW|x64'">4.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='DebugSW|x64'">4.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="Shaders\DeferredLighting_vertex.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugSW|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugSW|ARM'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugSW|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='ReleaseSW|ARM'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='ReleaseSW|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='ReleaseSW|Win32'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='DebugSW|x64'">4.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='ReleaseSW|x64'">4.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="Shaders\guishaderHighQuality_vertex.hlsl">
+      <FileType>Document</FileType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
+    </FxCompile>
+    <None Include="Shaders\Utility\ShaderUtility.hlsli" />
+    <None Include="Shaders\VertexShaderShared.hlsli" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="Compute\PortalCulling.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugSW|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='DebugSW|Win32'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugSW|ARM'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='DebugSW|ARM'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugSW|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='DebugSW|x64'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.1</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='ReleaseSW|ARM'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='ReleaseSW|ARM'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='ReleaseSW|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='ReleaseSW|x64'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='ReleaseSW|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='ReleaseSW|Win32'">4.0</ShaderModel>
+    </FxCompile>
     <FxCompile Include="Content\SamplePixelShader.hlsl">
       <ShaderType>Pixel</ShaderType>
     </FxCompile>
     <FxCompile Include="Content\SampleVertexShader.hlsl">
       <ShaderType>Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Shaders\AlbedoHighQuality_pixel.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugSW|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugSW|ARM'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugSW|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='ReleaseSW|ARM'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='ReleaseSW|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='ReleaseSW|Win32'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='ReleaseSW|x64'">4.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='DebugSW|x64'">4.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="Shaders\AlbedoHighQuality_vertex.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugSW|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugSW|ARM'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugSW|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='ReleaseSW|ARM'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='ReleaseSW|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='ReleaseSW|Win32'">Vertex</ShaderType>
     </FxCompile>
     <FxCompile Include="Shaders\AlbedoSimple_pixel.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
@@ -1970,6 +2544,22 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='DebugSW|x64'">4.0</ShaderModel>
     </FxCompile>
+    <FxCompile Include="Shaders\guishaderHighQuality_pixel.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugSW|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugSW|ARM'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugSW|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='ReleaseSW|ARM'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='ReleaseSW|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='ReleaseSW|Win32'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.1</ShaderModel>
+    </FxCompile>
     <FxCompile Include="Shaders\guishader_pixel.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugSW|Win32'">Pixel</ShaderType>
@@ -1997,6 +2587,38 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='ReleaseSW|x64'">4.0</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='DebugSW|x64'">4.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="Shaders\SpriteHighQuality_pixel.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugSW|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugSW|ARM'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugSW|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='ReleaseSW|ARM'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='ReleaseSW|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='ReleaseSW|Win32'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='ReleaseSW|x64'">4.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='DebugSW|x64'">4.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="Shaders\SpriteHighQuality_vertex.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugSW|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugSW|ARM'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugSW|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='ReleaseSW|ARM'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='ReleaseSW|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='ReleaseSW|Win32'">Vertex</ShaderType>
     </FxCompile>
     <FxCompile Include="Shaders\SpriteSimple_pixel.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>

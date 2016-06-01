@@ -14,12 +14,16 @@ typedef unsigned char byte;
 //#include "../../rhi/D3D12/Core/PCH.h"
 #include <DirectXMath.h>
 #include "../src/VectorMath.h"
+#include "../src/IntelBuildCPUT/CPUTMath.h"
 
 class BaseModel;
 class Build3DBoard;
 struct Build3DPlane;
 struct Build3DSprite;
 struct ModelUpdateQueuedItem;
+
+extern float *currentModelViewMatrixCulling;
+
 
 //
 // BuildRenderTaskId
@@ -31,7 +35,8 @@ enum BuildRenderTaskId
 	BUILDRENDER_TASK_CREATEMODEL,
 	BUILDRENDER_TASK_RENDERWORLD,
 	BUILDRENDER_TASK_DRAWSPRITES,
-	BUILDRENDER_TASK_UPDATEMODEL
+	BUILDRENDER_TASK_UPDATEMODEL,
+	BUILDRENDER_TASK_DRAWLIGHTS
 };
 
 //
@@ -47,6 +52,19 @@ struct BuildVertex
 };
 
 extern const Build3DPlane		*renderPlanesGlobalPool[60000];
+extern const Build3DPlane		*renderPlanesGlobalPool2[60000];
+
+//
+// BuildRenderThreadTaskDrawLights
+//
+class PolymerNGLightLocal;
+#define MAX_VISIBLE_LIGHTS 15
+struct BuildRenderThreadTaskDrawLights
+{
+	PolymerNGLightLocal *visibleLights[MAX_VISIBLE_LIGHTS];
+	int numLights;
+	Math::XMFLOAT4X4 inverseModelViewMatrix;
+};
 
 //
 // BuildRenderThreadTaskRenderWorld
@@ -55,18 +73,22 @@ struct BuildRenderThreadTaskRenderWorld
 {
 	BuildRenderThreadTaskRenderWorld()
 	{
-		skyImageHandle = NULL;
-		renderplanes = (const Build3DPlane	**)&renderPlanesGlobalPool[0]; // We only draw one board at a time.
+		skyMaterialHandle = NULL;
+		renderplanes = NULL;
+		renderplanesFrames[0] = (const Build3DPlane	**)&renderPlanesGlobalPool[0]; // We only draw one board at a time.
+		renderplanesFrames[1] = (const Build3DPlane	**)&renderPlanesGlobalPool2[1]; // We only draw one board at a time.
 	}
 	Math::Vector3			position;
 	Math::XMFLOAT4X4		viewProjMatrix;
 	Math::XMFLOAT4X4		viewMatrix;
 	Math::XMFLOAT4X4		skyProjMatrix;
+	Math::XMFLOAT4X4		occlusionViewProjMatrix;
 	const Build3DPlane		**renderplanes;
+	const Build3DPlane		**renderplanesFrames[2];
 	int						numRenderPlanes;
 	const Build3DBoard		*board;
 	int						gameSmpFrame;
-	void					*skyImageHandle;
+	void					*skyMaterialHandle;
 };
 
 //
@@ -92,7 +114,6 @@ struct BuildRenderThreadTaskUpdateModel
 {
 	BaseModel *model;
 	BuildRHIMesh *rhiMesh;
-	std::vector<ModelUpdateQueuedItem> modelUpdateQueuedItems;
 };
 
 //
@@ -122,6 +143,7 @@ struct BuildRenderThreadTaskRotateSprite
 
 
 	unsigned int texnum;
+	void *renderMaterialHandle;
 
 	bool drawpoly_srepeat;
 	bool drawpoly_trepeat;
@@ -148,6 +170,7 @@ __forceinline BuildRenderThreadTaskRotateSprite::BuildRenderThreadTaskRotateSpri
 	drawpoly_trepeat = false;
 	textureScale_X = 1;
 	textureScale_Y = 1;
+	renderMaterialHandle = NULL;
 	spriteColor = Math::Vector4(1.0f, 1.0f, 1.0f, 1.0f);
 }
 
@@ -164,6 +187,7 @@ struct BuildRenderCommand
 	BuildRenderThreadTaskRenderWorld		taskRenderWorld;
 	BuildRenderThreadTaskRenderSprites		taskRenderSprites;
 	BuildRenderThreadTaskUpdateModel		taskUpdateModel;
+	BuildRenderThreadTaskDrawLights			taskDrawLights;
 };
 
 //
@@ -227,7 +251,7 @@ struct Build3DPlane
 		diffusemodulation[3] = 255;
 		vbo_offset = -1;
 		ibo_offset = -1;
-		renderImageHandle = NULL;
+		renderMaterialHandle = NULL;
 		isDynamicPlane = false;
 		buffer = NULL;
 		indices = NULL;
@@ -243,6 +267,8 @@ struct Build3DPlane
 		fogDensity = 0;
 		fogStart = 0;
 		fogEnd = 0;
+
+		dynamic_vbo_offset = -1;
 	}
 	// geometry
 	Build3DVertex*        buffer;
@@ -264,7 +290,7 @@ struct Build3DPlane
 	byte				diffusemodulation[4];
 	
 	int					tileNum;
-	void				*renderImageHandle;
+	void				*renderMaterialHandle;
 
 	int					vbo_offset;
 	int					ibo_offset;
@@ -274,7 +300,72 @@ struct Build3DPlane
 	// elements
 	unsigned short*     indices;
 	int32_t				indicescount;
+
+	int					dynamic_vbo_offset;
+
+	unsigned int		sectorNum;
+	void				GetBoundsWorldSpace(float3 *mBoundingBoxCenterWorldSpace, float3 *mBoundingBoxHalfWorldSpace);
+	void				GetBoundsObjectSpace(float3 *mBoundingBoxCenterObjectSpace, float3 *mBoundingBoxHalfObjectSpace)
+	{
+		float3 minPosition(FLT_MAX, FLT_MAX, FLT_MAX);
+		float3 maxPosition(-FLT_MAX, -FLT_MAX, -FLT_MAX);
+		for (UINT ii = 0; ii < vertcount; ii++)
+		{
+			float3 position = float3(buffer[ii].position.x, buffer[ii].position.y, buffer[ii].position.z);
+			minPosition = Min(minPosition, position);
+			maxPosition = Max(maxPosition, position);
+		}
+		*mBoundingBoxCenterObjectSpace = (maxPosition + minPosition) * 0.5f;
+		*mBoundingBoxHalfObjectSpace = (maxPosition - minPosition) * 0.5f;
+	}
 };
+
+//
+// Build3DPlane::UpdateBoundsWorldSpace
+//
+__forceinline void Build3DPlane::GetBoundsWorldSpace(float3 *mBoundingBoxCenterWorldSpace, float3 *mBoundingBoxHalfWorldSpace)
+{
+	// If an object is rigid, then it's object-space bounding box doesn't change.
+	// However, if it moves, then it's world-space bounding box does change.
+	// Call this function when the model moves
+	// jmarshall
+	float4x4 pWorld = (float4x4)float4x4Identity();
+	float scaleSize = 0;
+
+	if (currentModelViewMatrixCulling != NULL)
+	{
+		//pWorld = float4x4(currentModelViewMatrixCulling);
+		scaleSize = 1;
+	}
+	float3 mBoundingBoxCenterObjectSpace, mBoundingBoxHalfObjectSpace;
+	GetBoundsObjectSpace(&mBoundingBoxCenterObjectSpace, &mBoundingBoxHalfObjectSpace);
+
+	float4 center = float4(mBoundingBoxCenterObjectSpace, 1.0f); // W = 1 because we want the xlation (i.e., center is a position)
+	float4 half = float4(mBoundingBoxHalfObjectSpace, 0.0f); // W = 0 because we don't want xlation (i.e., half is a direction)
+
+															 // TODO: optimize this
+	float4 positions[8] = {
+		center + float4(1.0f, 1.0f, 1.0f, 0.0f) * half,
+		center + float4(1.0f, 1.0f,-1.0f, 0.0f) * half,
+		center + float4(1.0f,-1.0f, 1.0f, 0.0f) * half,
+		center + float4(1.0f,-1.0f,-1.0f, 0.0f) * half,
+		center + float4(-1.0f, 1.0f, 1.0f, 0.0f) * half,
+		center + float4(-1.0f, 1.0f,-1.0f, 0.0f) * half,
+		center + float4(-1.0f,-1.0f, 1.0f, 0.0f) * half,
+		center + float4(-1.0f,-1.0f,-1.0f, 0.0f) * half
+	};
+	// jmarshall end
+	float4 minPosition(FLT_MAX, FLT_MAX, FLT_MAX, 1.0f);
+	float4 maxPosition(-FLT_MAX, -FLT_MAX, -FLT_MAX, 1.0f);
+	for (UINT ii = 0; ii < 8; ii++)
+	{
+		float4 position = (positions[ii] + scaleSize) * pWorld;
+		minPosition = Min(minPosition, position);
+		maxPosition = Max(maxPosition, position);
+	}
+	*mBoundingBoxCenterWorldSpace = ((maxPosition + minPosition) * 0.5f);
+	*mBoundingBoxHalfWorldSpace = ((maxPosition - minPosition) * 0.5f);
+}
 
 //
 // Build3DSector
@@ -285,9 +376,11 @@ struct Build3DSector
 		memset(this, 0, sizeof(Build3DSector));
 		floor.vbo_offset = -1;
 		floor.ibo_offset = -1;
+		floor.dynamic_vbo_offset = -1;
 
 		ceil.vbo_offset = -1;
 		ceil.ibo_offset = -1;
+		ceil.dynamic_vbo_offset = -1;
 	}
 
 	const bool			IsCeilParalaxed() const {
@@ -399,7 +492,13 @@ struct Build3DWall
 //
 struct Build3DSprite 
 {
+	Build3DSprite()
+	{
+		cacheModel = NULL;
+	}
 	Build3DPlane       plane;
+	class CacheModel *cacheModel;
+
 	Math::XMFLOAT4X4   modelViewProjectionMatrix;
 	Math::XMFLOAT4X4   modelMatrix;
 	uint32_t        hash;
@@ -416,6 +515,104 @@ struct Build3DMirror
 	Build3DPlane        *plane;
 	int16_t         sectnum;
 	int16_t         wallnum;
+};
+
+
+class BuildFrameDrawPolyCmd
+{
+public:
+	BuildFrameDrawPolyCmd();
+
+	unsigned int globalpicnum;
+
+	unsigned int numVertexes;
+	Build3DVertex vertexpool[100];
+
+	void SetTextureCoordinate(float x, float y);
+	void SetCurrentVertex(int vertexId);
+	void SetVertexColor(float r, float g, float b, float a);
+	void SetPosition(float x, float y, float z);
+private:
+	int currentVertex;
+};
+
+BUILD3D_INLINE BuildFrameDrawPolyCmd::BuildFrameDrawPolyCmd()
+{
+	numVertexes = 0;
+	globalpicnum = 0;
+}
+
+BUILD3D_INLINE void BuildFrameDrawPolyCmd::SetCurrentVertex(int vertexId)
+{
+	// Convert the triangle fan to strip.
+//	if (vertexId % 2 == 0)
+//		currentVertex = vertexId / 2;
+//	else
+//		currentVertex = numVertexes - 1 - vertexId / 2;
+}
+
+BUILD3D_INLINE void BuildFrameDrawPolyCmd::SetVertexColor(float r, float g, float b, float a)
+{
+//	vertexpool[currentVertex].binormal.x = r;
+//	vertexpool[currentVertex].binormal.y = g;
+//	vertexpool[currentVertex].binormal.z = b;
+//	vertexpool[currentVertex].binormal.w = a;
+}
+
+BUILD3D_INLINE void BuildFrameDrawPolyCmd::SetTextureCoordinate(float x, float y)
+{
+//	vertexpool[currentVertex].uv.x = x;
+//	vertexpool[currentVertex].uv.y = y;
+}
+
+BUILD3D_INLINE void BuildFrameDrawPolyCmd::SetPosition(float x, float y, float z)
+{
+//	vertexpool[currentVertex].position.x = x;
+//	vertexpool[currentVertex].position.y = y;
+//	vertexpool[currentVertex].position.z = z;
+}
+
+
+//
+// Build3DPolymost
+//
+class Build3DBoardPolymost
+{
+public:
+	void drawrooms();
+
+	int GetNumDrawPolyCommands() {
+		return numDrawPolyCommands;
+	}
+
+	BuildFrameDrawPolyCmd *GetRenderPolyCommands()
+	{
+		return &drawPolyCommands[0];
+	}
+
+	std::vector<int> visibleSectorList;
+private:
+	BuildFrameDrawPolyCmd *GetDrawPolyCommand() { return &drawPolyCommands[numDrawPolyCommands++]; }
+
+	void domost(float x0, float y0, float x1, float y1, short sectorNum);
+	void AddUniqueSector(short sectnum);
+	void drawpoly(vec2f_t const * const dpxy, int32_t const n, int32_t method);
+	void internal_nonparallaxed(vec2f_t n0, vec2f_t n1, float ryp0, float ryp1, float x0, float x1, float y0, float y1, int32_t sectnum);
+	void calc_ypanning(int32_t refposz, float ryp0, float ryp1, float x0, float x1, uint8_t ypan, uint8_t yrepeat, int32_t dopancor);
+	int32_t testvisiblemost(float const x0, float const x1);
+	int getclosestpointonwall(vec2_t const * const pos, int32_t dawall, vec2_t * const n);
+	void drawalls(int32_t const bunch);
+	void scansector(int32_t sectnum);
+	void editorfunc(void);
+	int32_t bunchfront(const int32_t b1, const int32_t b2);
+	void drawmaskwall(int32_t damaskwallcnt);
+	int32_t lintersect(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, int32_t x4, int32_t y4);
+	int32_t findwall(tspritetype const * const tspr, int32_t * rd);
+private:
+	int numDrawPolyCommands;
+	BuildFrameDrawPolyCmd drawPolyCommands[MAXWALLS];
+
+	
 };
 
 //
@@ -438,6 +635,10 @@ public:
 
 	const Build3DWall *GetWall(int index) const { return prwalls[index]; }
 	Build3DWall *GetWall(int index) { return prwalls[index]; }
+
+	Build3DBoardPolymost *GetGenericPolymostRenderer() {
+		return &Polymost;
+	}
 private:
 	bool     buildfloor(int16_t sectnum);
 	static void	 tesserror(int error);
@@ -450,6 +651,8 @@ private:
 	Build3DWall	        *prwalls[MAXWALLS];
 
 	class BaseModel		*model;
+
+	Build3DBoardPolymost Polymost;
 
 	struct GLUtesselator*  prtess;
 };

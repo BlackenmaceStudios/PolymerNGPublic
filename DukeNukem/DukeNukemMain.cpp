@@ -47,14 +47,14 @@ void DukeNukemMain::CreateWindowSizeDependentResources()
 // Updates the application state once per frame.
 void DukeNukemMain::Update() 
 {
-	app->Update(0);
-
 	// Update scene objects.
 	m_timer.Tick([&]()
 	{
+		app->Update(0);
+
 		// TODO: Replace this with your app's content update functions.
 	//	m_sceneRenderer->Update(m_timer);
-	//	m_fpsTextRenderer->Update(m_timer);
+		m_fpsTextRenderer->Update(m_timer);
 	});
 }
 
@@ -62,6 +62,7 @@ void DukeNukemMain::Update()
 ID3D11DeviceContext3 *context;
 ID3D11RenderTargetView * targets[1];
 ID3D11DepthStencilView * viewportDepthStencilView;
+D3D11_VIEWPORT deviceViewport;
 void RHIAppToggleDepthTest(bool enableDepthTest)
 {
 	if (enableDepthTest)
@@ -71,13 +72,20 @@ void RHIAppToggleDepthTest(bool enableDepthTest)
 	else
 	{
 		context->OMSetRenderTargets(1, targets, NULL);
+		context->RSSetViewports(1, &deviceViewport);
 	}
+}
+
+void RHIAppSwitchBackToDeviceRenderBuffers()
+{
+	context->OMSetRenderTargets(1, targets, viewportDepthStencilView);
 }
 
 // Renders the current frame according to the current application state.
 // Returns true if the frame was rendered and is ready to be displayed.
 bool DukeNukemMain::Render() 
 {
+
 	// Don't try to render anything before the first Update.
 	if (m_timer.GetFrameCount() == 0)
 	{
@@ -92,6 +100,7 @@ bool DukeNukemMain::Render()
 
 		// Reset the viewport to target the whole screen.
 		auto viewport = m_deviceResources->GetScreenViewport();
+		deviceViewport = viewport;
 		context->RSSetViewports(1, &viewport);
 
 		// Reset render targets to the screen.
@@ -108,6 +117,8 @@ bool DukeNukemMain::Render()
 		// Disable the depth buffer for the UI pass.
 		context->OMSetRenderTargets(1, targets, NULL);
 		app->RenderUI(fakeContext);
+
+		m_fpsTextRenderer->Render();
 	}
 	else
 	{

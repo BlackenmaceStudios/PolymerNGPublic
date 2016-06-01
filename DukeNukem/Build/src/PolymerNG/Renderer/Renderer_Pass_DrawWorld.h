@@ -21,6 +21,12 @@ public:
 
 	// Draws the Build Render Command
 	virtual void				Draw( const BuildRenderCommand &command);
+
+	// Allows the main render class to start binding the buffers.
+	void						BindDrawWorldRenderTarget(bool enable);
+
+	// Returns the render target used in drawing the world.
+	PolymerNGRenderTarget		*GetDrawWorldRenderTarget() { return renderTarget; }
 private:
 	void						DrawPlane(BuildRHIMesh *rhiMesh, const BaseModel *model, const Build3DPlane *plane);
 
@@ -28,4 +34,6 @@ private:
 	BuildRHIConstantBuffer		*drawWorldConstantBuffer;
 	VS_DRAWWORLD_BUFFER			drawWorldBuffer;
 	PS_CONSTANT_BUFFER			drawWorldPixelBuffer;
+
+	PolymerNGRenderTarget		*renderTarget;
 };

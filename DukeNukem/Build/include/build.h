@@ -1688,5 +1688,7 @@ struct BuildNGOptions
 	}
 	bool shouldUseHighSpriteValueHide;
 };
+extern BuildNGOptions buildNGOptions;
+
 
 #endif // build_h_

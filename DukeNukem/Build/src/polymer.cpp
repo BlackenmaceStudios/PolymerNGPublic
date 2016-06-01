@@ -4375,7 +4375,7 @@ static void         polymer_drawmdsprite(tspritetype *tspr)
     bglLoadIdentity();
     scale = (1.0/4.0);
     scale *= m->scale;
-    if (pr_overridemodelscale) {
+    if (pr_overridemodelscale) {spritemodelview
         scale *= pr_overridemodelscale;
     } else {
         scale *= m->bscale;

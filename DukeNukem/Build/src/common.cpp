@@ -112,27 +112,30 @@ int32_t testkopen(const char *filename, char searchfirst)
 // checks from path and in ZIPs, returns 1 if NOT found
 int32_t check_file_exist(const char *fn)
 {
-    int32_t opsm = pathsearchmode;
-    char *tfn;
+// jmarshall
+// all this is handled else were
+//    int32_t opsm = pathsearchmode;
+//    char *tfn;
+//
+//    pathsearchmode = 1;
+//    if (findfrompath(fn,&tfn) < 0)
+//    {
+//        char buf[BMAX_PATH];
+//
+//        Bstrcpy(buf,fn);
+//        kzfindfilestart(buf);
+//        if (!kzfindfile(buf))
+//        {
+//            initprintf("Error: file \"%s\" does not exist\n",fn);
+//            pathsearchmode = opsm;
+//            return 1;
+//        }
+//    }
+//    else Bfree(tfn);
+//    pathsearchmode = opsm;
 
-    pathsearchmode = 1;
-    if (findfrompath(fn,&tfn) < 0)
-    {
-        char buf[BMAX_PATH];
-
-        Bstrcpy(buf,fn);
-        kzfindfilestart(buf);
-        if (!kzfindfile(buf))
-        {
-            initprintf("Error: file \"%s\" does not exist\n",fn);
-            pathsearchmode = opsm;
-            return 1;
-        }
-    }
-    else Bfree(tfn);
-    pathsearchmode = opsm;
-
-    return 0;
+    return 1;
+// jmarshall end
 }
 
 

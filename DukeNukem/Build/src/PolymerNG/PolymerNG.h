@@ -10,14 +10,17 @@
 
 #include "../RHI/BuildRHI.h"
 #include "PolymerNG_Image.h"
+#include "PolymerNG_Material.h"
 #include "../../Include/build3d.h"
 #include "Models/Models.h"
-
+#include "PolymerNG_Material.h"
+#include "TextureCache/TextureCache.h"
+#include "PolymerNG_public.h"
 
 //
 // PolymerNG
 //
-class PolymerNG
+class PolymerNG : public PolymerNGPublic
 {
 public:
 	void	    Init();
@@ -34,29 +37,19 @@ public:
 	// Uploads pending images.
 	void		UploadPendingImages();
 
-	// Adds a image to the update queue.
-	void		AddImageToUpdateQueue(BuildImage *image);
-
-	// Loads in all classic textures into memory.
-	void		LoadAllClassicTextures();
+	PolymerNGLight *AddLightToCurrentBoard(PolymerNGLightOpts lightOpts);
 
 	// Loads in the new board.
 	void		LoadBoard();
 	void		DrawRooms(int32_t daposx, int32_t daposy, int32_t daposz, int16_t daang, int32_t dahoriz, int16_t dacursectnum);
 
-	BuildImage *GetImage(int texnum) { return images[texnum]; }
 
-	BuildImage *GetPaletteImage();
-	BuildImage *GetPaletteImage(int idx) { return palette_image[idx]; }
-	BuildImage *GetPaletteLookupImage(int idx) { return paletteLookUp_image[idx]; }
+	bool		SetHighQualityTextureForTile(const char *fileName, int tileNum);
+//	BuildImage *GetImage(int texnum) { return images[texnum]; }
+//
+//	BuildImage *GetHighresImage(int idx) { return hiresImages[idx]; }
+//	BuildImage *AllocHighresImage(int idx, int width, int height, byte *buffer);
 private:
-	BuildImage *palette_image[256];
-	BuildImage *paletteLookUp_image[256];
-
-	BuildImage *images[MAXTILES];
-
-	int numImagesWaitingForUpload;
-	BuildImage *images_waiting_for_upload[MAX_QUEUED_IMAGES*2];
 };
 
 extern PolymerNG polymerNG;

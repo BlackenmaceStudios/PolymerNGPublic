@@ -1,0 +1,114 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="DevIL">
+      <UniqueIdentifier>{6467ade0-1973-4adc-9fd6-fdf87af96cfc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Zlib">
+      <UniqueIdentifier>{cf89cde5-db73-4485-9a85-601ea4be4bdf}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DukeNukem\Third-Party\zlib\adler32.c">
+      <Filter>Zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DukeNukem\Third-Party\zlib\compress.c">
+      <Filter>Zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DukeNukem\Third-Party\zlib\deflate.c">
+      <Filter>Zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DukeNukem\Third-Party\zlib\gzclose.c">
+      <Filter>Zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DukeNukem\Third-Party\zlib\gzlib.c">
+      <Filter>Zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DukeNukem\Third-Party\zlib\gzread.c">
+      <Filter>Zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DukeNukem\Third-Party\zlib\gzwrite.c">
+      <Filter>Zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DukeNukem\Third-Party\zlib\infback.c">
+      <Filter>Zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DukeNukem\Third-Party\zlib\inffast.c">
+      <Filter>Zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DukeNukem\Third-Party\zlib\inflate.c">
+      <Filter>Zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DukeNukem\Third-Party\zlib\inftrees.c">
+      <Filter>Zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DukeNukem\Third-Party\zlib\trees.c">
+      <Filter>Zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DukeNukem\Third-Party\zlib\uncompr.c">
+      <Filter>Zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DukeNukem\Third-Party\zlib\zutil.c">
+      <Filter>Zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DukeNukem\Third-Party\zlib\crc32_zlib.c">
+      <Filter>Zlib</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="DevIL\Libs\DevIL.lib">
+      <Filter>DevIL</Filter>
+    </Library>
+    <Library Include="DevIL\Libs\ILU.lib">
+      <Filter>DevIL</Filter>
+    </Library>
+    <Library Include="DevIL\Libs\ILUT.lib">
+      <Filter>DevIL</Filter>
+    </Library>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\DukeNukem\Third-Party\zlib\crc32.h">
+      <Filter>Zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\DukeNukem\Third-Party\zlib\deflate.h">
+      <Filter>Zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\DukeNukem\Third-Party\zlib\gzguts.h">
+      <Filter>Zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\DukeNukem\Third-Party\zlib\inffast.h">
+      <Filter>Zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\DukeNukem\Third-Party\zlib\inffixed.h">
+      <Filter>Zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\DukeNukem\Third-Party\zlib\inflate.h">
+      <Filter>Zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\DukeNukem\Third-Party\zlib\inftrees.h">
+      <Filter>Zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\DukeNukem\Third-Party\zlib\trees.h">
+      <Filter>Zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\DukeNukem\Third-Party\zlib\zconf.h">
+      <Filter>Zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\DukeNukem\Third-Party\zlib\zconf.in.h">
+      <Filter>Zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\DukeNukem\Third-Party\zlib\zlib.h">
+      <Filter>Zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\DukeNukem\Third-Party\zlib\zutil.h">
+      <Filter>Zlib</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

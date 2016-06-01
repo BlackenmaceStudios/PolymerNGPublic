@@ -3,6 +3,20 @@
 
 #pragma once
 
+//
+// PolymerNGModelCacheSurfaceDefine
+//
+struct PolymerNGModelCacheSurfaceDefine
+{
+	std::string materialName[20];
+	int32_t modelid;
+	float scale;
+	int32_t shadeoff;
+	float zadd;
+	float yoffset;
+	int32_t flags;
+};
+
 class BuildRHIMesh;
 
 //
@@ -23,16 +37,25 @@ public:
 	BaseModel();
 	void					AllocateBuffer(int size);
 
-	void					UpdateBuffer(int startPosition, int numVertexes, Build3DVertex *vertexes);
+	int						UpdateBuffer(int startPosition, int numVertexes, Build3DVertex *vertexes, int sectorNum);
 
-	int						AddVertexesToBuffer(int numVertexes, Build3DVertex *vertexes);
-	int						AddIndexesToBuffer(int numIndexes, unsigned short *indexes);
-
-	std::vector<ModelUpdateQueuedItem> geoUpdateQueue[2];
+	int						AddVertexesToBuffer(int numVertexes, Build3DVertex *vertexes, int sectorNum);
+	int						AddIndexesToBuffer(int numIndexes, unsigned short *indexes, int startVertexPosition);
+	int						AddIndexesToBuffer(int numIndexes, unsigned int *indexes, int startVertexPosition);
 
 	std::vector<Build3DVertex> meshVertexes;
-	std::vector<unsigned short> meshIndexes;
+	std::vector<unsigned int>  meshIndexes;
 
 	BuildRHIMesh			*rhiVertexBufferStatic;
-	BuildRHIMesh			*rhiVertexBufferDynamic[2];
+
+	ModelUpdateQueuedItem   modelUpdateQueue[5000];
+	int	numUpdateQueues;
+
+	bool					dynamicBufferDirty[2];
 };
+
+#include "ModelCacheFormat.h"
+#include "CacheModel.h"
+#include "ModelCacheSystem.h"
+
+

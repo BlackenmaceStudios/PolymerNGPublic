@@ -971,7 +971,7 @@ void COVERsetbrightness ( int bright, char *pal )
 
 static int firstnet = 0;	// JBF
 int nextvoxid = 0;	// JBF
-static char *deffile = "sw.def";
+static char *deffile = "Assets/SWData/highres/sw.def";
 
 VOID
 InitGame ( VOID )
@@ -3353,12 +3353,12 @@ VOID InitRunLevel ( VOID )
 
 			if (Level == 0)
 			{
-				strcpy(LevelSong, "track03.mid");
-				PlaySong(LevelSong);
+				//strcpy(LevelSong, "track03.mid");
+				//PlaySong(LevelSong);
 			}
 			else
 			{
-				sprintf(LevelSong, "track0%d.mid", Level);
+				sprintf(LevelSong, "track0%d.mid", Level+3);
 				PlaySong(LevelSong);
 			}
 // jmarshall end

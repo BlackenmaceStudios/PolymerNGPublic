@@ -14,8 +14,8 @@ PolymerNGBoard::PolymerNGBoard
 */
 PolymerNGBoard::PolymerNGBoard()
 {
+	visibilityEngine = new PolymerNGVisibilityEngine(this);
 	InitBoard();
-	softwareRasterizer = new PolymerNGSoftwarRasterizer(320, 220);
 }
 
 /*
@@ -30,25 +30,10 @@ PolymerNGBoard::~PolymerNGBoard()
 		delete board;
 	}
 
-	if (softwareRasterizer)
+	if (visibilityEngine)
 	{
-		delete softwareRasterizer;
+		delete visibilityEngine;
 	}
-}
-/*
-=============
-PolymerNGBoard::LoadImageDeferred
-=============
-*/
-BuildImage	 *PolymerNGBoard::LoadImageDeferred(int tileNum)
-{
-	BuildImage *image = polymerNG.GetImage(tileNum);
-	if (!image->IsLoaded())
-	{
-		image->UpdateImage();
-	}
-
-	return image;
 }
 
 /*
@@ -76,7 +61,7 @@ void PolymerNGBoard::FindMapSky()
 				cursky = forceSkyImage;
 
 			getpsky(cursky, &horizfrac, NULL);
-			boardSkyImage = LoadImageDeferred(cursky);
+			boardSkyMaterial = materialManager.LoadMaterialForTile(cursky);
 	
 			switch (horizfrac)
 			{
@@ -106,6 +91,9 @@ PolymerNGBoard::InitBoard
 */
 void PolymerNGBoard::InitBoard()
 {
+	imageManager.BeginLevelLoad();
+	modelCacheSystem.BeginLevelLoad();
+	
 	board = new Build3DBoard();
 
 	curskyangmul = 1;
@@ -127,8 +115,8 @@ void PolymerNGBoard::InitBoard()
 		// Draw the sectors.
 		Build3DSector *sector = board->GetSector(i);
 
-		sector->ceil.renderImageHandle = LoadImageDeferred(sector->ceil.tileNum);
-		sector->floor.renderImageHandle = LoadImageDeferred(sector->floor.tileNum);
+		sector->ceil.renderMaterialHandle = materialManager.LoadMaterialForTile(sector->ceil.tileNum);
+		sector->floor.renderMaterialHandle = materialManager.LoadMaterialForTile(sector->floor.tileNum);
 
 		//sector->floorstat = ::sector[i].floorstat;
 		//sector->ceilingstat = ::sector[i].ceilingstat;
@@ -143,29 +131,24 @@ void PolymerNGBoard::InitBoard()
 			initprintf("PolymerNGBoard::InitBoard: Update Wall failed\n");
 		}
 
-		if (i == 12613)
-		{
-			initprintf("yup");
-		}
-
 		Build3DWall *wall = board->GetWall(i);
-		wall->wall.renderImageHandle = LoadImageDeferred(wall->picnum);
-
-
-		if (i == 1474)
-		{
-	//		initprintf("yup");
-		}
+		wall->wall.renderMaterialHandle = materialManager.LoadMaterialForTile(wall->picnum);
 
 		if (wall->over.buffer && wall->over.tileNum != -1)
 		{
-			wall->over.renderImageHandle = LoadImageDeferred(wall->over.tileNum);
+			wall->over.renderMaterialHandle = materialManager.LoadMaterialForTile(wall->over.tileNum);
 		}
 
 		if (wall->mask.buffer && wall->mask.tileNum != -1)
 		{
-			wall->mask.renderImageHandle = LoadImageDeferred(wall->mask.tileNum);
+			wall->mask.renderMaterialHandle = materialManager.LoadMaterialForTile(wall->mask.tileNum);
 		}
+	}
+
+	// Precache all the models.
+	for (int i = 0; i < Numsprites; i++)
+	{
+		modelCacheSystem.LoadModelForTile(sprite[i].picnum);
 	}
 
 	FindMapSky();
@@ -188,14 +171,17 @@ void PolymerNGBoard::InitBoard()
 	initprintf("NumWalls = %d\n", numwalls);
 	initprintf("Vertex Count = %d\n", model->meshVertexes.size());
 	initprintf("--------Complete--------\n");
+
+	modelCacheSystem.EndLevelLoad(model);
+	imageManager.EndLevelLoad();
 }
 
-void PolymerNGBoard::CreateProjectionMatrix(int32_t fov, Math::Matrix4 &projectionMatrix)
+void PolymerNGBoard::CreateProjectionMatrix(int32_t fov, Math::Matrix4 &projectionMatrix, int width, int height)
 {
 	float           aspect;
 	float fang = (float)fov * atanf((float)viewingrange / 65536.0f) / (PI / 4);
 
-	aspect = (float)(windowx2 - windowx1 + 1) / (float)(windowy2 - windowy1 + 1);
+	aspect = (float)(width + 1) / (float)(height + 1);
 		
 	float matrix[16];
 	Math::glhPerspectivef2(matrix, fang / (2048.0f / 360.0f), aspect, 0.01f, 100.0f);
@@ -253,8 +239,9 @@ void PolymerNGBoard::DrawRooms(int32_t daposx, int32_t daposy, int32_t daposz, i
 	viewMatrix = viewMatrix * translationMatrix;
 
 	Math::Matrix4 projectionMatrix;
-
-	CreateProjectionMatrix(426, projectionMatrix);
+	Math::Matrix4 occlusionProjectionMatrix;
+	CreateProjectionMatrix(426, projectionMatrix, windowx2, windowy2);
+	CreateProjectionMatrix(510, occlusionProjectionMatrix, VISPASS_WIDTH, VISPASS_HEIGHT);
 	//projectionMatrix.SetX(Math::Vector4(fydimen, 0.0f   , 1.0f, 0.0f));
 	//projectionMatrix.SetY(Math::Vector4(0.0f   , fxdimen, 1.0f, 1.0f));
 	//projectionMatrix.SetZ(Math::Vector4(0.0f   , 0.0f   , 1.0f, fydimen));
@@ -264,25 +251,21 @@ void PolymerNGBoard::DrawRooms(int32_t daposx, int32_t daposy, int32_t daposz, i
 
 	Math::Matrix4 skyModelViewProjection = projectionMatrix * skyModelView;
 
+	Math::Matrix4 occlusionViewProjection = occlusionProjectionMatrix * viewMatrix;
+
 	int16_t cursectnum = dacursectnum;
 	updatesectorbreadth(daposx, daposy, &cursectnum);
 
 	int smpframe = renderer.GetCurrentFrameNum();
 	{
-		int numSectorsToUpdate = board->GetBaseModel()->geoUpdateQueue[smpframe].size();
-		if (numSectorsToUpdate > 0)
+		if (board->GetBaseModel()->dynamicBufferDirty[smpframe])
 		{
 			BuildRenderCommand command;
 			command.taskId = BUILDRENDER_TASK_UPDATEMODEL;
-			command.taskUpdateModel.rhiMesh = board->GetBaseModel()->rhiVertexBufferDynamic[smpframe];
+			command.taskUpdateModel.rhiMesh = board->GetBaseModel()->rhiVertexBufferStatic;
 
-			command.taskUpdateModel.modelUpdateQueuedItems.reserve(numSectorsToUpdate);
-			for (int d = 0; d < numSectorsToUpdate; d++)
-			{
-				command.taskUpdateModel.modelUpdateQueuedItems.push_back(board->GetBaseModel()->geoUpdateQueue[smpframe][d]);
-			}
 			command.taskUpdateModel.model = board->GetBaseModel();
-			board->GetBaseModel()->geoUpdateQueue[smpframe].clear();
+			board->GetBaseModel()->dynamicBufferDirty[smpframe] = false;
 			renderer.AddRenderCommand(command);
 		}
 		
@@ -293,13 +276,15 @@ void PolymerNGBoard::DrawRooms(int32_t daposx, int32_t daposy, int32_t daposz, i
 		command.taskId = BUILDRENDER_TASK_RENDERWORLD;
 		command.taskRenderWorld.board = board;
 		command.taskRenderWorld.position = position;
-		command.taskRenderWorld.skyImageHandle = boardSkyImage;
-		command.taskRenderWorld.gameSmpFrame = !smpframe;
-		FindVisibleSectors(command.taskRenderWorld, modelViewProjection, cursectnum);
+		command.taskRenderWorld.skyMaterialHandle = boardSkyMaterial;
+		command.taskRenderWorld.gameSmpFrame = smpframe;
+		command.taskRenderWorld.renderplanes = command.taskRenderWorld.renderplanesFrames[smpframe];
+		FindVisibleSectors(command.taskRenderWorld, modelViewProjection, viewMatrix, projectionMatrix, cursectnum);
 
 		modelViewProjection.GetFloat4x4(&command.taskRenderWorld.viewProjMatrix);
 		viewMatrix.GetFloat4x4(&command.taskRenderWorld.viewMatrix);
 		skyModelViewProjection.GetFloat4x4(&command.taskRenderWorld.skyProjMatrix);
+		occlusionViewProjection.GetFloat4x4(&command.taskRenderWorld.occlusionViewProjMatrix);
 
 		renderer.AddRenderCommand(command);
 	}
@@ -307,8 +292,17 @@ void PolymerNGBoard::DrawRooms(int32_t daposx, int32_t daposy, int32_t daposz, i
 	// Now render all the sprites.
 	DrawSprites(viewMatrix, projectionMatrix, horizang, daang);
 
-	// Render software occlusion.
-	softwareRasterizer->RenderOcclusion(daposx, daposy, daposz, daang, dahoriz, dacursectnum);
+	// Now draw all the lights.
+	{
+		Math::Matrix4 inverseModelViewProjection = modelViewProjection;
+		modelViewProjection.Inverse();
+
+		BuildRenderCommand command;
+		command.taskId = BUILDRENDER_TASK_DRAWLIGHTS;
+		inverseModelViewProjection.GetFloat4x4(&command.taskDrawLights.inverseModelViewMatrix);
+		FindVisibleLightsForScene(&command.taskDrawLights.visibleLights[0], command.taskDrawLights.numLights);
+		renderer.AddRenderCommand(command);
+	}
 }
 
 /*
@@ -446,9 +440,242 @@ bool PolymerNGBoard::ComputeSpritePlane(Math::Matrix4 &viewMatrix, Math::Matrix4
 
 	sprite->plane.visibility = sector[tspr->sectnum].visibility;
 	sprite->plane.shadeNum = tspr->shade;
-	Build3D::CalculateFogForPlane(sprite->plane.tileNum, sprite->plane.shadeNum, sprite->plane.visibility, sprite->plane.paletteNum, &sprite->plane);
+	//Build3D::CalculateFogForPlane(sprite->plane.tileNum, sprite->plane.shadeNum, sprite->plane.visibility, sprite->plane.paletteNum, &sprite->plane);
 
 	Math::Matrix4 mvp = projectionMatrix * (viewMatrix * modelMatrix);
+	mvp.GetFloat4x4(&sprite->modelViewProjectionMatrix);
+	modelMatrix.GetFloat4x4(&sprite->modelMatrix);
+
+	return true;
+}
+
+//
+// PolymerNGBoard::ComputeModelSpriteRender
+//
+bool PolymerNGBoard::ComputeModelSpriteRender(Math::Matrix4 &viewMatrix, Math::Matrix4 &projectionMatrix, float horizang, int16_t daang, Build3DSprite *sprite, tspritetype *tspr)
+{
+	float           *v0, *v1;
+	char            targetpal, usinghighpal, foundpalskin;
+	float           spos2[3], spos[3], tspos[3], lpos[3], tlpos[3], vec[3], mat[4][4];
+	float           ang;
+	float           scale;
+	double          det;
+	int32_t         surfi, i, j;
+	int32_t         materialbits;
+	float           sradius, lradius;
+	char            modellightcount;
+	uint8_t         curpriority;
+
+//	uint8_t lpal = (tspr->owner >= MAXSPRITES) ? tspr->pal : sprite[tspr->owner].pal;
+
+	// Hackish, but that means it's a model drawn by rotatesprite.
+	if (tspriteptr[MAXSPRITESONSCREEN] == tspr) {
+		float       x, y, z;
+
+		spos[0] = (float)globalposy;
+		spos[1] = -(float)(globalposz) / 16.0f;
+		spos[2] = -(float)globalposx;
+
+		// The coordinates are actually floats disguised as int in this case
+		memcpy(&x, &tspr->x, sizeof(float));
+		memcpy(&y, &tspr->y, sizeof(float));
+		memcpy(&z, &tspr->z, sizeof(float));
+
+		spos2[0] = (float)y - globalposy;
+		spos2[1] = -(float)(z - globalposz) / 16.0f;
+		spos2[2] = -(float)(x - globalposx);
+	}
+	else {
+		spos[0] = (float)tspr->y;
+		spos[1] = -(float)(tspr->z) / 16.0f;
+		spos[2] = -(float)tspr->x;
+
+		spos2[0] = spos2[1] = spos2[2] = 0.0f;
+	}
+
+	ang = (float)((tspr->ang + spriteext[tspr->owner].angoff) & 2047) / (2048.0f / 360.0f);
+	ang -= 90.0f;
+	if (((tspr->cstat >> 4) & 3) == 2)
+		ang -= 90.0f;
+
+	float mscale = max(modelCacheSystem.GetModelOverridesForId(tspr->picnum)->scale, 1);
+
+	Math::Matrix4 modelMatrix;
+	modelMatrix.Identity();
+	scale = (1.0 / 4.0);
+	scale *= 0.7f;
+	scale *= mscale;
+//	if (pr_overridemodelscale) {
+//		scale *= pr_overridemodelscale;
+//	}
+//	else {
+//		scale *= m->bscale;
+//	}
+
+	if (tspriteptr[MAXSPRITESONSCREEN] == tspr) {
+		float playerang, radplayerang, cosminusradplayerang, sinminusradplayerang, hudzoom;
+
+		playerang = (globalang & 2047) / (2048.0f / 360.0f) - 90.0f;
+		radplayerang = (globalang & 2047) * 2.0f * PI / 2048.0f;
+		cosminusradplayerang = cos(-radplayerang);
+		sinminusradplayerang = sin(-radplayerang);
+		hudzoom = 65536.0 / spriteext[tspr->owner].offset.z;
+
+		modelMatrix = modelMatrix * Math::Matrix4::MakeTranslation(spos[0], spos[1], spos[2]); //bglTranslatef(spos[0], spos[1], spos[2]);
+		modelMatrix.Rotatef(horizang, -cosminusradplayerang, 0.0f, sinminusradplayerang);
+		modelMatrix.Rotatef(spriteext[tspr->owner].roll / (2048.0f / 360.0f), sinminusradplayerang, 0.0f, cosminusradplayerang);
+		modelMatrix.Rotatef(-playerang, 0.0f, 1.0f, 0.0f);
+
+		modelMatrix.Rotatef(-playerang, 0.0f, 1.0f, 0.0f);
+		modelMatrix = modelMatrix * modelMatrix.MakeScale(Math::Vector3(hudzoom, 1.0f, 1.0f));
+		modelMatrix.Rotatef(playerang, 0.0f, 1.0f, 0.0f);
+		modelMatrix = modelMatrix * Math::Matrix4::MakeTranslation(spos2[0], spos2[1], spos2[2]); //bglTranslatef(spos[0], spos[1], spos[2]); bglTranslatef(spos2[0], spos2[1], spos2[2]);
+		modelMatrix.Rotatef(-ang, 0.0f, 1.0f, 0.0f);
+	}
+	else {
+		modelMatrix = modelMatrix * Math::Matrix4::MakeTranslation(spos[0], spos[1], spos[2]); //bglTranslatef(spos[0], spos[1], spos[2]); bglTranslatef(spos[0], spos[1], spos[2]);
+		modelMatrix.Rotatef(-ang, 0.0f, 1.0f, 0.0f); // jm
+	}
+	if (((tspr->cstat >> 4) & 3) == 2)
+	{
+		modelMatrix = modelMatrix * Math::Matrix4::MakeTranslation(0.0f, 0.0, -(float)(tilesiz[tspr->picnum].y * tspr->yrepeat) / 8.0f);
+		modelMatrix.Rotatef(90.0f, 0.0f, 0.0f, 1.0f);
+	}
+	else
+		modelMatrix.Rotatef(-90.0f, 1.0f, 0.0f, 0.0f);
+
+	if ((tspr->cstat & 128) && (((tspr->cstat >> 4) & 3) != 2))
+		modelMatrix = modelMatrix * Math::Matrix4::MakeTranslation(0.0f, 0.0, -(float)(tilesiz[tspr->picnum].y * tspr->yrepeat) / 8.0f);
+
+	// yoffset differs from zadd in that it does not follow cstat&8 y-flipping
+	modelMatrix = modelMatrix * Math::Matrix4::MakeTranslation(0.0f, 0.0, 0 * 64 * scale * tspr->yrepeat); // jm
+
+	if (tspr->cstat & 8)
+	{
+		modelMatrix = modelMatrix * Math::Matrix4::MakeTranslation(0.0f, 0.0, (float)(tilesiz[tspr->picnum].y * tspr->yrepeat) / 4.0f);
+		modelMatrix = modelMatrix * modelMatrix.MakeScale2(Math::Vector3(1.0f, 1.0f, -1.0f));
+	}
+
+	if (tspr->cstat & 4)
+		modelMatrix = modelMatrix * modelMatrix.MakeScale2(Math::Vector3(1.0f, -1.0f, 1.0f));
+
+	//if (!(tspr->cstat & 4) != !(tspr->cstat & 8)) {
+	//	// Only inverting one coordinate will reverse the winding order of
+	//	// faces, so we need to account for that when culling.
+	//	SWITCH_CULL_DIRECTION;
+	//}
+
+	// jmarshall
+	modelMatrix = modelMatrix * modelMatrix.MakeScale(Math::Vector3(scale * tspr->xrepeat, scale * tspr->xrepeat, scale * tspr->yrepeat));
+	modelMatrix = modelMatrix * Math::Matrix4::MakeTranslation(0.0f, 0.0, 0 * 64);
+	// jmarshall end
+
+	// scripted model rotation
+	// jmarshall
+	//if (tspr->owner < MAXSPRITES &&
+	//	(spriteext[tspr->owner].pitch || spriteext[tspr->owner].roll))
+	//{
+	//	float       pitchang, rollang, offsets[3];
+	//
+	//	pitchang = (float)(spriteext[tspr->owner].pitch) / (2048.0f / 360.0f);
+	//	rollang = (float)(spriteext[tspr->owner].roll) / (2048.0f / 360.0f);
+	//
+	//	offsets[0] = -spriteext[tspr->owner].offset.x / (scale * tspr->xrepeat);
+	//	offsets[1] = -spriteext[tspr->owner].offset.y / (scale * tspr->xrepeat);
+	//	offsets[2] = (float)(spriteext[tspr->owner].offset.z) / 16.0f / (scale * tspr->yrepeat);
+	//
+	//	modelMatrix = modelMatrix * Math::Matrix4::MakeTranslation(-offsets[0], -offsets[1], -offsets[2]);
+	//
+	//	modelMatrix.Rotatef(pitchang, 0.0f, 1.0f, 0.0f);
+	//	modelMatrix.Rotatef(rollang, -1.0f, 0.0f, 0.0f);
+	//
+	//	modelMatrix = modelMatrix * Math::Matrix4::MakeTranslation(offsets[0], offsets[1], offsets[2]);
+	//}
+	// jmarshall end
+
+	//bglGetFloatv(GL_MODELVIEW_MATRIX, spritemodelview);
+	//
+	//bglPopMatrix();
+	//bglPushMatrix();
+	//bglMultMatrixf(spritemodelview);
+	//
+	//// invert this matrix to get the polymer -> mdsprite space
+	//memcpy(mat, spritemodelview, sizeof(float) * 16);
+	//INVERT_4X4(mdspritespace, det, mat);
+
+	// debug code for drawing the model bounding sphere
+	//     bglDisable(GL_TEXTURE_2D);
+	//     bglBegin(GL_LINES);
+	//     bglColor4f(1.0, 0.0, 0.0, 1.0);
+	//     bglVertex3f(m->head.frames[m->cframe].cen.x,
+	//                 m->head.frames[m->cframe].cen.y,
+	//                 m->head.frames[m->cframe].cen.z);
+	//     bglVertex3f(m->head.frames[m->cframe].cen.x + m->head.frames[m->cframe].r,
+	//                 m->head.frames[m->cframe].cen.y,
+	//                 m->head.frames[m->cframe].cen.z);
+	//     bglColor4f(0.0, 1.0, 0.0, 1.0);
+	//     bglVertex3f(m->head.frames[m->cframe].cen.x,
+	//                 m->head.frames[m->cframe].cen.y,
+	//                 m->head.frames[m->cframe].cen.z);
+	//     bglVertex3f(m->head.frames[m->cframe].cen.x,
+	//                 m->head.frames[m->cframe].cen.y + m->head.frames[m->cframe].r,
+	//                 m->head.frames[m->cframe].cen.z);
+	//     bglColor4f(0.0, 0.0, 1.0, 1.0);
+	//     bglVertex3f(m->head.frames[m->cframe].cen.x,
+	//                 m->head.frames[m->cframe].cen.y,
+	//                 m->head.frames[m->cframe].cen.z);
+	//     bglVertex3f(m->head.frames[m->cframe].cen.x,
+	//                 m->head.frames[m->cframe].cen.y,
+	//                 m->head.frames[m->cframe].cen.z + m->head.frames[m->cframe].r);
+	//     bglEnd();
+	//     bglEnable(GL_TEXTURE_2D);
+
+//	polymer_getscratchmaterial(&mdspritematerial);
+//
+//	color = mdspritematerial.diffusemodulation;
+//
+//	color[0] = color[1] = color[2] =
+//		(GLubyte)(((float)(numshades - min(max((tspr->shade * shadescale) + m->shadeoff, 0), numshades))) / ((float)numshades) * 0xFF);
+//
+//	usinghighpal = (pr_highpalookups &&
+//		prhighpalookups[curbasepal][tspr->pal].map);
+//
+//	// tinting
+//	if (!usinghighpal && !(hictinting[tspr->pal].f & HICTINT_PRECOMPUTED))
+//	{
+//		if (!(m->flags & 1))
+//			hictinting_apply_ub(color, tspr->pal);
+//		else globalnoeffect = 1; //mdloadskin reads this
+//	}
+//
+//	// global tinting
+//	if (!usinghighpal && have_basepal_tint())
+//		hictinting_apply_ub(color, MAXPALOOKUPS - 1);
+//
+//	if (tspr->cstat & 2)
+//	{
+//		if (!(tspr->cstat & 512))
+//			color[3] = 0xAA;
+//		else
+//			color[3] = 0x55;
+//	}
+//	else
+//		color[3] = 0xFF;
+//
+//	{
+//		double f = color[3] * (1.0f - spriteext[tspr->owner].alpha);
+//		color[3] = (GLubyte)f;
+//	}
+
+	modellightcount = 0;
+	curpriority = 0;
+
+	sprite->plane.visibility = sector[tspr->sectnum].visibility;
+	sprite->plane.shadeNum = tspr->shade;
+	//Build3D::CalculateFogForPlane(sprite->plane.tileNum, sprite->plane.shadeNum, sprite->plane.visibility, sprite->plane.paletteNum, &sprite->plane);
+
+	Math::Matrix4 modelViewMatrix = (viewMatrix * modelMatrix);
+	Math::Matrix4 mvp = projectionMatrix * modelViewMatrix;
 	mvp.GetFloat4x4(&sprite->modelViewProjectionMatrix);
 	modelMatrix.GetFloat4x4(&sprite->modelMatrix);
 
@@ -465,7 +692,7 @@ void PolymerNGBoard::DrawSprites(Math::Matrix4 &viewMatrix, Math::Matrix4 &proje
 	BuildRenderCommand command;
 	command.taskId = BUILDRENDER_TASK_DRAWSPRITES;
 	command.taskRenderSprites.numSprites = localspritesortcnt;
-	command.taskRenderSprites.prsprites = &prsprites[0];
+	command.taskRenderSprites.prsprites = &prsprites[renderer.GetCurrentFrameNum()][0];
 
 	
 	for (int i = 0; i < localspritesortcnt; i++)
@@ -474,17 +701,34 @@ void PolymerNGBoard::DrawSprites(Math::Matrix4 &viewMatrix, Math::Matrix4 &proje
 		Build3DSprite *sprite = &command.taskRenderSprites.prsprites[i];
 		int startVertex = i * 4;
 
+		// Load in the model for this sprite, if its preached this should NOT cause any hitches...
+		sprite->cacheModel = modelCacheSystem.LoadModelForTile(tspr->picnum);
+
+		// Load in the material for the sprite if we don't have a high quality model.
+		if (sprite->plane.renderMaterialHandle == NULL && sprite->cacheModel != NULL)
+		{
+			sprite->plane.renderMaterialHandle = materialManager.LoadMaterialForTile(tspr->picnum);
+		}
+
 		sprite->plane.buffer = NULL;
 		sprite->plane.vertcount = 4;
 		sprite->plane.vbo_offset = startVertex;
 
-		DO_TILE_ANIM(tspr->picnum, tspr->owner + 32768);
+		//DO_TILE_ANIM(tspr->picnum, tspr->owner + 32768);
 
 		
 		sprite->paletteNum = tspr->pal;
 		sprite->plane.tileNum = tspr->picnum;
-		sprite->plane.renderImageHandle = LoadImageDeferred(tspr->picnum);
-		sprite->isVisible = ComputeSpritePlane(viewMatrix, projectionMatrix, horizang, daang, sprite, tspr);
+		sprite->plane.renderMaterialHandle = materialManager.LoadMaterialForTile(tspr->picnum);
+
+		if (sprite->cacheModel)
+		{
+			sprite->isVisible = ComputeModelSpriteRender(viewMatrix, projectionMatrix, horizang, daang, sprite, tspr);
+		}
+		else
+		{
+			sprite->isVisible = ComputeSpritePlane(viewMatrix, projectionMatrix, horizang, daang, sprite, tspr);
+		}
 	}
 
 	renderer.AddRenderCommand(command);
@@ -509,4 +753,15 @@ PolymerNG::DrawRooms
 void PolymerNG::DrawRooms(int32_t daposx, int32_t daposy, int32_t daposz, int16_t daang, int32_t dahoriz, int16_t dacursectnum)
 {
 	polymerNGPrivate.currentBoard->DrawRooms(daposx, daposy, daposz, daang, dahoriz, dacursectnum);
+}
+
+/*
+=============
+PolymerNG::AddLightToCurrentBoard
+=============
+*/
+PolymerNGLight *PolymerNG::AddLightToCurrentBoard(PolymerNGLightOpts lightOpts)
+{
+	PolymerNGLightLocal light(lightOpts);
+	return polymerNGPrivate.currentBoard->AddLightToMap(light);
 }

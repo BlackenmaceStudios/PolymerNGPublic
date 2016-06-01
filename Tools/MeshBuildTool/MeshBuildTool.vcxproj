@@ -1,0 +1,556 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="AssetImport\code\3DSConverter.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">./BoostWorkaround/</AdditionalIncludeDirectories>
+    </ClCompile>
+    <ClCompile Include="AssetImport\code\3DSExporter.cpp" />
+    <ClCompile Include="AssetImport\code\3DSLoader.cpp" />
+    <ClCompile Include="AssetImport\code\ACLoader.cpp" />
+    <ClCompile Include="AssetImport\code\ASELoader.cpp" />
+    <ClCompile Include="AssetImport\code\ASEParser.cpp" />
+    <ClCompile Include="AssetImport\code\AssbinExporter.cpp" />
+    <ClCompile Include="AssetImport\code\AssbinLoader.cpp" />
+    <ClCompile Include="AssetImport\code\Assimp.cpp" />
+    <ClCompile Include="AssetImport\code\AssimpCExport.cpp" />
+    <ClCompile Include="AssetImport\code\AssxmlExporter.cpp" />
+    <ClCompile Include="AssetImport\code\B3DImporter.cpp" />
+    <ClCompile Include="AssetImport\code\BaseImporter.cpp" />
+    <ClCompile Include="AssetImport\code\BaseProcess.cpp" />
+    <ClCompile Include="AssetImport\code\Bitmap.cpp" />
+    <ClCompile Include="AssetImport\code\BlenderBMesh.cpp" />
+    <ClCompile Include="AssetImport\code\BlenderDNA.cpp" />
+    <ClCompile Include="AssetImport\code\BlenderLoader.cpp" />
+    <ClCompile Include="AssetImport\code\BlenderModifier.cpp" />
+    <ClCompile Include="AssetImport\code\BlenderScene.cpp" />
+    <ClCompile Include="AssetImport\code\BlenderTessellator.cpp" />
+    <ClCompile Include="AssetImport\code\BVHLoader.cpp" />
+    <ClCompile Include="AssetImport\code\C4DImporter.cpp" />
+    <ClCompile Include="AssetImport\code\CalcTangentsProcess.cpp" />
+    <ClCompile Include="AssetImport\code\COBLoader.cpp" />
+    <ClCompile Include="AssetImport\code\ColladaExporter.cpp" />
+    <ClCompile Include="AssetImport\code\ColladaLoader.cpp" />
+    <ClCompile Include="AssetImport\code\ColladaParser.cpp" />
+    <ClCompile Include="AssetImport\code\ComputeUVMappingProcess.cpp" />
+    <ClCompile Include="AssetImport\code\ConvertToLHProcess.cpp" />
+    <ClCompile Include="AssetImport\code\CSMLoader.cpp" />
+    <ClCompile Include="AssetImport\code\DeboneProcess.cpp" />
+    <ClCompile Include="AssetImport\code\DefaultIOStream.cpp" />
+    <ClCompile Include="AssetImport\code\DefaultIOSystem.cpp" />
+    <ClCompile Include="AssetImport\code\DefaultLogger.cpp" />
+    <ClCompile Include="AssetImport\code\DXFLoader.cpp" />
+    <ClCompile Include="AssetImport\code\Exporter.cpp" />
+    <ClCompile Include="AssetImport\code\FBXAnimation.cpp" />
+    <ClCompile Include="AssetImport\code\FBXBinaryTokenizer.cpp" />
+    <ClCompile Include="AssetImport\code\FBXConverter.cpp" />
+    <ClCompile Include="AssetImport\code\FBXDeformer.cpp" />
+    <ClCompile Include="AssetImport\code\FBXDocument.cpp" />
+    <ClCompile Include="AssetImport\code\FBXDocumentUtil.cpp" />
+    <ClCompile Include="AssetImport\code\FBXImporter.cpp" />
+    <ClCompile Include="AssetImport\code\FBXMaterial.cpp" />
+    <ClCompile Include="AssetImport\code\FBXMeshGeometry.cpp" />
+    <ClCompile Include="AssetImport\code\FBXModel.cpp" />
+    <ClCompile Include="AssetImport\code\FBXNodeAttribute.cpp" />
+    <ClCompile Include="AssetImport\code\FBXParser.cpp" />
+    <ClCompile Include="AssetImport\code\FBXProperties.cpp" />
+    <ClCompile Include="AssetImport\code\FBXTokenizer.cpp" />
+    <ClCompile Include="AssetImport\code\FBXUtil.cpp" />
+    <ClCompile Include="AssetImport\code\FindDegenerates.cpp" />
+    <ClCompile Include="AssetImport\code\FindInstancesProcess.cpp" />
+    <ClCompile Include="AssetImport\code\FindInvalidDataProcess.cpp" />
+    <ClCompile Include="AssetImport\code\FixNormalsStep.cpp" />
+    <ClCompile Include="AssetImport\code\GenFaceNormalsProcess.cpp" />
+    <ClCompile Include="AssetImport\code\GenVertexNormalsProcess.cpp" />
+    <ClCompile Include="AssetImport\code\HMPLoader.cpp" />
+    <ClCompile Include="AssetImport\code\IFCBoolean.cpp" />
+    <ClCompile Include="AssetImport\code\IFCCurve.cpp" />
+    <ClCompile Include="AssetImport\code\IFCGeometry.cpp" />
+    <ClCompile Include="AssetImport\code\IFCLoader.cpp" />
+    <ClCompile Include="AssetImport\code\IFCMaterial.cpp" />
+    <ClCompile Include="AssetImport\code\IFCOpenings.cpp" />
+    <ClCompile Include="AssetImport\code\IFCProfile.cpp" />
+    <ClCompile Include="AssetImport\code\IFCReaderGen.cpp" />
+    <ClCompile Include="AssetImport\code\IFCUtil.cpp" />
+    <ClCompile Include="AssetImport\code\Importer.cpp" />
+    <ClCompile Include="AssetImport\code\ImporterRegistry.cpp" />
+    <ClCompile Include="AssetImport\code\ImproveCacheLocality.cpp" />
+    <ClCompile Include="AssetImport\code\IRRLoader.cpp" />
+    <ClCompile Include="AssetImport\code\IRRMeshLoader.cpp" />
+    <ClCompile Include="AssetImport\code\IRRShared.cpp" />
+    <ClCompile Include="AssetImport\code\JoinVerticesProcess.cpp" />
+    <ClCompile Include="AssetImport\code\LimitBoneWeightsProcess.cpp" />
+    <ClCompile Include="AssetImport\code\LWOAnimation.cpp" />
+    <ClCompile Include="AssetImport\code\LWOBLoader.cpp" />
+    <ClCompile Include="AssetImport\code\LWOLoader.cpp" />
+    <ClCompile Include="AssetImport\code\LWOMaterial.cpp" />
+    <ClCompile Include="AssetImport\code\LWSLoader.cpp" />
+    <ClCompile Include="AssetImport\code\MakeVerboseFormat.cpp" />
+    <ClCompile Include="AssetImport\code\MaterialSystem.cpp" />
+    <ClCompile Include="AssetImport\code\MD2Loader.cpp" />
+    <ClCompile Include="AssetImport\code\MD3Loader.cpp" />
+    <ClCompile Include="AssetImport\code\MD5Loader.cpp" />
+    <ClCompile Include="AssetImport\code\MD5Parser.cpp" />
+    <ClCompile Include="AssetImport\code\MDCLoader.cpp" />
+    <ClCompile Include="AssetImport\code\MDLLoader.cpp" />
+    <ClCompile Include="AssetImport\code\MDLMaterialLoader.cpp" />
+    <ClCompile Include="AssetImport\code\MS3DLoader.cpp" />
+    <ClCompile Include="AssetImport\code\NDOLoader.cpp" />
+    <ClCompile Include="AssetImport\code\NFFLoader.cpp" />
+    <ClCompile Include="AssetImport\code\ObjExporter.cpp" />
+    <ClCompile Include="AssetImport\code\ObjFileImporter.cpp" />
+    <ClCompile Include="AssetImport\code\ObjFileMtlImporter.cpp" />
+    <ClCompile Include="AssetImport\code\ObjFileParser.cpp" />
+    <ClCompile Include="AssetImport\code\OFFLoader.cpp" />
+    <ClCompile Include="AssetImport\code\OgreBinarySerializer.cpp" />
+    <ClCompile Include="AssetImport\code\OgreImporter.cpp" />
+    <ClCompile Include="AssetImport\code\OgreMaterial.cpp" />
+    <ClCompile Include="AssetImport\code\OgreStructs.cpp" />
+    <ClCompile Include="AssetImport\code\OgreXmlSerializer.cpp" />
+    <ClCompile Include="AssetImport\code\OpenGEXExporter.cpp" />
+    <ClCompile Include="AssetImport\code\OpenGEXImporter.cpp" />
+    <ClCompile Include="AssetImport\code\OptimizeGraph.cpp" />
+    <ClCompile Include="AssetImport\code\OptimizeMeshes.cpp" />
+    <ClCompile Include="AssetImport\code\PlyExporter.cpp" />
+    <ClCompile Include="AssetImport\code\PlyLoader.cpp" />
+    <ClCompile Include="AssetImport\code\PlyParser.cpp" />
+    <ClCompile Include="AssetImport\code\PostStepRegistry.cpp" />
+    <ClCompile Include="AssetImport\code\PretransformVertices.cpp" />
+    <ClCompile Include="AssetImport\code\ProcessHelper.cpp" />
+    <ClCompile Include="AssetImport\code\Q3BSPFileImporter.cpp" />
+    <ClCompile Include="AssetImport\code\Q3BSPFileParser.cpp" />
+    <ClCompile Include="AssetImport\code\Q3BSPZipArchive.cpp" />
+    <ClCompile Include="AssetImport\code\Q3DLoader.cpp" />
+    <ClCompile Include="AssetImport\code\RawLoader.cpp" />
+    <ClCompile Include="AssetImport\code\RemoveComments.cpp" />
+    <ClCompile Include="AssetImport\code\RemoveRedundantMaterials.cpp" />
+    <ClCompile Include="AssetImport\code\RemoveVCProcess.cpp" />
+    <ClCompile Include="AssetImport\code\SceneCombiner.cpp" />
+    <ClCompile Include="AssetImport\code\ScenePreprocessor.cpp" />
+    <ClCompile Include="AssetImport\code\SGSpatialSort.cpp" />
+    <ClCompile Include="AssetImport\code\SkeletonMeshBuilder.cpp" />
+    <ClCompile Include="AssetImport\code\SMDLoader.cpp" />
+    <ClCompile Include="AssetImport\code\SortByPTypeProcess.cpp" />
+    <ClCompile Include="AssetImport\code\SpatialSort.cpp" />
+    <ClCompile Include="AssetImport\code\SplitByBoneCountProcess.cpp" />
+    <ClCompile Include="AssetImport\code\SplitLargeMeshes.cpp" />
+    <ClCompile Include="AssetImport\code\StandardShapes.cpp" />
+    <ClCompile Include="AssetImport\code\StepExporter.cpp" />
+    <ClCompile Include="AssetImport\code\STEPFileEncoding.cpp" />
+    <ClCompile Include="AssetImport\code\STEPFileReader.cpp" />
+    <ClCompile Include="AssetImport\code\STLExporter.cpp" />
+    <ClCompile Include="AssetImport\code\STLLoader.cpp" />
+    <ClCompile Include="AssetImport\code\Subdivision.cpp" />
+    <ClCompile Include="AssetImport\code\TargetAnimation.cpp" />
+    <ClCompile Include="AssetImport\code\TerragenLoader.cpp" />
+    <ClCompile Include="AssetImport\code\TextureTransform.cpp" />
+    <ClCompile Include="AssetImport\code\TriangulateProcess.cpp" />
+    <ClCompile Include="AssetImport\code\UnrealLoader.cpp" />
+    <ClCompile Include="AssetImport\code\ValidateDataStructure.cpp" />
+    <ClCompile Include="AssetImport\code\Version.cpp" />
+    <ClCompile Include="AssetImport\code\VertexTriangleAdjacency.cpp" />
+    <ClCompile Include="AssetImport\code\XFileExporter.cpp" />
+    <ClCompile Include="AssetImport\code\XFileImporter.cpp" />
+    <ClCompile Include="AssetImport\code\XFileParser.cpp" />
+    <ClCompile Include="AssetImport\code\XGLLoader.cpp" />
+    <ClCompile Include="AssetImport\contrib\clipper\clipper.cpp" />
+    <ClCompile Include="AssetImport\contrib\ConvertUTF\ConvertUTF.c" />
+    <ClCompile Include="AssetImport\contrib\irrXML\irrXML.cpp" />
+    <ClCompile Include="AssetImport\contrib\poly2tri\poly2tri\common\shapes.cc" />
+    <ClCompile Include="AssetImport\contrib\poly2tri\poly2tri\sweep\advancing_front.cc" />
+    <ClCompile Include="AssetImport\contrib\poly2tri\poly2tri\sweep\cdt.cc" />
+    <ClCompile Include="AssetImport\contrib\poly2tri\poly2tri\sweep\sweep.cc" />
+    <ClCompile Include="AssetImport\contrib\poly2tri\poly2tri\sweep\sweep_context.cc" />
+    <ClCompile Include="AssetImport\contrib\unzip\ioapi.c" />
+    <ClCompile Include="AssetImport\contrib\unzip\unzip.c" />
+    <ClCompile Include="AssetImport\contrib\zlib\adler32.c" />
+    <ClCompile Include="AssetImport\contrib\zlib\compress.c" />
+    <ClCompile Include="AssetImport\contrib\zlib\crc32.c" />
+    <ClCompile Include="AssetImport\contrib\zlib\deflate.c" />
+    <ClCompile Include="AssetImport\contrib\zlib\gzclose.c" />
+    <ClCompile Include="AssetImport\contrib\zlib\gzlib.c" />
+    <ClCompile Include="AssetImport\contrib\zlib\gzread.c" />
+    <ClCompile Include="AssetImport\contrib\zlib\gzwrite.c" />
+    <ClCompile Include="AssetImport\contrib\zlib\infback.c" />
+    <ClCompile Include="AssetImport\contrib\zlib\inffast.c" />
+    <ClCompile Include="AssetImport\contrib\zlib\inflate.c" />
+    <ClCompile Include="AssetImport\contrib\zlib\inftrees.c" />
+    <ClCompile Include="AssetImport\contrib\zlib\trees.c" />
+    <ClCompile Include="AssetImport\contrib\zlib\uncompr.c" />
+    <ClCompile Include="AssetImport\contrib\zlib\zutil.c" />
+    <ClCompile Include="Main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="AssetImport\code\3DSExporter.h" />
+    <ClInclude Include="AssetImport\code\3DSHelper.h" />
+    <ClInclude Include="AssetImport\code\3DSLoader.h" />
+    <ClInclude Include="AssetImport\code\ACLoader.h" />
+    <ClInclude Include="AssetImport\code\ASELoader.h" />
+    <ClInclude Include="AssetImport\code\ASEParser.h" />
+    <ClInclude Include="AssetImport\code\AssbinExporter.h" />
+    <ClInclude Include="AssetImport\code\AssbinLoader.h" />
+    <ClInclude Include="AssetImport\code\assbin_chunks.h" />
+    <ClInclude Include="AssetImport\code\AssxmlExporter.h" />
+    <ClInclude Include="AssetImport\code\B3DImporter.h" />
+    <ClInclude Include="AssetImport\code\BaseImporter.h" />
+    <ClInclude Include="AssetImport\code\BaseProcess.h" />
+    <ClInclude Include="AssetImport\code\Bitmap.h" />
+    <ClInclude Include="AssetImport\code\BlenderBMesh.h" />
+    <ClInclude Include="AssetImport\code\BlenderDNA.h" />
+    <ClInclude Include="AssetImport\code\BlenderIntermediate.h" />
+    <ClInclude Include="AssetImport\code\BlenderLoader.h" />
+    <ClInclude Include="AssetImport\code\BlenderModifier.h" />
+    <ClInclude Include="AssetImport\code\BlenderScene.h" />
+    <ClInclude Include="AssetImport\code\BlenderSceneGen.h" />
+    <ClInclude Include="AssetImport\code\BlenderTessellator.h" />
+    <ClInclude Include="AssetImport\code\BlobIOSystem.h" />
+    <ClInclude Include="AssetImport\code\BVHLoader.h" />
+    <ClInclude Include="AssetImport\code\ByteSwapper.h" />
+    <ClInclude Include="AssetImport\code\C4DImporter.h" />
+    <ClInclude Include="AssetImport\code\CalcTangentsProcess.h" />
+    <ClInclude Include="AssetImport\code\CInterfaceIOWrapper.h" />
+    <ClInclude Include="AssetImport\code\COBLoader.h" />
+    <ClInclude Include="AssetImport\code\COBScene.h" />
+    <ClInclude Include="AssetImport\code\ColladaExporter.h" />
+    <ClInclude Include="AssetImport\code\ColladaHelper.h" />
+    <ClInclude Include="AssetImport\code\ColladaLoader.h" />
+    <ClInclude Include="AssetImport\code\ColladaParser.h" />
+    <ClInclude Include="AssetImport\code\ComputeUVMappingProcess.h" />
+    <ClInclude Include="AssetImport\code\ConvertToLHProcess.h" />
+    <ClInclude Include="AssetImport\code\CSMLoader.h" />
+    <ClInclude Include="AssetImport\code\DeboneProcess.h" />
+    <ClInclude Include="AssetImport\code\DefaultIOStream.h" />
+    <ClInclude Include="AssetImport\code\DefaultIOSystem.h" />
+    <ClInclude Include="AssetImport\code\DefaultProgressHandler.h" />
+    <ClInclude Include="AssetImport\code\Defines.h" />
+    <ClInclude Include="AssetImport\code\DXFHelper.h" />
+    <ClInclude Include="AssetImport\code\DXFLoader.h" />
+    <ClInclude Include="AssetImport\code\Exceptional.h" />
+    <ClInclude Include="AssetImport\code\fast_atof.h" />
+    <ClInclude Include="AssetImport\code\FBXCompileConfig.h" />
+    <ClInclude Include="AssetImport\code\FBXConverter.h" />
+    <ClInclude Include="AssetImport\code\FBXDocument.h" />
+    <ClInclude Include="AssetImport\code\FBXDocumentUtil.h" />
+    <ClInclude Include="AssetImport\code\FBXImporter.h" />
+    <ClInclude Include="AssetImport\code\FBXImportSettings.h" />
+    <ClInclude Include="AssetImport\code\FBXParser.h" />
+    <ClInclude Include="AssetImport\code\FBXProperties.h" />
+    <ClInclude Include="AssetImport\code\FBXTokenizer.h" />
+    <ClInclude Include="AssetImport\code\FBXUtil.h" />
+    <ClInclude Include="AssetImport\code\FileLogStream.h" />
+    <ClInclude Include="AssetImport\code\FileSystemFilter.h" />
+    <ClInclude Include="AssetImport\code\FindDegenerates.h" />
+    <ClInclude Include="AssetImport\code\FindInstancesProcess.h" />
+    <ClInclude Include="AssetImport\code\FindInvalidDataProcess.h" />
+    <ClInclude Include="AssetImport\code\FixNormalsStep.h" />
+    <ClInclude Include="AssetImport\code\GenericProperty.h" />
+    <ClInclude Include="AssetImport\code\GenFaceNormalsProcess.h" />
+    <ClInclude Include="AssetImport\code\GenVertexNormalsProcess.h" />
+    <ClInclude Include="AssetImport\code\HalfLifeFileData.h" />
+    <ClInclude Include="AssetImport\code\Hash.h" />
+    <ClInclude Include="AssetImport\code\HMPFileData.h" />
+    <ClInclude Include="AssetImport\code\HMPLoader.h" />
+    <ClInclude Include="AssetImport\code\IFCLoader.h" />
+    <ClInclude Include="AssetImport\code\IFCReaderGen.h" />
+    <ClInclude Include="AssetImport\code\IFCUtil.h" />
+    <ClInclude Include="AssetImport\code\IFF.h" />
+    <ClInclude Include="AssetImport\code\Importer.h" />
+    <ClInclude Include="AssetImport\code\ImproveCacheLocality.h" />
+    <ClInclude Include="AssetImport\code\IRRLoader.h" />
+    <ClInclude Include="AssetImport\code\IRRMeshLoader.h" />
+    <ClInclude Include="AssetImport\code\IRRShared.h" />
+    <ClInclude Include="AssetImport\code\irrXMLWrapper.h" />
+    <ClInclude Include="AssetImport\code\JoinVerticesProcess.h" />
+    <ClInclude Include="AssetImport\code\LimitBoneWeightsProcess.h" />
+    <ClInclude Include="AssetImport\code\LineSplitter.h" />
+    <ClInclude Include="AssetImport\code\LogAux.h" />
+    <ClInclude Include="AssetImport\code\LWOAnimation.h" />
+    <ClInclude Include="AssetImport\code\LWOFileData.h" />
+    <ClInclude Include="AssetImport\code\LWOLoader.h" />
+    <ClInclude Include="AssetImport\code\LWSLoader.h" />
+    <ClInclude Include="AssetImport\code\Macros.h" />
+    <ClInclude Include="AssetImport\code\MakeVerboseFormat.h" />
+    <ClInclude Include="AssetImport\code\MaterialSystem.h" />
+    <ClInclude Include="AssetImport\code\MD2FileData.h" />
+    <ClInclude Include="AssetImport\code\MD2Loader.h" />
+    <ClInclude Include="AssetImport\code\MD2NormalTable.h" />
+    <ClInclude Include="AssetImport\code\MD3FileData.h" />
+    <ClInclude Include="AssetImport\code\MD3Loader.h" />
+    <ClInclude Include="AssetImport\code\MD4FileData.h" />
+    <ClInclude Include="AssetImport\code\MD5Loader.h" />
+    <ClInclude Include="AssetImport\code\MD5Parser.h" />
+    <ClInclude Include="AssetImport\code\MDCFileData.h" />
+    <ClInclude Include="AssetImport\code\MDCLoader.h" />
+    <ClInclude Include="AssetImport\code\MDCNormalTable.h" />
+    <ClInclude Include="AssetImport\code\MDLDefaultColorMap.h" />
+    <ClInclude Include="AssetImport\code\MDLFileData.h" />
+    <ClInclude Include="AssetImport\code\MDLLoader.h" />
+    <ClInclude Include="AssetImport\code\MemoryIOWrapper.h" />
+    <ClInclude Include="AssetImport\code\MS3DLoader.h" />
+    <ClInclude Include="AssetImport\code\NDOLoader.h" />
+    <ClInclude Include="AssetImport\code\NFFLoader.h" />
+    <ClInclude Include="AssetImport\code\ObjExporter.h" />
+    <ClInclude Include="AssetImport\code\ObjFileData.h" />
+    <ClInclude Include="AssetImport\code\ObjFileImporter.h" />
+    <ClInclude Include="AssetImport\code\ObjFileMtlImporter.h" />
+    <ClInclude Include="AssetImport\code\ObjFileParser.h" />
+    <ClInclude Include="AssetImport\code\ObjTools.h" />
+    <ClInclude Include="AssetImport\code\OFFLoader.h" />
+    <ClInclude Include="AssetImport\code\OgreBinarySerializer.h" />
+    <ClInclude Include="AssetImport\code\OgreImporter.h" />
+    <ClInclude Include="AssetImport\code\OgreParsingUtils.h" />
+    <ClInclude Include="AssetImport\code\OgreStructs.h" />
+    <ClInclude Include="AssetImport\code\OgreXmlSerializer.h" />
+    <ClInclude Include="AssetImport\code\OpenGEXExporter.h" />
+    <ClInclude Include="AssetImport\code\OpenGEXImporter.h" />
+    <ClInclude Include="AssetImport\code\OpenGEXStructs.h" />
+    <ClInclude Include="AssetImport\code\OptimizeGraph.h" />
+    <ClInclude Include="AssetImport\code\OptimizeMeshes.h" />
+    <ClInclude Include="AssetImport\code\ParsingUtils.h" />
+    <ClInclude Include="AssetImport\code\PlyExporter.h" />
+    <ClInclude Include="AssetImport\code\PlyLoader.h" />
+    <ClInclude Include="AssetImport\code\PlyParser.h" />
+    <ClInclude Include="AssetImport\code\PolyTools.h" />
+    <ClInclude Include="AssetImport\code\PretransformVertices.h" />
+    <ClInclude Include="AssetImport\code\ProcessHelper.h" />
+    <ClInclude Include="AssetImport\code\Profiler.h" />
+    <ClInclude Include="AssetImport\code\Q3BSPFileData.h" />
+    <ClInclude Include="AssetImport\code\Q3BSPFileImporter.h" />
+    <ClInclude Include="AssetImport\code\Q3BSPFileParser.h" />
+    <ClInclude Include="AssetImport\code\Q3BSPZipArchive.h" />
+    <ClInclude Include="AssetImport\code\Q3DLoader.h" />
+    <ClInclude Include="AssetImport\code\qnan.h" />
+    <ClInclude Include="AssetImport\code\RawLoader.h" />
+    <ClInclude Include="AssetImport\code\RemoveComments.h" />
+    <ClInclude Include="AssetImport\code\RemoveRedundantMaterials.h" />
+    <ClInclude Include="AssetImport\code\RemoveVCProcess.h" />
+    <ClInclude Include="AssetImport\code\SceneCombiner.h" />
+    <ClInclude Include="AssetImport\code\ScenePreprocessor.h" />
+    <ClInclude Include="AssetImport\code\ScenePrivate.h" />
+    <ClInclude Include="AssetImport\code\SGSpatialSort.h" />
+    <ClInclude Include="AssetImport\code\SkeletonMeshBuilder.h" />
+    <ClInclude Include="AssetImport\code\SMDLoader.h" />
+    <ClInclude Include="AssetImport\code\SmoothingGroups.h" />
+    <ClInclude Include="AssetImport\code\SortByPTypeProcess.h" />
+    <ClInclude Include="AssetImport\code\SpatialSort.h" />
+    <ClInclude Include="AssetImport\code\SplitByBoneCountProcess.h" />
+    <ClInclude Include="AssetImport\code\SplitLargeMeshes.h" />
+    <ClInclude Include="AssetImport\code\StandardShapes.h" />
+    <ClInclude Include="AssetImport\code\StdOStreamLogStream.h" />
+    <ClInclude Include="AssetImport\code\StepExporter.h" />
+    <ClInclude Include="AssetImport\code\STEPFile.h" />
+    <ClInclude Include="AssetImport\code\STEPFileEncoding.h" />
+    <ClInclude Include="AssetImport\code\STEPFileReader.h" />
+    <ClInclude Include="AssetImport\code\STLExporter.h" />
+    <ClInclude Include="AssetImport\code\STLLoader.h" />
+    <ClInclude Include="AssetImport\code\StreamReader.h" />
+    <ClInclude Include="AssetImport\code\StreamWriter.h" />
+    <ClInclude Include="AssetImport\code\StringComparison.h" />
+    <ClInclude Include="AssetImport\code\Subdivision.h" />
+    <ClInclude Include="AssetImport\code\TargetAnimation.h" />
+    <ClInclude Include="AssetImport\code\TerragenLoader.h" />
+    <ClInclude Include="AssetImport\code\TextureTransform.h" />
+    <ClInclude Include="AssetImport\code\TinyFormatter.h" />
+    <ClInclude Include="AssetImport\code\TriangulateProcess.h" />
+    <ClInclude Include="AssetImport\code\UnrealLoader.h" />
+    <ClInclude Include="AssetImport\code\ValidateDataStructure.h" />
+    <ClInclude Include="AssetImport\code\Vertex.h" />
+    <ClInclude Include="AssetImport\code\VertexTriangleAdjacency.h" />
+    <ClInclude Include="AssetImport\code\Win32DebugLogStream.h" />
+    <ClInclude Include="AssetImport\code\XFileExporter.h" />
+    <ClInclude Include="AssetImport\code\XFileHelper.h" />
+    <ClInclude Include="AssetImport\code\XFileImporter.h" />
+    <ClInclude Include="AssetImport\code\XFileParser.h" />
+    <ClInclude Include="AssetImport\code\XGLLoader.h" />
+    <ClInclude Include="AssetImport\code\XMLTools.h" />
+    <ClInclude Include="AssetImport\contrib\clipper\clipper.hpp" />
+    <ClInclude Include="AssetImport\contrib\ConvertUTF\ConvertUTF.h" />
+    <ClInclude Include="AssetImport\contrib\irrXML\CXMLReaderImpl.h" />
+    <ClInclude Include="AssetImport\contrib\irrXML\heapsort.h" />
+    <ClInclude Include="AssetImport\contrib\irrXML\irrArray.h" />
+    <ClInclude Include="AssetImport\contrib\irrXML\irrString.h" />
+    <ClInclude Include="AssetImport\contrib\irrXML\irrTypes.h" />
+    <ClInclude Include="AssetImport\contrib\irrXML\irrXML.h" />
+    <ClInclude Include="AssetImport\contrib\poly2tri\poly2tri\sweep\advancing_front.h" />
+    <ClInclude Include="AssetImport\contrib\poly2tri\poly2tri\sweep\cdt.h" />
+    <ClInclude Include="AssetImport\contrib\poly2tri\poly2tri\sweep\sweep.h" />
+    <ClInclude Include="AssetImport\contrib\poly2tri\poly2tri\sweep\sweep_context.h" />
+    <ClInclude Include="AssetImport\contrib\unzip\crypt.h" />
+    <ClInclude Include="AssetImport\contrib\unzip\ioapi.h" />
+    <ClInclude Include="AssetImport\contrib\unzip\unzip.h" />
+    <ClInclude Include="AssetImport\contrib\zlib\crc32.h" />
+    <ClInclude Include="AssetImport\contrib\zlib\deflate.h" />
+    <ClInclude Include="AssetImport\contrib\zlib\gzguts.h" />
+    <ClInclude Include="AssetImport\contrib\zlib\inffast.h" />
+    <ClInclude Include="AssetImport\contrib\zlib\inffixed.h" />
+    <ClInclude Include="AssetImport\contrib\zlib\inflate.h" />
+    <ClInclude Include="AssetImport\contrib\zlib\inftrees.h" />
+    <ClInclude Include="AssetImport\contrib\zlib\trees.h" />
+    <ClInclude Include="AssetImport\contrib\zlib\zconf.h" />
+    <ClInclude Include="AssetImport\contrib\zlib\zconf.in.h" />
+    <ClInclude Include="AssetImport\contrib\zlib\zlib.h" />
+    <ClInclude Include="AssetImport\contrib\zlib\zutil.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="AssetImport\code\BlenderDNA.inl" />
+    <None Include="AssetImport\code\makefile.mingw" />
+    <None Include="AssetImport\code\SmoothingGroups.inl" />
+    <None Include="AssetImport\contrib\zlib\README" />
+    <None Include="AssetImport\contrib\zlib\zconf.h.cmakein" />
+    <None Include="AssetImport\contrib\zlib\zconf.h.included" />
+    <None Include="AssetImport\contrib\zlib\zlib.pc.cmakein" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="AssetImport\code\CMakeLists.txt" />
+    <Text Include="AssetImport\contrib\zlib\CMakeLists.txt" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{CFC011FA-728E-45E2-9664-C17BC2A30FB5}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>MeshBuildTool</RootNamespace>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>ASSIMP_BUILD_NO_C4D_IMPORTER;ASSIMP_BUILD_NO_OPENGEX_IMPORTER;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
+      <AdditionalIncludeDirectories>./AssetImport/contrib/unzip;./AssetImport/contrib/poly2tri;./AssetImport/contrib/openddlparser;./AssetImport/contrib/irrXML;./AssetImport/contrib/ConvertUTF;./AssetImport/contrib/clipper;./AssetImport/contrib/zlib;./BoostWorkaround/;./AssetImport/include</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

@@ -31,7 +31,7 @@ bool BuildImage::IsLoaded()
 //
 int BuildImage::GetWidth()
 {
-	if (imageOpts.tileNum == -1)
+	if (imageOpts.width != -1)
 		return imageOpts.width;
 
 	return tilesiz[imageOpts.tileNum].x;
@@ -42,7 +42,7 @@ int BuildImage::GetWidth()
 //
 int BuildImage::GetHeight()
 {
-	if (imageOpts.tileNum == -1)
+	if (imageOpts.height != -1)
 		return imageOpts.height;
 
 	return tilesiz[imageOpts.tileNum].y;
@@ -80,15 +80,13 @@ char *BuildImage::ConvertARTImage()
 }
 
 //
-// BuildImage::UpdateImage
+// BuildImage::LoadInArtData
 //
-void BuildImage::UpdateImage()
+void BuildImage::LoadInArtData()
 {
 	// Ensure this image is loaded, do the hd loads in the game thread.
 	if (!waloff[imageOpts.tileNum])
 		loadtile(imageOpts.tileNum);
-
-	polymerNG.AddImageToUpdateQueue(this);
 }
 
 //
@@ -98,11 +96,15 @@ void BuildImage::UpdateImagePost(byte *buffer)
 {
 	char *tempbuffer = NULL;
 	
-	if (buffer)
+	if (imageOpts.inputBuffer)
+	{
+		tempbuffer = (char *)imageOpts.inputBuffer;
+	}
+	else if (buffer)
 	{
 		tempbuffer = (char *)buffer;
 	}
-	else
+	else if(imageOpts.tileNum != -1)
 	{
 		tempbuffer = ConvertARTImage();
 	}
@@ -116,10 +118,10 @@ void BuildImage::UpdateImagePost(byte *buffer)
 		switch (imageOpts.imageType)
 		{
 		case IMAGETYPE_1D:
-			texture = BuildRHI::LoadTextureFromMemory(name, GetWidth(), 0, format, (const void *)tempbuffer, allowCPUWrites);
+			texture = BuildRHI::LoadTextureFromMemory(name, GetWidth(), 0, format, (const void *)tempbuffer, allowCPUWrites, imageOpts.allowCPUReads, imageOpts.isRenderTargetImage);
 			break;
 		case IMAGETYPE_2D:
-			texture = BuildRHI::LoadTextureFromMemory(name, GetWidth(), GetHeight(), format, (const void *)tempbuffer, allowCPUWrites);
+			texture = BuildRHI::LoadTextureFromMemory(name, GetWidth(), GetHeight(), format, (const void *)tempbuffer, allowCPUWrites, imageOpts.allowCPUReads, imageOpts.isRenderTargetImage);
 			break;
 	//	case IMAGETYPE_3D:
 	//		texture = BuildRHI::LoadTexture3DFromMemory(name, GetWidth(), GetHeight(), GetDepth(), format, (const void *)tempbuffer, allowCPUWrites);
@@ -128,7 +130,7 @@ void BuildImage::UpdateImagePost(byte *buffer)
 
 //		texture->SetHardwareDebugName(name.c_str());
 
-		if (!buffer)
+		if (!buffer && !imageOpts.inputBuffer)
 		{
 			Bfree(tempbuffer);
 		}

@@ -52,7 +52,7 @@ void BuildRHIDirect3D11Shader::Bind(BuildRHIDirect3D11InputShaderType shaderType
 	}
 }
 
-bool BuildRHIDirect3D11Shader::LoadShader(BuildShaderTarget target, const char *buffer, int length)
+bool BuildRHIDirect3D11Shader::LoadShader(BuildShaderTarget target, const char *buffer, int length, bool useGUIVertexLayout)
 {
 	HRESULT hr = S_OK;
 
@@ -60,13 +60,19 @@ bool BuildRHIDirect3D11Shader::LoadShader(BuildShaderTarget target, const char *
 	{
 		case SHADER_TARGET_VERTEX:
 			hr = DX::RHIGetD3DDevice()->CreateVertexShader(buffer, length, nullptr, &m_vertexShader);
-			if (!FAILED(hr))
+			if (useGUIVertexLayout)
 			{
-				hr = DX::RHIGetD3DDevice()->CreateInputLayout(guiModelInputElementDesc, 2, buffer, length, &guiInputLayout);
+				if (!FAILED(hr))
+				{
+					hr = DX::RHIGetD3DDevice()->CreateInputLayout(guiModelInputElementDesc, 2, buffer, length, &guiInputLayout);
+				}
 			}
-			if (!FAILED(hr))
+			else
 			{
-				hr = DX::RHIGetD3DDevice()->CreateInputLayout(worldModelInputElementDesc, 2, buffer, length, &worldInputLayout);
+				if (!FAILED(hr))
+				{
+					hr = DX::RHIGetD3DDevice()->CreateInputLayout(worldModelInputElementDesc, 5, buffer, length, &worldInputLayout);
+				}
 			}
 			break;
 

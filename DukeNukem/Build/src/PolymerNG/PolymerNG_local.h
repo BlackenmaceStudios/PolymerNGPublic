@@ -19,8 +19,12 @@
 #include "../VectorMath.h"
 
 #include "PolymerNG.h"
+#include "PolymerNG_ImageManager.h"
 #include "PolymerNG_RenderParam.h"
 #include "PolymerNG_RenderProgram.h"
+#include "PolymerNG_RenderTarget.h"
+#include "PolymerNG_Visibility.h"
+#include "PolymerNG_Light.h"
 #include "PolymerNG_Board.h"
 
 //#include "ShaderBuild/ShaderBinary.h"
@@ -52,5 +56,8 @@ class PolymerNGPrivate
 public:
 	PolymerNGBoard			*currentBoard;
 };
+
+extern float globalWindowWidth;
+extern float globalWindowHeight;
 
 extern PolymerNGPrivate polymerNGPrivate;

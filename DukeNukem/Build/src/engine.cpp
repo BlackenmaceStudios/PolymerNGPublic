@@ -2360,9 +2360,8 @@ int32_t halfxdim16, midydim16;
 
 static int16_t clipnum;
 static const int32_t hitscangoalx = (1<<29)-1, hitscangoaly = (1<<29)-1;
-#ifdef USE_OPENGL
 int32_t hitallsprites = 0;
-#endif
+
 
 typedef struct { int32_t x1, y1, x2, y2; } linetype;
 static linetype clipit[MAXCLIPNUM];
@@ -6920,6 +6919,7 @@ static void drawmaskwall(int16_t damaskwallcnt)
     }
 #endif
 #endif
+	return;
     //============================================================================= //POLYMOST ENDS
 
     z = maskwall[damaskwallcnt];
@@ -11369,71 +11369,122 @@ int32_t loadmaphack(const char *filename)
             }
             spriteext[whichsprite].flags |= SPREXT_AWAY2;
             break;
-#ifdef POLYMER
-        case T_LIGHT:      // light sector x y z range r g b radius faderadius angle horiz minshade maxshade priority tilenum
-        {
-            int32_t value;
-            int16_t lightid;
-#pragma pack(push,1)
-            _prlight light;
-#pragma pack(pop)
-            if (toomanylights)
-                break;  // ignore further light defs
+// jmarshall - modified this
+// remove:
+//#ifdef POLYMER
+//        case T_LIGHT:      // light sector x y z range r g b radius faderadius angle horiz minshade maxshade priority tilenum
+//        {
+//            int32_t value;
+//            int16_t lightid;
+//#pragma pack(push,1)
+//            _prlight light;
+//#pragma pack(pop)
+//            if (toomanylights)
+//                break;  // ignore further light defs
+//
+//            scriptfile_getnumber(script, &value);
+//            light.sector = value;
+//            scriptfile_getnumber(script, &value);
+//            light.x = value;
+//            scriptfile_getnumber(script, &value);
+//            light.y = value;
+//            scriptfile_getnumber(script, &value);
+//            light.z = value;
+//            scriptfile_getnumber(script, &value);
+//            light.range = value;
+//            scriptfile_getnumber(script, &value);
+//            light.color[0] = value;
+//            scriptfile_getnumber(script, &value);
+//            light.color[1] = value;
+//            scriptfile_getnumber(script, &value);
+//            light.color[2] = value;
+//            scriptfile_getnumber(script, &value);
+//            light.radius = value;
+//            scriptfile_getnumber(script, &value);
+//            light.faderadius = value;
+//            scriptfile_getnumber(script, &value);
+//            light.angle = value;
+//            scriptfile_getnumber(script, &value);
+//            light.horiz = value;
+//            scriptfile_getnumber(script, &value);
+//            light.minshade = value;
+//            scriptfile_getnumber(script, &value);
+//            light.maxshade = value;
+//            scriptfile_getnumber(script, &value);
+//            light.priority = value;
+//            scriptfile_getnumber(script, &value);
+//            light.tilenum = value;
+//
+//            light.publicflags.emitshadow = 1;
+//            light.publicflags.negative = 0;
+//
+//            if (getrendermode() == REND_POLYMER)
+//            {
+//                if (maphacklightcnt == PR_MAXLIGHTS)
+//                {
+//                    initprintf("warning: max light count %d exceeded, "
+//                               "ignoring further light defs\n", PR_MAXLIGHTS);
+//                    toomanylights = 1;
+//                    break;
+//                }
+//
+//                lightid = polymer_addlight(&light);
+//                if (lightid>=0)
+//                    maphacklight[maphacklightcnt++] = lightid;
+//            }
+//
+//            break;
+//        }
+//#endif // POLYMER
+		case T_LIGHT:      // light sector x y z range r g b radius faderadius angle horiz minshade maxshade priority tilenum
+		{
+			int32_t value;
+			int16_t lightid;
+			
+			PolymerNGLightOpts lightOpts;
 
-            scriptfile_getnumber(script, &value);
-            light.sector = value;
-            scriptfile_getnumber(script, &value);
-            light.x = value;
-            scriptfile_getnumber(script, &value);
-            light.y = value;
-            scriptfile_getnumber(script, &value);
-            light.z = value;
-            scriptfile_getnumber(script, &value);
-            light.range = value;
-            scriptfile_getnumber(script, &value);
-            light.color[0] = value;
-            scriptfile_getnumber(script, &value);
-            light.color[1] = value;
-            scriptfile_getnumber(script, &value);
-            light.color[2] = value;
-            scriptfile_getnumber(script, &value);
-            light.radius = value;
-            scriptfile_getnumber(script, &value);
-            light.faderadius = value;
-            scriptfile_getnumber(script, &value);
-            light.angle = value;
-            scriptfile_getnumber(script, &value);
-            light.horiz = value;
-            scriptfile_getnumber(script, &value);
-            light.minshade = value;
-            scriptfile_getnumber(script, &value);
-            light.maxshade = value;
-            scriptfile_getnumber(script, &value);
-            light.priority = value;
-            scriptfile_getnumber(script, &value);
-            light.tilenum = value;
+			lightOpts.lightType = POLYMERNG_LIGHTTYPE_SPOT; // Todo add more light type support!
 
-            light.publicflags.emitshadow = 1;
-            light.publicflags.negative = 0;
+			scriptfile_getnumber(script, &value);
+			lightOpts.sector = value;
+			scriptfile_getnumber(script, &value);
+			lightOpts.position[0] = value;
+			scriptfile_getnumber(script, &value);
+			lightOpts.position[1] = value;
+			scriptfile_getnumber(script, &value);
+			lightOpts.position[2] = value;
+			scriptfile_getnumber(script, &value);
+			lightOpts.range = value;
+			scriptfile_getnumber(script, &value);
+			lightOpts.color[0] = value;
+			scriptfile_getnumber(script, &value);
+			lightOpts.color[1] = value;
+			scriptfile_getnumber(script, &value);
+			lightOpts.color[2] = value;
+			scriptfile_getnumber(script, &value);
+			lightOpts.radius = value;
+			scriptfile_getnumber(script, &value);
+			lightOpts.faderadius = value;
+			scriptfile_getnumber(script, &value);
+			lightOpts.angle = value;
+			scriptfile_getnumber(script, &value);
+			lightOpts.horiz = value;
+			scriptfile_getnumber(script, &value);
+			lightOpts.minshade = value;
+			scriptfile_getnumber(script, &value);
+			lightOpts.maxshade = value;
+			scriptfile_getnumber(script, &value);
+			lightOpts.priority = value;
+			scriptfile_getnumber(script, &value);
+			lightOpts.tilenum = value;
 
-            if (getrendermode() == REND_POLYMER)
-            {
-                if (maphacklightcnt == PR_MAXLIGHTS)
-                {
-                    initprintf("warning: max light count %d exceeded, "
-                               "ignoring further light defs\n", PR_MAXLIGHTS);
-                    toomanylights = 1;
-                    break;
-                }
+			lightOpts.hasShadows = true;
 
-                lightid = polymer_addlight(&light);
-                if (lightid>=0)
-                    maphacklight[maphacklightcnt++] = lightid;
-            }
+			polymerNG.AddLightToCurrentBoard(lightOpts);
 
-            break;
-        }
-#endif // POLYMER
+			break;
+		}
+// jmarshall end
 
         default:
             // unrecognised token
@@ -15343,6 +15394,7 @@ void setaspect_new()
     else
         setaspect(65536, divscale16(ydim*320, xdim*200));
 }
+
 
 //
 // setview

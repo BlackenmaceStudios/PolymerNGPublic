@@ -11,6 +11,9 @@ using namespace Windows::UI::Core;
 using namespace Windows::UI::Xaml::Controls;
 using namespace Platform;
 
+float globalWindowWidth;
+float globalWindowHeight;
+
 namespace DisplayMetrics
 {
 	// High resolution displays can require a lot of GPU and battery power to render.
@@ -475,8 +478,8 @@ void DX::DeviceResources::UpdateRenderTargetSize()
 	m_outputSize.Height = DX::ConvertDipsToPixels(m_logicalSize.Height, m_effectiveDpi);
 
 	// Prevent zero size DirectX content from being created.
-	m_outputSize.Width = max(m_outputSize.Width, 1);
-	m_outputSize.Height = max(m_outputSize.Height, 1);
+	globalWindowWidth = m_outputSize.Width = max(m_outputSize.Width, 1);
+	globalWindowHeight = m_outputSize.Height = max(m_outputSize.Height, 1);
 }
 
 // This method is called when the CoreWindow is created (or re-created).

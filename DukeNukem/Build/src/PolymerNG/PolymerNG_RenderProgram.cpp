@@ -10,7 +10,7 @@
 PolymerNGRenderProgram::LoadRenderProgram
 =====================
 */
-PolymerNGRenderProgram *PolymerNGRenderProgram::LoadRenderProgram(const char *fileName)
+PolymerNGRenderProgram *PolymerNGRenderProgram::LoadRenderProgram(const char *fileName, bool useGUIVertexLayout)
 {
 	std::string fullPathFileName = "../";
 	fullPathFileName += fileName;
@@ -28,7 +28,7 @@ PolymerNGRenderProgram *PolymerNGRenderProgram::LoadRenderProgram(const char *fi
 
 		ScopedHeapMemory memory(file->Length());
 		file->Read(memory.GetBuffer(), file->Length());
-		shader->LoadShader(SHADER_TARGET_VERTEX, memory.GetBuffer(), file->Length());
+		shader->LoadShader(SHADER_TARGET_VERTEX, memory.GetBuffer(), file->Length(), useGUIVertexLayout);
 		delete file;
 	}
 
@@ -43,7 +43,7 @@ PolymerNGRenderProgram *PolymerNGRenderProgram::LoadRenderProgram(const char *fi
 
 		ScopedHeapMemory memory(file->Length());
 		file->Read(memory.GetBuffer(), file->Length());
-		shader->LoadShader(SHADER_TARGET_FRAGMENT, memory.GetBuffer(), file->Length());
+		shader->LoadShader(SHADER_TARGET_FRAGMENT, memory.GetBuffer(), file->Length(), useGUIVertexLayout);
 		delete file;
 	}
 
@@ -57,7 +57,7 @@ PolymerNGRenderProgram *PolymerNGRenderProgram::LoadRenderProgram(const char *fi
 		{
 			ScopedHeapMemory memory(file->Length());
 			file->Read(memory.GetBuffer(), file->Length());
-			shader->LoadShader(SHADER_TARGET_GEOMETRY, memory.GetBuffer(), file->Length());
+			shader->LoadShader(SHADER_TARGET_GEOMETRY, memory.GetBuffer(), file->Length(), useGUIVertexLayout);
 			delete file;
 		}
 	}

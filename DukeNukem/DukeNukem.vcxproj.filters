@@ -110,6 +110,42 @@
     <Filter Include="Assets\SWData">
       <UniqueIdentifier>{c855f4d8-3317-4c46-ae4e-a3004737bc59}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Assets\SWData\highres">
+      <UniqueIdentifier>{13b36771-52f8-43de-98d2-891fed7167e9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\SWData\highres\screen">
+      <UniqueIdentifier>{0b832188-b7f3-4d35-86e0-39ef7a5a9b9f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\SWData\highres\skyboxes">
+      <UniqueIdentifier>{fa84120d-8c56-442d-af87-af7a4453b1ad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\SWData\highres\sprites">
+      <UniqueIdentifier>{68a8b028-bb6d-4b35-992f-085e0815ba98}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\DukeData\highpal">
+      <UniqueIdentifier>{b9159d5d-f97c-4d2f-8f86-47484e809864}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\DukeData\highres">
+      <UniqueIdentifier>{a0b41cf0-3e8e-4ac9-8e68-ff3c1fc3c7ec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\DukeData\highres\screen">
+      <UniqueIdentifier>{6fa7f37c-866b-4756-913a-4acc01f1a27c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\DukeData\highres\sprites">
+      <UniqueIdentifier>{bb17f7f4-4d59-42a1-985a-b71fdc77f737}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\DukeData\highres\maphacks">
+      <UniqueIdentifier>{c730fb65-2ccd-4b45-a6b3-4dc40ca8db5f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\DukeData\highres\maphacks\3drealms">
+      <UniqueIdentifier>{177d4c8a-dfb5-45bd-b760-e40d523ef1f1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Compute">
+      <UniqueIdentifier>{a0645a04-3862-4dc2-94b3-6694dd7980a2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Utility">
+      <UniqueIdentifier>{0e38d65b-b040-4cb5-9e32-4978cb183723}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp" />
@@ -869,9 +905,6 @@
     <None Include="Shaders\guishader.hlsli">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="Shaders\AlbedoSimple.hlsli">
-      <Filter>Shaders</Filter>
-    </None>
     <None Include="Assets\dukedata\233c.ogg">
       <Filter>Assets\DukeData</Filter>
     </None>
@@ -1406,6 +1439,387 @@
     <None Include="Assets\SWData\Track15.ogg">
       <Filter>Assets\SWData</Filter>
     </None>
+    <None Include="Assets\SWData\highres\Sw.def">
+      <Filter>Assets\SWData\highres</Filter>
+    </None>
+    <None Include="Assets\SWData\highres\textures.def">
+      <Filter>Assets\SWData\highres</Filter>
+    </None>
+    <None Include="Assets\SWData\highres\screen\fonts.def">
+      <Filter>Assets\SWData\highres\screen</Filter>
+    </None>
+    <None Include="Assets\SWData\highres\screen\hud.def">
+      <Filter>Assets\SWData\highres\screen</Filter>
+    </None>
+    <None Include="Assets\SWData\highres\screen\menu.def">
+      <Filter>Assets\SWData\highres\screen</Filter>
+    </None>
+    <None Include="Assets\SWData\highres\skyboxes\skyboxes.def">
+      <Filter>Assets\SWData\highres\skyboxes</Filter>
+    </None>
+    <None Include="Assets\SWData\highres\sprites\characters.def">
+      <Filter>Assets\SWData\highres\sprites</Filter>
+    </None>
+    <None Include="Assets\SWData\highres\sprites\decals.def">
+      <Filter>Assets\SWData\highres\sprites</Filter>
+    </None>
+    <None Include="Assets\SWData\highres\sprites\effects.def">
+      <Filter>Assets\SWData\highres\sprites</Filter>
+    </None>
+    <None Include="Assets\SWData\highres\sprites\firstperson.def">
+      <Filter>Assets\SWData\highres\sprites</Filter>
+    </None>
+    <None Include="Assets\SWData\highres\sprites\monsters.def">
+      <Filter>Assets\SWData\highres\sprites</Filter>
+    </None>
+    <None Include="Assets\SWData\highres\sprites\pickups.def">
+      <Filter>Assets\SWData\highres\sprites</Filter>
+    </None>
+    <None Include="Assets\SWData\highres\sprites\projectiles.def">
+      <Filter>Assets\SWData\highres\sprites</Filter>
+    </None>
+    <None Include="Assets\SWData\highres\sprites\props.def">
+      <Filter>Assets\SWData\highres\sprites</Filter>
+    </None>
+    <None Include="Assets\SWData\highres\sprites\signs.def">
+      <Filter>Assets\SWData\highres\sprites</Filter>
+    </None>
+    <None Include="Assets\SWData\highres\sprites\switches.def">
+      <Filter>Assets\SWData\highres\sprites</Filter>
+    </None>
+    <None Include="Assets\SWData\highres\sprites\voxels.def">
+      <Filter>Assets\SWData\highres\sprites</Filter>
+    </None>
+    <None Include="Assets\SWData\PVSTest.map">
+      <Filter>Assets\SWData</Filter>
+    </None>
+    <None Include="Assets\dukedata\duke3d.def">
+      <Filter>Assets\DukeData</Filter>
+    </None>
+    <None Include="Assets\dukedata\duke3d_hrp.def">
+      <Filter>Assets\DukeData</Filter>
+    </None>
+    <None Include="Assets\dukedata\highpal\highpal.def">
+      <Filter>Assets\DukeData\highpal</Filter>
+    </None>
+    <None Include="Assets\dukedata\highres\music.def">
+      <Filter>Assets\DukeData\highres</Filter>
+    </None>
+    <None Include="Assets\dukedata\highres\projections.def">
+      <Filter>Assets\DukeData\highres</Filter>
+    </None>
+    <None Include="Assets\dukedata\highres\screen.def">
+      <Filter>Assets\DukeData\highres</Filter>
+    </None>
+    <None Include="Assets\dukedata\highres\screen_polymost.def">
+      <Filter>Assets\DukeData\highres</Filter>
+    </None>
+    <None Include="Assets\dukedata\highres\skyboxes.def">
+      <Filter>Assets\DukeData\highres</Filter>
+    </None>
+    <None Include="Assets\dukedata\highres\sounds.def">
+      <Filter>Assets\DukeData\highres</Filter>
+    </None>
+    <None Include="Assets\dukedata\highres\sprites.def">
+      <Filter>Assets\DukeData\highres</Filter>
+    </None>
+    <None Include="Assets\dukedata\highres\sprites_megaton.def">
+      <Filter>Assets\DukeData\highres</Filter>
+    </None>
+    <None Include="Assets\dukedata\highres\sprites_polymost.def">
+      <Filter>Assets\DukeData\highres</Filter>
+    </None>
+    <None Include="Assets\dukedata\highres\textures.def">
+      <Filter>Assets\DukeData\highres</Filter>
+    </None>
+    <None Include="Assets\dukedata\highres\textures_polymost.def">
+      <Filter>Assets\DukeData\highres</Filter>
+    </None>
+    <None Include="Assets\dukedata\highres\screen\fonts.def">
+      <Filter>Assets\DukeData\highres\screen</Filter>
+    </None>
+    <None Include="Assets\dukedata\highres\screen\hud.def">
+      <Filter>Assets\DukeData\highres\screen</Filter>
+    </None>
+    <None Include="Assets\dukedata\highres\screen\hud_polymost.def">
+      <Filter>Assets\DukeData\highres\screen</Filter>
+    </None>
+    <None Include="Assets\dukedata\highres\screen\menu.def">
+      <Filter>Assets\DukeData\highres\screen</Filter>
+    </None>
+    <None Include="Assets\dukedata\highres\screen\menu_polymost.def">
+      <Filter>Assets\DukeData\highres\screen</Filter>
+    </None>
+    <None Include="Assets\dukedata\highres\sprites\build.def">
+      <Filter>Assets\DukeData\highres\sprites</Filter>
+    </None>
+    <None Include="Assets\dukedata\highres\sprites\characters.def">
+      <Filter>Assets\DukeData\highres\sprites</Filter>
+    </None>
+    <None Include="Assets\dukedata\highres\sprites\characters_polymost.def">
+      <Filter>Assets\DukeData\highres\sprites</Filter>
+    </None>
+    <None Include="Assets\dukedata\highres\sprites\decals.def">
+      <Filter>Assets\DukeData\highres\sprites</Filter>
+    </None>
+    <None Include="Assets\dukedata\highres\sprites\decals_polymost.def">
+      <Filter>Assets\DukeData\highres\sprites</Filter>
+    </None>
+    <None Include="Assets\dukedata\highres\sprites\effects.def">
+      <Filter>Assets\DukeData\highres\sprites</Filter>
+    </None>
+    <None Include="Assets\dukedata\highres\sprites\effects_megaton.def">
+      <Filter>Assets\DukeData\highres\sprites</Filter>
+    </None>
+    <None Include="Assets\dukedata\highres\sprites\effects_polymost.def">
+      <Filter>Assets\DukeData\highres\sprites</Filter>
+    </None>
+    <None Include="Assets\dukedata\highres\sprites\firstperson.def">
+      <Filter>Assets\DukeData\highres\sprites</Filter>
+    </None>
+    <None Include="Assets\dukedata\highres\sprites\firstperson_polymost.def">
+      <Filter>Assets\DukeData\highres\sprites</Filter>
+    </None>
+    <None Include="Assets\dukedata\highres\sprites\ice.def">
+      <Filter>Assets\DukeData\highres\sprites</Filter>
+    </None>
+    <None Include="Assets\dukedata\highres\sprites\ice_polymost.def">
+      <Filter>Assets\DukeData\highres\sprites</Filter>
+    </None>
+    <None Include="Assets\dukedata\highres\sprites\jibs.def">
+      <Filter>Assets\DukeData\highres\sprites</Filter>
+    </None>
+    <None Include="Assets\dukedata\highres\sprites\jibs_polymost.def">
+      <Filter>Assets\DukeData\highres\sprites</Filter>
+    </None>
+    <None Include="Assets\dukedata\highres\sprites\monsters.def">
+      <Filter>Assets\DukeData\highres\sprites</Filter>
+    </None>
+    <None Include="Assets\dukedata\highres\sprites\monsters_polymost.def">
+      <Filter>Assets\DukeData\highres\sprites</Filter>
+    </None>
+    <None Include="Assets\dukedata\highres\sprites\pickups.def">
+      <Filter>Assets\DukeData\highres\sprites</Filter>
+    </None>
+    <None Include="Assets\dukedata\highres\sprites\pickups_polymost.def">
+      <Filter>Assets\DukeData\highres\sprites</Filter>
+    </None>
+    <None Include="Assets\dukedata\highres\sprites\projectiles.def">
+      <Filter>Assets\DukeData\highres\sprites</Filter>
+    </None>
+    <None Include="Assets\dukedata\highres\sprites\projectiles_polymost.def">
+      <Filter>Assets\DukeData\highres\sprites</Filter>
+    </None>
+    <None Include="Assets\dukedata\highres\sprites\props.def">
+      <Filter>Assets\DukeData\highres\sprites</Filter>
+    </None>
+    <None Include="Assets\dukedata\highres\sprites\props_polymost.def">
+      <Filter>Assets\DukeData\highres\sprites</Filter>
+    </None>
+    <None Include="Assets\dukedata\highres\sprites\signs.def">
+      <Filter>Assets\DukeData\highres\sprites</Filter>
+    </None>
+    <None Include="Assets\dukedata\highres\sprites\signs_polymost.def">
+      <Filter>Assets\DukeData\highres\sprites</Filter>
+    </None>
+    <None Include="Assets\dukedata\highres\sprites\switches.def">
+      <Filter>Assets\DukeData\highres\sprites</Filter>
+    </None>
+    <None Include="Assets\dukedata\highres\sprites\switches_polymost.def">
+      <Filter>Assets\DukeData\highres\sprites</Filter>
+    </None>
+    <None Include="Assets\dukedata\maphacks\maphacks.def">
+      <Filter>Assets\DukeData\highres\maphacks</Filter>
+    </None>
+    <None Include="Assets\dukedata\maphacks\usermaps_mhk.def">
+      <Filter>Assets\DukeData\highres\maphacks</Filter>
+    </None>
+    <None Include="Assets\dukedata\maphacks\maphacks_polymost.def">
+      <Filter>Assets\DukeData\highres\maphacks</Filter>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\_SE.mhk">
+      <Filter>Assets\DukeData\highres\maphacks\3drealms</Filter>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\_SE_13d.mhk">
+      <Filter>Assets\DukeData\highres\maphacks\3drealms</Filter>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\_ST.mhk">
+      <Filter>Assets\DukeData\highres\maphacks\3drealms</Filter>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\_ST_13d.mhk">
+      <Filter>Assets\DukeData\highres\maphacks\3drealms</Filter>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\_ZOO.mhk">
+      <Filter>Assets\DukeData\highres\maphacks\3drealms</Filter>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\_ZOO_13d.mhk">
+      <Filter>Assets\DukeData\highres\maphacks\3drealms</Filter>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\3drealms_mhk.def">
+      <Filter>Assets\DukeData\highres\maphacks\3drealms</Filter>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E1L1.mhk">
+      <Filter>Assets\DukeData\highres\maphacks\3drealms</Filter>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E1L1_13d.mhk">
+      <Filter>Assets\DukeData\highres\maphacks\3drealms</Filter>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E1L2.mhk">
+      <Filter>Assets\DukeData\highres\maphacks\3drealms</Filter>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E1L2_13d.mhk">
+      <Filter>Assets\DukeData\highres\maphacks\3drealms</Filter>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E1L3.mhk">
+      <Filter>Assets\DukeData\highres\maphacks\3drealms</Filter>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E1L4.mhk">
+      <Filter>Assets\DukeData\highres\maphacks\3drealms</Filter>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E1L5.mhk">
+      <Filter>Assets\DukeData\highres\maphacks\3drealms</Filter>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E1L6.mhk">
+      <Filter>Assets\DukeData\highres\maphacks\3drealms</Filter>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E1L7.mhk">
+      <Filter>Assets\DukeData\highres\maphacks\3drealms</Filter>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E1L8.mhk">
+      <Filter>Assets\DukeData\highres\maphacks\3drealms</Filter>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E1L8_13d.mhk">
+      <Filter>Assets\DukeData\highres\maphacks\3drealms</Filter>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E2L1.mhk">
+      <Filter>Assets\DukeData\highres\maphacks\3drealms</Filter>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E2L2.mhk">
+      <Filter>Assets\DukeData\highres\maphacks\3drealms</Filter>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E2L3.mhk">
+      <Filter>Assets\DukeData\highres\maphacks\3drealms</Filter>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E2L4.mhk">
+      <Filter>Assets\DukeData\highres\maphacks\3drealms</Filter>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E2L5.mhk">
+      <Filter>Assets\DukeData\highres\maphacks\3drealms</Filter>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E2L6.mhk">
+      <Filter>Assets\DukeData\highres\maphacks\3drealms</Filter>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E2L7.mhk">
+      <Filter>Assets\DukeData\highres\maphacks\3drealms</Filter>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E2L8.mhk">
+      <Filter>Assets\DukeData\highres\maphacks\3drealms</Filter>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E2L9.mhk">
+      <Filter>Assets\DukeData\highres\maphacks\3drealms</Filter>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E2L10.mhk">
+      <Filter>Assets\DukeData\highres\maphacks\3drealms</Filter>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E2L11.mhk">
+      <Filter>Assets\DukeData\highres\maphacks\3drealms</Filter>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E3L1.mhk">
+      <Filter>Assets\DukeData\highres\maphacks\3drealms</Filter>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E3L2.mhk">
+      <Filter>Assets\DukeData\highres\maphacks\3drealms</Filter>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E3L3.mhk">
+      <Filter>Assets\DukeData\highres\maphacks\3drealms</Filter>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E3L4.mhk">
+      <Filter>Assets\DukeData\highres\maphacks\3drealms</Filter>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E3L5.mhk">
+      <Filter>Assets\DukeData\highres\maphacks\3drealms</Filter>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E3L6.mhk">
+      <Filter>Assets\DukeData\highres\maphacks\3drealms</Filter>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E3L7.mhk">
+      <Filter>Assets\DukeData\highres\maphacks\3drealms</Filter>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E3L8.mhk">
+      <Filter>Assets\DukeData\highres\maphacks\3drealms</Filter>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E3L9.mhk">
+      <Filter>Assets\DukeData\highres\maphacks\3drealms</Filter>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E3L10.mhk">
+      <Filter>Assets\DukeData\highres\maphacks\3drealms</Filter>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E3L11.mhk">
+      <Filter>Assets\DukeData\highres\maphacks\3drealms</Filter>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E3L11_13d.mhk">
+      <Filter>Assets\DukeData\highres\maphacks\3drealms</Filter>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E4L1.mhk">
+      <Filter>Assets\DukeData\highres\maphacks\3drealms</Filter>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E4L2.mhk">
+      <Filter>Assets\DukeData\highres\maphacks\3drealms</Filter>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E4L3.mhk">
+      <Filter>Assets\DukeData\highres\maphacks\3drealms</Filter>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E4L4.mhk">
+      <Filter>Assets\DukeData\highres\maphacks\3drealms</Filter>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E4L5.mhk">
+      <Filter>Assets\DukeData\highres\maphacks\3drealms</Filter>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E4L6.mhk">
+      <Filter>Assets\DukeData\highres\maphacks\3drealms</Filter>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E4L7.mhk">
+      <Filter>Assets\DukeData\highres\maphacks\3drealms</Filter>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E4L8.mhk">
+      <Filter>Assets\DukeData\highres\maphacks\3drealms</Filter>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E4L9.mhk">
+      <Filter>Assets\DukeData\highres\maphacks\3drealms</Filter>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E4L10.mhk">
+      <Filter>Assets\DukeData\highres\maphacks\3drealms</Filter>
+    </None>
+    <None Include="Assets\dukedata\maphacks\3drealms\E4L11.mhk">
+      <Filter>Assets\DukeData\highres\maphacks\3drealms</Filter>
+    </None>
+    <None Include="Assets\dukedata\duke3d_hrp_polymer.def">
+      <Filter>Assets\DukeData</Filter>
+    </None>
+    <None Include="Assets\dukedata\duke3d_hrp_polymost.def">
+      <Filter>Assets\DukeData</Filter>
+    </None>
+    <None Include="Assets\dukedata\game_textures.payloads">
+      <Filter>Assets\DukeData</Filter>
+    </None>
+    <None Include="Assets\SWData\game_textures.payloads">
+      <Filter>Assets\SWData</Filter>
+    </None>
+    <None Include="Assets\dukedata\game_meshes.payloads">
+      <Filter>Assets\DukeData</Filter>
+    </None>
+    <None Include="Assets\dukedata\trueror1.map">
+      <Filter>Assets\DukeData</Filter>
+    </None>
+    <None Include="Shaders\VertexShaderShared.hlsli">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Assets\dukedata\testmodel.map">
+      <Filter>Assets\DukeData</Filter>
+    </None>
+    <None Include="Shaders\Utility\ShaderUtility.hlsli">
+      <Filter>Shaders\Utility</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shaders\guishader_vertex.hlsl">
@@ -1424,6 +1838,39 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="Shaders\AlbedoSimple_pixel.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\AlbedoHighQuality_pixel.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\AlbedoHighQuality_vertex.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\SpriteHighQuality_pixel.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\SpriteHighQuality_vertex.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Compute\PortalCulling.hlsl">
+      <Filter>Compute</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\guishaderHighQuality_pixel.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\guishaderHighQuality_vertex.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\DeferredLighting_pixel.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\DeferredLighting_vertex.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\AlbedoHighQualityGlow_pixel.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\AlbedoHighQualityGlow_vertex.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>
