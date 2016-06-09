@@ -1,7 +1,7 @@
 #pragma once
 
-#include "XKeyboard.h"
-#include "XMouse.h"
+//#include "XKeyboard.h"
+//#include "XMouse.h"
 #include "XGamePad.h"
 
 #include "InputSystem.h"
@@ -13,7 +13,7 @@
 class XBuildInputSystemPrivate : public XBuildInputSystem
 {
 public:
-	void XBuildInputSystemPrivate::Init(ABI::Windows::UI::Core::ICoreWindow* window);
+	void XBuildInputSystemPrivate::Init();
 
 	virtual bool KB_KeyPressed(unsigned char c);
 	virtual bool ControllerKeyDown(XControllerButton button);
@@ -22,8 +22,8 @@ public:
 
 	int GetCurrentPlayerId() { return currentPlayerId; }
 public:
-	std::unique_ptr<DirectX::Keyboard> m_keyboard;
-	std::unique_ptr<DirectX::Mouse> m_mouse;
+	//std::unique_ptr<DirectX::Keyboard> m_keyboard;
+	//std::unique_ptr<DirectX::Mouse> m_mouse;
 	std::unique_ptr<DirectX::GamePad> gamePad;
 
 	int currentPlayerId;

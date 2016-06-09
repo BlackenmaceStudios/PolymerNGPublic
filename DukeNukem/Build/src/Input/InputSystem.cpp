@@ -9,19 +9,22 @@
 XBuildInputSystemPrivate xBuildInputSystemPrivate;
 XBuildInputSystem *xBuildInputSystem = &xBuildInputSystemPrivate;
 
-void XBuildInputSystemPrivate::Init(ABI::Windows::UI::Core::ICoreWindow* window)
+void XBuildInputSystemPrivate::Init()
 {
-	m_keyboard = std::make_unique<DirectX::Keyboard>();
-	m_mouse = std::make_unique<DirectX::Mouse>();
+	//m_keyboard = std::make_unique<DirectX::Keyboard>();
+	//m_mouse = std::make_unique<DirectX::Mouse>();
 	gamePad = std::make_unique<DirectX::GamePad>();
 
-	m_mouse->SetWindow(window);
-	m_keyboard->SetWindow(window);
+	//m_mouse->SetWindow(window);
+	//m_keyboard->SetWindow(window);
 
 	for (int i = 0; i < XB_NumButtons; i++)
 	{
 		controllerButtonForcedUp[i] = false;
 	}
+
+	if (gamePad == nullptr)
+		return;
 
 	// Find a xbox controller that works.
 	for (int i = 0; i < 4; i++)
@@ -35,13 +38,21 @@ void XBuildInputSystemPrivate::Init(ABI::Windows::UI::Core::ICoreWindow* window)
 
 bool XBuildInputSystemPrivate::KB_KeyPressed(unsigned char c)
 {
-	return m_keyboard->GetState().IsKeyDown((DirectX::Keyboard::Keys)c);
+	return false; // m_keyboard->GetState().IsKeyDown((DirectX::Keyboard::Keys)c);
 }
 
 extern "C" void readmousexy(int32_t *x, int32_t *y)
 {
+
 	static int32_t lastMouseX = 0;
 	static int32_t lastMouseY = 0;
+
+	if (xBuildInputSystemPrivate.gamePad == nullptr)
+	{
+		*x = 0;
+		*y = 0;
+		return;
+	}
 
 	DirectX::GamePad::State controllerState = xBuildInputSystemPrivate.gamePad->GetState(xBuildInputSystemPrivate.GetCurrentPlayerId(), DirectX::GamePad::DEAD_ZONE_CIRCULAR);
 
@@ -51,7 +62,7 @@ extern "C" void readmousexy(int32_t *x, int32_t *y)
 		*y = (-controllerState.thumbSticks.rightY * 100) * 2.0f;
 		return;
 	}
-
+#if 0
 	int32_t mousePositionX = xBuildInputSystemPrivate.m_mouse->GetState().x - lastMouseX;
 	int32_t mousePositionY = xBuildInputSystemPrivate.m_mouse->GetState().y - lastMouseY;
 
@@ -62,10 +73,14 @@ extern "C" void readmousexy(int32_t *x, int32_t *y)
 
 	*x = mousePositionX; //scale(mousePositionX, xwidth, xdim) - ((xwidth >> 1) - (320 << 15));
 	*y = mousePositionY; // scale(mousePositionY, 200 << 16, ydim);
+#endif
 }
 
 extern "C" void readmousebstatus(int32_t *b)
 {
+	if (xBuildInputSystemPrivate.gamePad == nullptr)
+		return;
+
 	DirectX::GamePad::State controllerState = xBuildInputSystemPrivate.gamePad->GetState(xBuildInputSystemPrivate.GetCurrentPlayerId(), DirectX::GamePad::DEAD_ZONE_CIRCULAR);
 
 	if (controllerState.connected)
@@ -86,6 +101,13 @@ extern "C" void readmousebstatus(int32_t *b)
 
 void XHandleControllerMovement(int32_t *dx, int32_t *dy)
 {
+	if (xBuildInputSystemPrivate.gamePad == nullptr)
+	{
+		*dx = 0;
+		*dy = 0;
+		return;
+	}
+
 	DirectX::GamePad::State controllerState = xBuildInputSystemPrivate.gamePad->GetState(xBuildInputSystemPrivate.GetCurrentPlayerId(), DirectX::GamePad::DEAD_ZONE_INDEPENDENT_AXES);
 
 	if (controllerState.connected)
@@ -98,6 +120,9 @@ void XHandleControllerMovement(int32_t *dx, int32_t *dy)
 
 bool XBuildInputSystemPrivate::ControllerKeyDown(XControllerButton button)
 {
+	if (xBuildInputSystemPrivate.gamePad == nullptr)
+		return false;
+
 	DirectX::GamePad::State controllerState = xBuildInputSystemPrivate.gamePad->GetState(currentPlayerId, DirectX::GamePad::DEAD_ZONE_INDEPENDENT_AXES);
 
 	if (controllerState.connected)
@@ -147,6 +172,9 @@ void XBuildInputSystemPrivate::SetControllerButtonsUp()
 
 void XBuildInputSystemPrivate::Update()
 {
+	if (xBuildInputSystemPrivate.gamePad == nullptr)
+		return;
+
 	DirectX::GamePad::State controllerState = xBuildInputSystemPrivate.gamePad->GetState(xBuildInputSystemPrivate.GetCurrentPlayerId(), DirectX::GamePad::DEAD_ZONE_INDEPENDENT_AXES);
 
 	if (controllerState.connected)

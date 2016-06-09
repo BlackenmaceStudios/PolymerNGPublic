@@ -83,7 +83,10 @@ void Renderer::RenderFrame()
 {
 	polymerNG.UploadPendingImages();
 
-	gpuPerfCounter->Begin();
+	if (gpuPerfCounter)
+	{
+		gpuPerfCounter->Begin();
+	}
 
 	// Ensure all images loaded(we need a precache system, this is temporary).
 	for (int i = 0; i < currentNumRenderCommand; i++)
@@ -168,9 +171,13 @@ void Renderer::RenderFrame()
 		}
 	}
 	
-	gpuPerfCounter->End();
 
-	gpuExecTimeInMilliseconds = gpuPerfCounter->GetTime();
+	if (gpuPerfCounter)
+	{
+		gpuPerfCounter->End();
+
+		gpuExecTimeInMilliseconds = gpuPerfCounter->GetTime();
+	}
 }
 
 

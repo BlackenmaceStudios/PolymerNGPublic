@@ -80,7 +80,7 @@ void App::SetWindow(CoreWindow^ window)
 		ref new TypedEventHandler<DisplayInformation^, Object^>(this, &App::OnDisplayContentsInvalidated);
 
 	m_deviceResources->SetWindow(window);
-	xBuildInputSystemPrivate.Init(reinterpret_cast<ABI::Windows::UI::Core::ICoreWindow*>(window));
+	xBuildInputSystemPrivate.Init(/*reinterpret_cast<ABI::Windows::UI::Core::ICoreWindow*>(window)*/);
 }
 
 // Initializes scene resources, or loads a previously saved app state.

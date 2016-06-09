@@ -13,10 +13,10 @@
 //
 namespace DX
 {
-	ID3D11Device3 *RHIGetD3DDevice();
-	ID3D11DeviceContext3* RHIGetD3DDeviceContext();
-	ID2D1Factory3 *RHIGetD2D1DeviceFactory3();
-	ID2D1DeviceContext2 *RHIGet2D1DeviceContext2();
+	ID3D11Device1 *RHIGetD3DDevice();
+	ID3D11DeviceContext1* RHIGetD3DDeviceContext();
+	ID2D1Factory1 *RHIGetD2D1DeviceFactory3();
+	ID2D1DeviceContext1 *RHIGet2D1DeviceContext2();
 }
 
 //

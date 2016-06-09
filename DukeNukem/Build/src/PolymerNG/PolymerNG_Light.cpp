@@ -17,7 +17,7 @@ void PolymerNGBoard::FindVisibleLightsForScene(PolymerNGLightLocal **lights, int
 
 	if (numVisibleLightsInFrame >= MAX_VISIBLE_LIGHTS)
 	{
-		//initprintf("PolymerNGBoard::FindVisibleLightsForScene: Too many lights in view at once!\n");
+	//	initprintf("PolymerNGBoard::FindVisibleLightsForScene: Too many lights in view at once!\n");
 		return;
 	}
 	

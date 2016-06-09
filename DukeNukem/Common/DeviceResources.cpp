@@ -704,22 +704,22 @@ DXGI_MODE_ROTATION DX::DeviceResources::ComputeDisplayRotation()
 	return rotation;
 }
 
-ID3D11Device3 *DX::RHIGetD3DDevice()
+ID3D11Device1 *DX::RHIGetD3DDevice()
 {
 	return DeviceResources::ref()->GetD3DDevice();
 }
 
-ID3D11DeviceContext3* DX::RHIGetD3DDeviceContext()
+ID3D11DeviceContext1* DX::RHIGetD3DDeviceContext()
 {
 	return DeviceResources::ref()->GetD3DDeviceContext();
 }
 
-ID2D1DeviceContext2 *DX::RHIGet2D1DeviceContext2()
+ID2D1DeviceContext1 *DX::RHIGet2D1DeviceContext2()
 {
 	return DeviceResources::ref()->GetD2DDeviceContext();
 }
 
-ID2D1Factory3 *DX::RHIGetD2D1DeviceFactory3()
+ID2D1Factory1 *DX::RHIGetD2D1DeviceFactory3()
 {
 	return DeviceResources::ref()->GetD2DFactory();
 }

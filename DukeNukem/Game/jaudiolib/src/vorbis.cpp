@@ -43,7 +43,7 @@
 # define USING_TREMOR
 # include <tremor/ivorbisfile.h>
 #else
-# include ".\Third-Party\SDL\SDL_mixer\external\libvorbis-1.3.3\include\vorbis\vorbisfile.h"
+# include "..\..\Third-Party\SDL\SDL_mixer\external\libvorbis-1.3.3\include\vorbis\vorbisfile.h"
 #endif
 
 #define BLOCKSIZE 0x8000

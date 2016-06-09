@@ -194,8 +194,18 @@
     <ClCompile Include="build\src\hightile.cpp" />
     <ClCompile Include="Build\src\Input\InputSystem.cpp" />
     <ClCompile Include="Build\src\Input\XGamePad.cpp" />
-    <ClCompile Include="Build\src\Input\XKeyboard.cpp" />
-    <ClCompile Include="Build\src\Input\XMouse.cpp" />
+    <ClCompile Include="Build\src\Input\XKeyboard.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugSW|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseSW|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Build\src\Input\XMouse.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugSW|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseSW|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="Build\src\IntelBuildCPUT\CPUTCamera.cpp" />
     <ClCompile Include="Build\src\IntelBuildCPUT\CPUTFrustum.cpp" />
     <ClCompile Include="build\src\kplib.cpp" />
@@ -351,13 +361,6 @@
     <Keyword>StaticLibrary</Keyword>
     <ProjectName>Build</ProjectName>
     <RootNamespace>Build</RootNamespace>
-    <DefaultLanguage>en-US</DefaultLanguage>
-    <MinimumVisualStudioVersion>14.0</MinimumVisualStudioVersion>
-    <AppContainerApplication>true</AppContainerApplication>
-    <ApplicationType>Windows Store</ApplicationType>
-    <WindowsTargetPlatformVersion>10.0.10586.0</WindowsTargetPlatformVersion>
-    <WindowsTargetPlatformMinVersion>10.0.10240.0</WindowsTargetPlatformMinVersion>
-    <ApplicationTypeRevision>10.0</ApplicationTypeRevision>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
