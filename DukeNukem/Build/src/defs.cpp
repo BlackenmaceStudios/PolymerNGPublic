@@ -2328,7 +2328,7 @@ static int32_t defsparser(scriptfile *script)
                     }
 
 // jmarshall
-					if (polymerNG.SetHighQualityTextureForTile(fn, tile))
+					if (polymerNG.SetHighQualityTextureForTile(fn, tile, PAYLOAD_IMAGE_DIFFUSE))
 						break;
 // jmarshall end
 
@@ -2407,6 +2407,18 @@ static int32_t defsparser(scriptfile *script)
                                    script->filename, scriptfile_getlinum(script,detailtokptr));
                         break;
                     }
+
+					// jmarshall
+					if (token == T_NORMAL && polymerNG.SetHighQualityTextureForTile(fn, tile, PAYLOAD_IMAGE_NORMAL))
+						break;
+
+					// jmarshall
+					if (token == T_SPECULAR && polymerNG.SetHighQualityTextureForTile(fn, tile, PAYLOAD_IMAGE_SPECULAR))
+						break;
+
+					if (token == T_GLOW && polymerNG.SetHighQualityTextureForTile(fn, tile, PAYLOAD_IMAGE_GLOW))
+						break;
+					// jmarshall end
 
                     if (EDUKE32_PREDICT_FALSE(check_file_exist(fn)))
                         break;

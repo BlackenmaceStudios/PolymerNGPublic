@@ -1,2 +1,2 @@
 #define GLOWSHADER
-#include "AlbedoHighQuality_pixel.hlsl"
+#include "AlbedoSimple_pixel.hlsl"

@@ -14,6 +14,8 @@ class BuildRHIPipelineStateObject;
 
 extern float fydimen;
 extern float gtang;
+extern float globalWindowWidth;
+extern float globalWindowHeight;
 
 //
 // RendererDrawPassBase
@@ -35,9 +37,13 @@ protected:
 #include "Renderer_Pass_DrawSprite.h"
 #include "Renderer_Pass_ClassicSky.h"
 #include "Renderer_Pass_Lighting.h"
+#include "Renderer_Pass_PostProcess.h"
+#include "Renderer_Pass_ClassicFS.h"
+
+#include "Renderer_Shadows.h"
 
 #define MAX_SMP_FRAMES		2
-#define MAX_RENDER_COMMANDS 400
+#define MAX_RENDER_COMMANDS 800
 
 #define VISPASS_WIDTH		274
 #define VISPASS_HEIGHT		154
@@ -74,16 +80,36 @@ public:
 	int			GetCurrentFrameNum() { return currentFrame; }
 
 	PolymerNGRenderTarget  *GetWorldRenderTarget() { return drawWorldPass.GetDrawWorldRenderTarget(); }
+	PolymerNGRenderTarget  *GetHDRLightingRenderTarget() { return drawLightingPass.GetHDRLightingBuffer(); }
 
 	PolymerNGRenderProgram *ui_texture_basic;
 	PolymerNGRenderProgram *ui_texture_hq_basic;
 	PolymerNGRenderProgram *albedoSimpleProgram;
 	PolymerNGRenderProgram *albedoHQProgram;
+	PolymerNGRenderProgram *albedoHQNoNormalMapProgram;
 	PolymerNGRenderProgram *spriteSimpleProgram;
 	PolymerNGRenderProgram *spriteHQProgram;
 	PolymerNGRenderProgram *spriteSimpleHorizProgram;
 
 	PolymerNGRenderProgram *deferredLightingProgram;
+	PolymerNGRenderProgram *deferredLightingNoShadowsProgram;
+	PolymerNGRenderProgram *postProcessProgram;
+	PolymerNGRenderProgram *classicFSProgram;
+
+// Shadow code Begin
+public:
+	ShadowMap *RenderShadowsForLight(PolymerNGLightLocal *light, int shadowId);
+
+	BuildImage *GetWorldDepthBuffer() { return drawWorldPass.GetWorldDepthImage(); }
+
+	float4x4 pointLightShadowFaceMatrix[6];
+private:
+	void InitShadowMaps();
+
+	PolymerNGRenderProgram *dualParabloidShadowMapProgram;
+	PolymerNGRenderProgram *cubemapShadowMapProgram;
+	VS_SHADOW_POINT_CONSTANT_BUFFER drawShadowPointLightBuffer;
+	BuildRHIConstantBuffer		*drawShadowPointLightConstantBuffer;
 private:
 	int numRenderCommands[MAX_SMP_FRAMES];
 	BuildRenderCommand	commands[MAX_SMP_FRAMES][MAX_RENDER_COMMANDS];
@@ -96,12 +122,16 @@ private:
 	RendererDrawPassDrawSprite drawSpritePass;
 	RendererDrawPassDrawClassicSky drawClassicSkyPass;
 	RendererDrawPassLighting drawLightingPass;
+	RendererDrawPassPostProcess drawPostProcessPass;
+	RendererDrawPassDrawClassicScreenFS classicFSPass;
 	BuildRHIGPUPerformanceCounter *gpuPerfCounter;
 
 	int			currentFrame;
 
 	BuildRenderCommand *currentRenderCommand;
 	int currentNumRenderCommand;
+
+	ShadowMap	shadowMaps[NUM_QUEUED_SHADOW_MAPS];
 };
 
 extern Renderer renderer;

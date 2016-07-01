@@ -14,6 +14,7 @@ RendererDrawPassDrawUI::Init
 void RendererDrawPassDrawUI::Init()
 {
 	drawUIConstantBuffer = rhi.AllocateRHIConstantBuffer(sizeof(PS_DRAWUI_BUFFER), &drawUIBuffer);
+	drawVSUIConstantBuffer = rhi.AllocateRHIConstantBuffer(sizeof(VS_DRAWUI_BUFFER), &drawVSUIBuffer);
 }
 
 /*
@@ -26,6 +27,22 @@ void RendererDrawPassDrawUI::Draw(const BuildRenderCommand &command)
 //	BuildRHI::SetPSOForContext(Context, pso);
 //	
 	BuildRHIUIVertex vertexes[4];
+
+	// For some reason when this was inlined in the shader [3,4] and [4, 3] were swapped, inorder for this to work this has to be the same.
+	float projectionMatrixBuild[16] = {
+		1.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, globalWindowWidth / globalWindowHeight, 0.0f, 0.0f,
+		0.0f, 0.0f, 1.0001f, 1.0f,
+		0.0f, 0.0f, -0.0001f, 0.0f
+	};
+	float projectionMatrixOrtho[16];
+	memset(projectionMatrixOrtho, 0, sizeof(float) * 16);
+	projectionMatrixOrtho[0] = 2.0f / globalWindowWidth;
+	projectionMatrixOrtho[12] = -1.0f;
+	projectionMatrixOrtho[5] = -2.0f / globalWindowHeight;
+	projectionMatrixOrtho[13] = 1.0f;
+	projectionMatrixOrtho[10] = 1.0f;
+	projectionMatrixOrtho[15] = 1.0f;
 
 	for (int i = 0; i < 4; i++)
 	{
@@ -65,7 +82,7 @@ void RendererDrawPassDrawUI::Draw(const BuildRenderCommand &command)
 		return;
 	}
 
-	if (material->GetDiffuseTexture()->GetOpts().isHighQualityImage)
+	if (material->GetDiffuseTexture()->GetOpts().isHighQualityImage || command.taskRotateSprite.forceHQShader)
 	{
 		rhi.SetShader(renderer.ui_texture_hq_basic->GetRHIShader());
 	}
@@ -79,8 +96,19 @@ void RendererDrawPassDrawUI::Draw(const BuildRenderCommand &command)
 	drawUIBuffer.modulationColor[0] = command.taskRotateSprite.spriteColor.GetX();
 	drawUIBuffer.modulationColor[1] = command.taskRotateSprite.spriteColor.GetY();
 	drawUIBuffer.modulationColor[2] = command.taskRotateSprite.spriteColor.GetZ();
+	
+	if (!command.taskRotateSprite.useOrtho)
+	{
+		memcpy(drawVSUIBuffer.projectionMatrix, projectionMatrixBuild, sizeof(float) * 16);
+	}
+	else
+	{
+		memcpy(drawVSUIBuffer.projectionMatrix, projectionMatrixOrtho, sizeof(float) * 16);
+	}
 
 	drawUIConstantBuffer->UpdateBuffer(&drawUIBuffer, sizeof(PS_DRAWUI_BUFFER), 0);
-	rhi.SetConstantBuffer(0, drawUIConstantBuffer, false, true);
+	drawVSUIConstantBuffer->UpdateBuffer(&drawVSUIBuffer, sizeof(VS_DRAWUI_BUFFER), 0);
+	rhi.SetConstantBuffer(0, drawVSUIConstantBuffer, SHADER_BIND_VERTEXSHADER);
+	rhi.SetConstantBuffer(0, drawUIConstantBuffer, SHADER_BIND_PIXELSHADER);
 	rhi.DrawUnoptimized2DQuad(corrected_vertexes);
 }

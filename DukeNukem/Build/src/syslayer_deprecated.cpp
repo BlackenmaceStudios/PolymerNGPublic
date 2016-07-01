@@ -313,16 +313,6 @@ int32_t wm_ynbox(const char *name, const char *fmt, ...)
 	return 0;
 }
 
-void enddrawing(void)
-{
-
-}
-
-void begindrawing(void)
-{
-
-}
-
 //
 // system_getcvars() -- propagate any cvars that are read post-initialization
 //

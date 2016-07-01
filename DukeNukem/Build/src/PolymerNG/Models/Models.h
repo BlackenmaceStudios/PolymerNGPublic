@@ -37,7 +37,7 @@ public:
 	BaseModel();
 	void					AllocateBuffer(int size);
 
-	int						UpdateBuffer(int startPosition, int numVertexes, Build3DVertex *vertexes, int sectorNum);
+	int						UpdateBuffer(int startPosition, int numVertexes, Build3DVertex *vertexes, int sectorNum, bool cpuUpdateOnly = false);
 
 	int						AddVertexesToBuffer(int numVertexes, Build3DVertex *vertexes, int sectorNum);
 	int						AddIndexesToBuffer(int numIndexes, unsigned short *indexes, int startVertexPosition);

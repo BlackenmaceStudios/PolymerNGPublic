@@ -1690,5 +1690,4 @@ struct BuildNGOptions
 };
 extern BuildNGOptions buildNGOptions;
 
-
 #endif // build_h_

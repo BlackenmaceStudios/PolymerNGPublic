@@ -5,7 +5,7 @@
 
 #include "compat.h"
 #include "build.h"
-#include "editor.h"
+//#include "editor.h"
 #include "pragmas.h"
 #include "cache1d.h"
 #include "a.h"

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Source Files">
@@ -93,9 +93,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="build\include\dynamicgtk.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="build\include\editor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="build\include\glbuild.h">
@@ -362,14 +359,8 @@
     <ClInclude Include="Build\src\Xbox\PlatformHelpers.h">
       <Filter>Source Files\Xbox</Filter>
     </ClInclude>
-    <ClInclude Include="Build\src\Input\XKeyboard.h">
-      <Filter>Source Files\Input</Filter>
-    </ClInclude>
     <ClInclude Include="Build\src\Xbox\xboxutilpch.h">
       <Filter>Source Files\Xbox</Filter>
-    </ClInclude>
-    <ClInclude Include="Build\src\Input\XMouse.h">
-      <Filter>Source Files\Input</Filter>
     </ClInclude>
     <ClInclude Include="Build\src\Input\XGamePad.h">
       <Filter>Source Files\Input</Filter>
@@ -474,6 +465,21 @@
       <Filter>Source Files\PolymerNG</Filter>
     </ClInclude>
     <ClInclude Include="Build\src\PolymerNG\Renderer\Renderer_Pass_Lighting.h">
+      <Filter>Source Files\PolymerNG\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Build\src\Input\sdlkeytranslation.h">
+      <Filter>Source Files\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="Build\src\PolymerNG\Renderer\Renderer_Pass_PostProcess.h">
+      <Filter>Source Files\PolymerNG\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Build\src\PolymerNG\Renderer\Renderer_Shadows.h">
+      <Filter>Source Files\PolymerNG\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Build\src\IntelBuildCPUT\AxisAlignedBox.h">
+      <Filter>Source Files\IntelBuildCPUT</Filter>
+    </ClInclude>
+    <ClInclude Include="Build\src\PolymerNG\Renderer\Renderer_Pass_ClassicFS.h">
       <Filter>Source Files\PolymerNG\Renderer</Filter>
     </ClInclude>
   </ItemGroup>
@@ -709,12 +715,6 @@
     <ClCompile Include="Build\src\PolymerNG\Renderer\Renderer_Pass_DrawWorld.cpp">
       <Filter>Source Files\PolymerNG\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="Build\src\Input\XKeyboard.cpp">
-      <Filter>Source Files\Input</Filter>
-    </ClCompile>
-    <ClCompile Include="Build\src\Input\XMouse.cpp">
-      <Filter>Source Files\Input</Filter>
-    </ClCompile>
     <ClCompile Include="Build\src\Input\XGamePad.cpp">
       <Filter>Source Files\Input</Filter>
     </ClCompile>
@@ -821,6 +821,21 @@
       <Filter>Source Files\PolymerNG\Models</Filter>
     </ClCompile>
     <ClCompile Include="Build\src\PolymerNG\Renderer\Renderer_Pass_Lighting.cpp">
+      <Filter>Source Files\PolymerNG\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Build\src\PolymerNG\Renderer\Renderer_Pass_PostProcess.cpp">
+      <Filter>Source Files\PolymerNG\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Build\src\PolymerNG\Renderer\Renderer_Shadows.cpp">
+      <Filter>Source Files\PolymerNG\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Build\src\IntelBuildCPUT\CPUTMath.cpp">
+      <Filter>Source Files\IntelBuildCPUT</Filter>
+    </ClCompile>
+    <ClCompile Include="Build\src\engine_2ddraw.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Build\src\PolymerNG\Renderer\Renderer_Pass_ClassicFS.cpp">
       <Filter>Source Files\PolymerNG\Renderer</Filter>
     </ClCompile>
   </ItemGroup>

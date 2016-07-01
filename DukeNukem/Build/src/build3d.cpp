@@ -21,6 +21,8 @@
 #include "Tesselation/GLU.h"
 #include "PolymerNG/PolymerNG.h"
 #include "PolymerNG/Models/Models.h"
+#include "PolymerNG/Renderer/Renderer.h"
+
 #pragma optimize( "", off )
 Build3D	build3D;
 
@@ -156,7 +158,143 @@ int32_t hicprecaching = 0;
 hitdata_t polymost_hitdata;
 
 #define INDICE(n) ((p->indices) ? (p->indices[(i+n)%p->indicescount]) : (((i+n)%p->vertcount)))
+
+
+#define USE_POLYMER_LEGACY_MATH
+
+#ifndef USE_POLYMER_LEGACY_MATH
 #define INVERT_3X3(b,det,a) 
+#else
+/* ========================================================== */
+/* determinant of matrix
+*
+* Computes determinant of matrix m, returning d
+*/
+
+#define DETERMINANT_3X3(d,m)                    \
+{                                \
+   d = m[0][0] * (m[1][1]*m[2][2] - m[1][2] * m[2][1]);        \
+   d -= m[0][1] * (m[1][0]*m[2][2] - m[1][2] * m[2][0]);    \
+   d += m[0][2] * (m[1][0]*m[2][1] - m[1][1] * m[2][0]);    \
+}
+
+/* ========================================================== */
+/* i,j,th cofactor of a 4x4 matrix
+*
+*/
+
+#define COFACTOR_4X4_IJ(fac,m,i,j)                 \
+{                                \
+   int ii[4], jj[4], k;                        \
+                                \
+   /* compute which row, columnt to skip */            \
+   for (k=0; k<i; k++) ii[k] = k;                \
+   for (k=i; k<3; k++) ii[k] = k+1;                \
+   for (k=0; k<j; k++) jj[k] = k;                \
+   for (k=j; k<3; k++) jj[k] = k+1;                \
+                                \
+   (fac) = m[ii[0]][jj[0]] * (m[ii[1]][jj[1]]*m[ii[2]][jj[2]]     \
+                            - m[ii[1]][jj[2]]*m[ii[2]][jj[1]]); \
+   (fac) -= m[ii[0]][jj[1]] * (m[ii[1]][jj[0]]*m[ii[2]][jj[2]]    \
+                             - m[ii[1]][jj[2]]*m[ii[2]][jj[0]]);\
+   (fac) += m[ii[0]][jj[2]] * (m[ii[1]][jj[0]]*m[ii[2]][jj[1]]    \
+                             - m[ii[1]][jj[1]]*m[ii[2]][jj[0]]);\
+                                \
+   /* compute sign */                        \
+   k = i+j;                            \
+   if ( k != (k/2)*2) {                        \
+      (fac) = -(fac);                        \
+   }                                \
+}
+
+/* ========================================================== */
+/* determinant of matrix
+*
+* Computes determinant of matrix m, returning d
+*/
+
+#define DETERMINANT_4X4(d,m)                    \
+{                                \
+   double cofac;                        \
+   COFACTOR_4X4_IJ (cofac, m, 0, 0);                \
+   d = m[0][0] * cofac;                        \
+   COFACTOR_4X4_IJ (cofac, m, 0, 1);                \
+   d += m[0][1] * cofac;                    \
+   COFACTOR_4X4_IJ (cofac, m, 0, 2);                \
+   d += m[0][2] * cofac;                    \
+   COFACTOR_4X4_IJ (cofac, m, 0, 3);                \
+   d += m[0][3] * cofac;                    \
+}
+
+/* ========================================================== */
+/* compute adjoint of matrix and scale
+*
+* Computes adjoint of matrix m, scales it by s, returning a
+*/
+
+#define SCALE_ADJOINT_3X3(a,s,m)                \
+{                                \
+   a[0][0] = (s) * (m[1][1] * m[2][2] - m[1][2] * m[2][1]);    \
+   a[1][0] = (s) * (m[1][2] * m[2][0] - m[1][0] * m[2][2]);    \
+   a[2][0] = (s) * (m[1][0] * m[2][1] - m[1][1] * m[2][0]);    \
+                                \
+   a[0][1] = (s) * (m[0][2] * m[2][1] - m[0][1] * m[2][2]);    \
+   a[1][1] = (s) * (m[0][0] * m[2][2] - m[0][2] * m[2][0]);    \
+   a[2][1] = (s) * (m[0][1] * m[2][0] - m[0][0] * m[2][1]);    \
+                                \
+   a[0][2] = (s) * (m[0][1] * m[1][2] - m[0][2] * m[1][1]);    \
+   a[1][2] = (s) * (m[0][2] * m[1][0] - m[0][0] * m[1][2]);    \
+   a[2][2] = (s) * (m[0][0] * m[1][1] - m[0][1] * m[1][0]);    \
+}
+
+/* ========================================================== */
+/* compute adjoint of matrix and scale
+*
+* Computes adjoint of matrix m, scales it by s, returning a
+*/
+
+#define SCALE_ADJOINT_4X4(a,s,m)                \
+{                                \
+   int i,j;                            \
+                                \
+   for (i=0; i<4; i++) {                    \
+      for (j=0; j<4; j++) {                    \
+         COFACTOR_4X4_IJ (a[j][i], m, i, j);            \
+         a[j][i] *= s;                        \
+      }                                \
+   }                                \
+}
+
+/* ========================================================== */
+/* inverse of matrix
+*
+* Compute inverse of matrix a, returning determinant m and
+* inverse b
+*/
+
+#define INVERT_3X3(b,det,a)            \
+{                        \
+   double tmp;                    \
+   DETERMINANT_3X3 (det, a);            \
+   tmp = 1.0 / (det);                \
+   SCALE_ADJOINT_3X3 (b, tmp, a);        \
+}
+
+/* ========================================================== */
+/* inverse of matrix
+*
+* Compute inverse of matrix a, returning determinant m and
+* inverse b
+*/
+
+#define INVERT_4X4(b,det,a)            \
+{                        \
+   double tmp;                    \
+   DETERMINANT_4X4 (det, a);            \
+   tmp = 1.0 / (det);                \
+   SCALE_ADJOINT_4X4 (b, tmp, a);        \
+}
+#endif
 
 //
 // Build3DBoard::Build3DBoard
@@ -692,12 +830,6 @@ bool Build3DBoard::updatewall(int16_t wallnum)
 	//w->cap[7] += 1048576; // this number is the result of 1048574 + 2
 	//w->cap[10] += 1048576; // this one is arbitrary
 
-	if (w->underover & 1)
-		computeplane(&w->wall);
-	if (w->underover & 2)
-		computeplane(&w->over);
-	computeplane(&w->mask);
-
 	w->wall.sectorNum = sectorofwall(wallnum);
 
 	if (w->wall.vbo_offset == -1)
@@ -709,6 +841,14 @@ bool Build3DBoard::updatewall(int16_t wallnum)
 		memcpy(&w->wall.indices[0], &indexes[0], sizeof(unsigned short) * 6);
 		w->wall.ibo_offset = model->AddIndexesToBuffer(6, indexes, w->wall.vbo_offset);
 		w->wall.indicescount = 6;
+
+		planelist.push_back(&w->wall);
+
+		if (w->underover & 1)
+		{
+			computeplane(&w->wall);
+			model->UpdateBuffer(w->wall.vbo_offset, 4, w->wall.buffer, w->wall.sectorNum, true);
+		}
 
 		//	newBoardPlanes.push_back(&w->wall);
 	}
@@ -737,6 +877,13 @@ bool Build3DBoard::updatewall(int16_t wallnum)
 			memcpy(&w->over.indices[0], &indexes[0], sizeof(unsigned short) * 6);
 			w->over.ibo_offset = model->AddIndexesToBuffer(6, indexes, w->over.vbo_offset);
 			w->over.indicescount = 6;
+
+			if (w->underover & 2)
+			{
+				computeplane(&w->over);
+				model->UpdateBuffer(w->over.vbo_offset, 4, w->over.buffer, w->over.sectorNum, true);
+			}
+			planelist.push_back(&w->over);
 			//	newBoardPlanes.push_back(&w->over);
 		}
 		else
@@ -765,6 +912,9 @@ bool Build3DBoard::updatewall(int16_t wallnum)
 				memcpy(&w->mask.indices[0], &indexes[0], sizeof(unsigned short) * 6);
 				w->mask.ibo_offset = model->AddIndexesToBuffer(6, indexes, w->mask.vbo_offset);
 				w->mask.indicescount = 6;
+				computeplane(&w->mask);
+				model->UpdateBuffer(w->mask.vbo_offset, 4, w->mask.buffer, w->mask.sectorNum, true);
+				planelist.push_back(&w->mask);
 			}
 			else
 			{
@@ -846,12 +996,25 @@ bool Build3DBoard::initsector(int16_t sectnum)
 	return true;
 }
 
+static inline void  polymer_normalize(float* vec)
+{
+	double norm;
+
+	norm = vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2];
+
+	norm = sqrt(norm);
+	norm = 1.0 / norm;
+	vec[0] *= norm;
+	vec[1] *= norm;
+	vec[2] *= norm;
+}
+
 /*
 ====================
-Build3DBoard::computeplane
+computeplane
 ====================
 */
-void Build3DBoard::computeplane(Build3DPlane* p)
+void computeplane(Build3DPlane* p)
 {
 	GLfloat         vec1[5], vec2[5], norm, r;// BxN[3], NxT[3], TxB[3];
 	int32_t         i;
@@ -879,8 +1042,6 @@ void Build3DBoard::computeplane(Build3DPlane* p)
 		vec2[3] = buffer[(INDICE(2))].uv.x - buffer[(INDICE(1))].uv.x; //s2
 		vec2[4] = buffer[(INDICE(2))].uv.y - buffer[(INDICE(1))].uv.y; //t2
 
-
-
 		Build3dMath_CrossProduct(vec2, vec1, plane);
 
 		norm = plane[0] * plane[0] + plane[1] * plane[1] + plane[2] * plane[2];
@@ -899,6 +1060,18 @@ void Build3DBoard::computeplane(Build3DPlane* p)
 			plane[2] *= norm;
 			plane[3] = -(plane[0] * buffer->position.x + plane[1] * buffer->position.y + plane[2] * buffer->position.z);
 
+			buffer[(INDICE(0))].normal.x = plane[0];
+			buffer[(INDICE(0))].normal.y = plane[1];
+			buffer[(INDICE(0))].normal.z = plane[2];
+
+			buffer[(INDICE(1))].normal.x = plane[0];
+			buffer[(INDICE(1))].normal.y = plane[1];
+			buffer[(INDICE(1))].normal.z = plane[2];
+
+			buffer[(INDICE(2))].normal.x = plane[0];
+			buffer[(INDICE(2))].normal.y = plane[1];
+			buffer[(INDICE(2))].normal.z = plane[2];
+
 			// calculate T and B
 			r = 1.0 / (vec1[3] * vec2[4] - vec2[3] * vec1[4]);
 
@@ -907,14 +1080,14 @@ void Build3DBoard::computeplane(Build3DPlane* p)
 			tangent[0][1] = (vec2[4] * vec1[1] - vec1[4] * vec2[1]) * r;
 			tangent[0][2] = (vec2[4] * vec1[2] - vec1[4] * vec2[2]) * r;
 
-			Build3dMath_Normalize(&tangent[0][0]);
+			polymer_normalize(&tangent[0][0]);
 
 			// bitangent
 			tangent[1][0] = (vec1[3] * vec2[0] - vec2[3] * vec1[0]) * r;
 			tangent[1][1] = (vec1[3] * vec2[1] - vec2[3] * vec1[1]) * r;
 			tangent[1][2] = (vec1[3] * vec2[2] - vec2[3] * vec1[2]) * r;
 
-			Build3dMath_Normalize(&tangent[1][0]);
+			polymer_normalize(&tangent[1][0]);
 
 			// normal
 			tangent[2][0] = plane[0];
@@ -922,12 +1095,12 @@ void Build3DBoard::computeplane(Build3DPlane* p)
 			tangent[2][2] = plane[2];
 
 			INVERT_3X3(p->tbn, det, tangent);
-
-			break;
 		}
+
 		i += (p->indices) ? 3 : 1;
 	} while ((p->indices && i < p->indicescount) ||
 		(!p->indices && i < p->vertcount));
+
 }
 
 
@@ -1132,6 +1305,7 @@ attributes:
 		{
 			s->floor.tileNum = sec->floorpicnum;
 			s->floor.vbo_offset = model->AddVertexesToBuffer(sec->wallnum, s->floor.buffer, sectnum);
+			planelist.push_back(&s->floor);
 			//	newBoardPlanes.push_back(&s->floor);
 		}
 		else
@@ -1148,6 +1322,7 @@ attributes:
 		{
 			s->ceil.tileNum = sec->ceilingpicnum;
 			s->ceil.vbo_offset = model->AddVertexesToBuffer(sec->wallnum, s->ceil.buffer, sectnum);
+			planelist.push_back(&s->ceil);
 			//	newBoardPlanes.push_back(&s->ceil);
 		}
 		else
@@ -1273,12 +1448,26 @@ finish:
 		//		polymer_invalidatesectorlights(sectnum);
 		computeplane(&s->floor);
 		computeplane(&s->ceil);
+
+		// TODO: Performance!!!! !!This does ANOTHER memcpy!!!
+		model->UpdateBuffer(s->floor.vbo_offset, sec->wallnum, s->floor.buffer, sectnum, true);
+		model->UpdateBuffer(s->ceil.vbo_offset, sec->wallnum, s->ceil.buffer, sectnum, true);
 	}
 
 	s->flags.empty = 0;
 	s->flags.uptodate = 1;
 
-	//	if (pr_verbosity >= 3) OSD_Printf("PR : Updated sector %i.\n", sectnum);
+	s->boundingbox.Zero();
+
+	for (int i = 0; i < s->ceil.vertcount; i++)
+	{
+		s->boundingbox.add(float3(s->ceil.buffer[i].position.x, s->ceil.buffer[i].position.y, s->ceil.buffer[i].position.z));
+	}
+
+	for (int i = 0; i < s->floor.vertcount; i++)
+	{
+		s->boundingbox.add(float3(s->floor.buffer[i].position.x, s->floor.buffer[i].position.y, s->floor.buffer[i].position.z));
+	}
 
 	return true;
 }
@@ -1376,6 +1565,114 @@ bool  Build3DBoard::buildfloor(int16_t sectnum)
 	//	if (pr_verbosity >= 2) OSD_Printf("PR : Tesselated floor of sector %i.\n", sectnum);
 
 	return true;
+}
+
+extern char textfont[2048], smalltextfont[2048];
+
+/*
+================
+Build3D::printext256
+================
+*/
+int32_t Build3D::printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, const char *name, char fontsize)
+{
+	static PolymerNGMaterial *fontMaterial = NULL;
+	int const arbackcol = (unsigned)backcol < 256 ? backcol : 0;
+
+	// FIXME?
+	if (col < 0)
+		col = 0;
+
+	palette_t p, b;
+
+	bricolor(&p, col);
+	bricolor(&b, arbackcol);
+
+	if (fontMaterial == NULL)
+	{
+		fontMaterial = polymerNG.AllocFontImage(smalltextfont, textfont);
+	}
+
+	vec2f_t const tc = { fontsize ? (4.f / 256.f) : (8.f / 256.f),
+		fontsize ? (6.f / 128.f) : (8.f / 128.f) };
+
+	for (int c = 0; name[c]; ++c)
+	{
+		BuildRenderCommand command;
+		BuildRenderThreadTaskRotateSprite			&taskRotateSprite = command.taskRotateSprite;
+
+		command.taskId = BUILDRENDER_TASK_ROTATESPRITE;
+		taskRotateSprite.isFontImage = true;
+		taskRotateSprite.is2D = true;
+		taskRotateSprite.spriteColor = Math::Vector4(p.r, p.g, p.b, 255);
+		taskRotateSprite.renderMaterialHandle = fontMaterial;
+		taskRotateSprite.useOrtho = true;
+		taskRotateSprite.forceHQShader = true;
+
+		if (name[c] == '^' && isdigit(name[c + 1]))
+		{
+			char smallbuf[8];
+			int bi = 0;
+
+			while (isdigit(name[c + 1]) && bi < 3)
+			{
+				smallbuf[bi++] = name[c + 1];
+				c++;
+			}
+
+			smallbuf[bi++] = 0;
+
+			if (col)
+				col = Batol(smallbuf);
+
+			if ((unsigned)col >= 256)
+				col = 0;
+
+			bricolor(&p, col);
+
+			continue;
+		}
+
+		vec2f_t const t = { (float)(name[c] % 32) * (1.0f / 32.f),
+			(float)((name[c] / 32) + (fontsize * 8)) * (1.0f / 16.f) };
+
+		float z = 0; 
+		
+		{
+			BuildVertex vert;
+			vert.textureCoords0 = Math::Vector3(t.x, t.y, 1.0f);
+			vert.vertex = Math::Vector4(xpos, ypos, z, 1.0f);
+			taskRotateSprite.vertexes[0] = vert; 
+		}
+
+		{
+			BuildVertex vert;
+			vert.textureCoords0 = Math::Vector3(t.x + tc.x, t.y, 1.0f);
+			vert.vertex = Math::Vector4(xpos + (8 >> fontsize), ypos, z, 1.0f);
+			taskRotateSprite.vertexes[1] = vert; 
+		}
+
+		{
+			BuildVertex vert;
+			vert.textureCoords0 = Math::Vector3(t.x + tc.x, t.y + tc.y, 1.0f);
+			vert.vertex = Math::Vector4(xpos + (8 >> fontsize), ypos + (fontsize ? 6 : 8), z, 1.0f);
+			taskRotateSprite.vertexes[2] = vert; 
+		}
+
+		{
+			BuildVertex vert;
+			vert.textureCoords0 = Math::Vector3(t.x, t.y + tc.y, 1.0f);
+			vert.vertex = Math::Vector4(xpos, ypos + (fontsize ? 6 : 8), z, 1.0f);
+			taskRotateSprite.vertexes[3] = vert; 
+		}
+
+		xpos += (8 >> fontsize);
+
+		renderer.AddRenderCommand(command);
+	}
+
+
+	return 0;
 }
 
 /*
@@ -1863,7 +2160,7 @@ void Build3D::dorotatesprite(BuildRenderCommand &command, int32_t sx, int32_t sy
 
 	command.taskId = BUILDRENDER_TASK_ROTATESPRITE;
 
-	assert(picnum > 0);
+//	assert(picnum > 0);
 	assert(picnum < MAXTILES);
 
 	//	drawpoly_alpha = daalpha * (1.0f / 255.0f);

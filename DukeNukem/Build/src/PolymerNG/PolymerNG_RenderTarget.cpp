@@ -38,12 +38,12 @@ void PolymerNGRenderTarget::AddRenderTaret(BuildImage *diffuseImage)
 	renderTarget->AddRenderTarget((BuildRHITexture*)diffuseImage->GetRHITexture());
 }
 
-void PolymerNGRenderTarget::Bind()
+void PolymerNGRenderTarget::Bind(int slice, bool shouldClear)
 {
-	BuildRHI::BindRenderTarget(renderTarget);
+	BuildRHI::BindRenderTarget(renderTarget, slice, shouldClear);
 }
 
 void PolymerNGRenderTarget::BindDeviceBuffer()
 {
-	BuildRHI::BindRenderTarget(NULL);
+	BuildRHI::BindRenderTarget(NULL, 0, false);
 }

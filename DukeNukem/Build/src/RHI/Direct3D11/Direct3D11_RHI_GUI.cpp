@@ -15,7 +15,7 @@ void BuildRHI::DrawUnoptimized2DQuad( BuildRHIUIVertex *vertexes)
 		rhiPrivate.guiRHIMesh.vertexbuffer->Bind();
 	}
 
-	rhiPrivate.currentShader->Bind(RHI_INPUTSHADER_GUI);
+	rhiPrivate.renderState.currentShader->Bind(RHI_INPUTSHADER_GUI);
 //	for (int i = 0; i < RHIMAX_BOUNDTEXTURES; i++)
 //	{
 //		if (rhiPrivate.boundTextures[i] != NULL)
@@ -25,5 +25,5 @@ void BuildRHI::DrawUnoptimized2DQuad( BuildRHIUIVertex *vertexes)
 //		}
 //	}
 	DX::RHIGetD3DDeviceContext()->Draw(4, 0);
-	rhiPrivate.ResetContext();
+	//rhiPrivate.ResetContext();
 }

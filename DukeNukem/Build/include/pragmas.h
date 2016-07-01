@@ -275,4 +275,11 @@ static inline void swapbufreverse(void *s, void *d, int32_t c)
 }
 #endif
 
+#define drawtranspixel(p, col) drawpixel(p, blendtable[0][(readpixel(p) * 256) + col])
+
+// Timed offset for Mapster32 color index cycling.
+// Range: 0 .. 16
+#define M32_THROB klabs(sintable[((totalclock << 4) & 2047)] >> 10)
+
+
 #endif  // pragmas_h_

@@ -15,6 +15,7 @@ typedef unsigned char byte;
 #include <DirectXMath.h>
 #include "../src/VectorMath.h"
 #include "../src/IntelBuildCPUT/CPUTMath.h"
+#include "../src/IntelBuildCPUT/AxisAlignedBox.h"
 
 class BaseModel;
 class Build3DBoard;
@@ -36,7 +37,8 @@ enum BuildRenderTaskId
 	BUILDRENDER_TASK_RENDERWORLD,
 	BUILDRENDER_TASK_DRAWSPRITES,
 	BUILDRENDER_TASK_UPDATEMODEL,
-	BUILDRENDER_TASK_DRAWLIGHTS
+	BUILDRENDER_TASK_DRAWLIGHTS,
+	BUILDRENDER_TASK_DRAWCLASSICSCREEN
 };
 
 //
@@ -46,8 +48,6 @@ struct BuildVertex
 {
 	Math::Vector4			vertex;
 	Math::Vector3			textureCoords0;
-	Math::Vector3			tangent;
-	Math::Vector3			binormal;
 	Math::Vector3			normal;
 };
 
@@ -58,12 +58,24 @@ extern const Build3DPlane		*renderPlanesGlobalPool2[60000];
 // BuildRenderThreadTaskDrawLights
 //
 class PolymerNGLightLocal;
-#define MAX_VISIBLE_LIGHTS 15
+#define MAX_VISIBLE_LIGHTS 100
 struct BuildRenderThreadTaskDrawLights
 {
 	PolymerNGLightLocal *visibleLights[MAX_VISIBLE_LIGHTS];
 	int numLights;
 	Math::XMFLOAT4X4 inverseModelViewMatrix;
+	Math::XMFLOAT4X4 inverseViewMatrix;
+	Math::XMFLOAT4X4 viewMatrix;
+};
+
+//
+// BuildRenderThreadDrawClassicScreen
+//
+struct BuildRenderThreadDrawClassicScreen
+{
+	int width;
+	int height;
+	byte *screen_buffer;
 };
 
 //
@@ -81,6 +93,8 @@ struct BuildRenderThreadTaskRenderWorld
 	Math::Vector3			position;
 	Math::XMFLOAT4X4		viewProjMatrix;
 	Math::XMFLOAT4X4		viewMatrix;
+	Math::XMFLOAT4X4		inverseViewMatrix;
+	Math::XMFLOAT4X4		projectionMatrix;
 	Math::XMFLOAT4X4		skyProjMatrix;
 	Math::XMFLOAT4X4		occlusionViewProjMatrix;
 	const Build3DPlane		**renderplanes;
@@ -103,6 +117,7 @@ struct BuildRenderThreadTaskRenderSprites
 
 	int					    numSprites;
 	Build3DSprite			*prsprites;
+	Math::Vector3			position;
 };
 
 class BuildRHIMesh;
@@ -136,12 +151,15 @@ struct BuildRenderThreadTaskRotateSprite
 
 	bool is2D;
 
+	bool useOrtho;
+	bool forceHQShader;
+
 	bool enableBlend;
 	bool enableAlpha;
 
 	float alphaBlendType;
 
-
+	bool isFontImage;
 	unsigned int texnum;
 	void *renderMaterialHandle;
 
@@ -168,7 +186,9 @@ __forceinline BuildRenderThreadTaskRotateSprite::BuildRenderThreadTaskRotateSpri
 	texnum = 0;
 	drawpoly_srepeat = false;
 	drawpoly_trepeat = false;
+	forceHQShader = false;
 	textureScale_X = 1;
+	useOrtho = false;
 	textureScale_Y = 1;
 	renderMaterialHandle = NULL;
 	spriteColor = Math::Vector4(1.0f, 1.0f, 1.0f, 1.0f);
@@ -188,6 +208,7 @@ struct BuildRenderCommand
 	BuildRenderThreadTaskRenderSprites		taskRenderSprites;
 	BuildRenderThreadTaskUpdateModel		taskUpdateModel;
 	BuildRenderThreadTaskDrawLights			taskDrawLights;
+	BuildRenderThreadDrawClassicScreen		taskDrawClassicScreen;
 };
 
 //
@@ -230,11 +251,10 @@ struct Build3DVertex
 	}
 
 	void SetVertex(Build3DVector4 position, Build3DVector4 uv) { this->position = position; this->uv = uv; }
+	void SetNormal(Build3DVector4 normal) { this->normal = normal; }
 
 	Build3DVector4 position;
 	Build3DVector4 uv;
-	Build3DVector4 tangent;
-	Build3DVector4 binormal;
 	Build3DVector4 normal;
 };
 
@@ -381,6 +401,8 @@ struct Build3DSector
 		ceil.vbo_offset = -1;
 		ceil.ibo_offset = -1;
 		ceil.dynamic_vbo_offset = -1;
+
+		boundingbox.Clear();
 	}
 
 	const bool			IsCeilParalaxed() const {
@@ -422,6 +444,8 @@ struct Build3DSector
 	uint32_t        invalidid;
 
 	bool			isInvalid;
+
+	Math::AxisAlignedBox	boundingbox;
 };
 
 //
@@ -501,6 +525,8 @@ struct Build3DSprite
 
 	Math::XMFLOAT4X4   modelViewProjectionMatrix;
 	Math::XMFLOAT4X4   modelMatrix;
+	Math::XMFLOAT4X4   modelViewInverse;
+	Math::XMFLOAT4X4   ViewMatrix;
 	uint32_t        hash;
 	bool			isHorizsprite;
 	int				paletteNum;
@@ -590,7 +616,7 @@ public:
 		return &drawPolyCommands[0];
 	}
 
-	std::vector<int> visibleSectorList;
+	bool visibleSectorList[MAXSECTORS];
 private:
 	BuildFrameDrawPolyCmd *GetDrawPolyCommand() { return &drawPolyCommands[numDrawPolyCommands++]; }
 
@@ -614,6 +640,8 @@ private:
 
 	
 };
+
+void computeplane(Build3DPlane* p);
 
 //
 // Build3DBoard
@@ -639,12 +667,14 @@ public:
 	Build3DBoardPolymost *GetGenericPolymostRenderer() {
 		return &Polymost;
 	}
+
+	Build3DPlane **GetGlobalPlaneList() { return &planelist[0]; }
+	int GetNumGlobalPlanes() { return planelist.size(); }
 private:
 	bool     buildfloor(int16_t sectnum);
 	static void	 tesserror(int error);
 	static void	 tessedgeflag(int error);
 	static void  tessvertex(void* vertex, void* sector);
-	void computeplane(Build3DPlane* p);
 	float calc_ypancoef(char curypanning, int16_t curpicnum, int32_t dopancor);
 
 	Build3DSector       *prsectors[MAXSECTORS];
@@ -653,6 +683,8 @@ private:
 	class BaseModel		*model;
 
 	Build3DBoardPolymost Polymost;
+
+	std::vector<Build3DPlane *> planelist;
 
 	struct GLUtesselator*  prtess;
 };
@@ -666,6 +698,8 @@ public:
 	static void dorotatesprite(BuildRenderCommand &command, int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum, int8_t dashade, char dapalnum, int32_t dastat, uint8_t daalpha, int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2, int32_t uniqid);
 
 	static void CalculateFogForPlane(int32_t tile, int32_t shade, int32_t vis, int32_t pal, Build3DPlane *plane);
+
+	static int32_t printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, const char *name, char fontsize);
 private:
 	static void drawpoly(BuildRenderThreadTaskRotateSprite	&taskRotateSprite, vec2f_t const * const dpxy, int32_t const n, int32_t method);
 };

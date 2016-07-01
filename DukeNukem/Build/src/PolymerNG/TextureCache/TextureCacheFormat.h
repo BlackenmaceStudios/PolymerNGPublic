@@ -8,6 +8,20 @@
 #define PAYLOAD_IDEN "jmpayload"
 
 //
+// TextureCacheImageFormat
+//
+enum TextureCacheImageFormat
+{
+	TEXTURE_CACHE_UNCOMPRESSED,
+	TEXTURE_CACHE_DXT1,
+	TEXTURE_CACHE_DXT3,
+	TEXTURE_CACHE_DXT5,
+	TEXTURE_CACHE_BC3,
+	TEXTURE_CACHE_DXTC,
+	TEXTURE_CACHE_RXGB
+};
+
+//
 // CachePayloadInfo
 //
 struct CachePayloadInfo
@@ -17,6 +31,7 @@ struct CachePayloadInfo
 		memset(cacheFileName, 0, sizeof(cacheFileName));
 	}
 	char cacheFileName[128];
+	TextureCacheImageFormat format;
 	int width;
 	int height;
 	int startPosition;

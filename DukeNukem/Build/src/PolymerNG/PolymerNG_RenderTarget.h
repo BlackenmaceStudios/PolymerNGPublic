@@ -13,7 +13,7 @@ public:
 
 	void AddRenderTaret(BuildImage *diffuseImage);
 
-	void Bind();
+	void Bind(int slice = 0, bool shouldClear = true);
 
 	BuildImage *GetDiffuseImage(int idx) { return diffuseImage[idx]; }
 	BuildImage *GetDepthImage() { return depthImage; }

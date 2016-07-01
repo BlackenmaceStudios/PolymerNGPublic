@@ -2746,13 +2746,18 @@ int32_t A_Spawn(int32_t j, int32_t pn)
 				}
 
 				opts.radius = sp->hitag;
-				opts.position[0] = sprite[j].x;
-				opts.position[1] = sprite[j].y;
-				opts.position[2] = sprite[j].z;
-				opts.color[0] = 255;
-				opts.color[1] = 255;
-				opts.color[2] = 255;
-				opts.sector = sprite[j].sectnum;
+				opts.position[0] = actor[i].bpos.x;
+				opts.position[1] = actor[i].bpos.y;
+				opts.position[2] = actor[i].bpos.z;
+				opts.color[0] = sp->xvel;
+				opts.color[1] = sp->yvel;
+				opts.color[2] = sp->zvel;
+				opts.sector = sprite[i].sectnum;
+				opts.brightness = sp->shade;
+				if (opts.brightness <= 0)
+					opts.brightness = 1;
+
+				opts.castShadows = (sp->pal != 0);
 				actor[i].light = polymerNGPublic->AddLightToCurrentBoard(opts);
             }
             changespritestat(i, sp->lotag==46 ? STAT_EFFECTOR : STAT_LIGHT);
@@ -6481,6 +6486,11 @@ int32_t app_main(int32_t argc, char const * const * argv)
 
     if (g_networkMode != NET_DEDICATED_SERVER)
     {
+		extern float globalWindowWidth;
+		extern float globalWindowHeight;
+
+		ud.config.ScreenWidth = globalWindowWidth;
+		ud.config.ScreenHeight = globalWindowHeight;
         if (setgamemode(ud.config.ScreenMode,ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP) < 0)
         {
             int32_t i = 0;

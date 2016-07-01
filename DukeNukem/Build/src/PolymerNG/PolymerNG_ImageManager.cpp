@@ -19,6 +19,7 @@ BuildImage *PolymerNGPaletteManager::GetPaletteImage()
 	//	initprintf("GetPaletteImage: Returning %d\n", curbasepal);
 	return palette_image[curbasepal];
 }
+
 //
 // PolymerNGPaletteManager::UpdatePaletteLookupTable
 //
@@ -61,13 +62,73 @@ void PolymerNGPaletteManager::UpdatePaletteLookupTable(int idx)
 PolymerNGImageManager::PolymerNGImageManager()
 {
 	numImagesWaitingForUpload = 0;
+	fontImage = NULL;
 	memset(images, 0, sizeof(BuildImage *) * MAXTILES);
 }
 
 //
+// PolymerNGPaletteManager::AllocFontImage
+//
+BuildImage *PolymerNGImageManager::AllocFontImage(const char *smallFont, const char *bigFont)
+{
+	// construct a 256x128 8-bit alpha-only texture for the font glyph matrix
+	char * const tbuf = (char *)Xmalloc(256 * 128);
+
+	Bmemset(tbuf, 0, 256 * 128);
+
+	char * cptr = (char *)bigFont;
+
+	for (int h = 0; h < 256; h++)
+	{
+		char *tptr = tbuf + (h % 32) * 8 + (h / 32) * 256 * 8;
+		for (int i = 0; i < 8; i++)
+		{
+			for (int j = 0; j < 8; j++)
+			{
+				if (cptr[h * 8 + i] & pow2char[7 - j]) tptr[j] = 255;
+			}
+			tptr += 256;
+		}
+	}
+
+	cptr = (char *)smallFont;
+
+	for (int h = 0; h < 256; h++)
+	{
+		char *tptr = tbuf + 256 * 64 + (h % 32) * 8 + (h / 32) * 256 * 8;
+		for (int i = 1; i < 7; i++)
+		{
+			for (int j = 2; j < 6; j++)
+			{
+				if (cptr[h * 8 + i] & pow2char[7 - j]) tptr[j - 2] = 255;
+			}
+			tptr += 256;
+		}
+	}
+
+	if (fontImage == NULL)
+	{
+		BuildImageOpts opts;
+		opts.heapType = BUILDIMAGE_CPU_HEAP_NONE;
+		opts.imageType = IMAGETYPE_2D;
+		opts.width = (256);
+		opts.height = 128;
+		opts.format = IMAGE_FORMAT_R8;
+		opts.name = L"FontImage";
+		opts.tileNum = -1;
+		opts.heapType = BUILDIMAGE_CPU_HEAP_NONE;
+		fontImage = new BuildImage(opts);
+	}
+
+	fontImage->UpdateImagePost((byte *)tbuf);
+	return fontImage;
+}
+
+
+//
 // PolymerNGImageManager::SetHighQualityTextureForTile
 //
-bool PolymerNGImageManager::SetHighQualityTextureForTile(const char *fileName, int tileNum)
+bool PolymerNGImageManager::SetHighQualityTextureForTile(const char *fileName, int tileNum, PolymerNGTextureCachePayloadImageType payloadImageType)
 {
 	if (textureCache == NULL)
 		return false;
@@ -75,7 +136,7 @@ bool PolymerNGImageManager::SetHighQualityTextureForTile(const char *fileName, i
 	if (!textureCache->IsLoaded())
 		return false;
 
-	return textureCache->SetHighQualityTextureForTile(fileName, tileNum);
+	return textureCache->SetHighQualityTextureForTile(fileName, tileNum, payloadImageType);
 }
 
 //
@@ -115,7 +176,7 @@ void PolymerNGPaletteManager::UpdatePalette(int idx)
 		opts.imageType = IMAGETYPE_1D;
 		opts.width = sizeof(palette) / 3;
 		opts.height = 0;
-		opts.format = IMAGE_FORMAT_RGBA32;
+		opts.format = IMAGE_FORMAT_RGBA8;
 		opts.name = palette_name;
 		opts.heapType = BUILDIMAGE_CPU_HEAP_NONE;
 		opts.tileNum = -1;
@@ -142,12 +203,17 @@ void PolymerNGImageManager::Init()
 {
 	initprintf("----------PolymerNGImageManager::Init--------\n");
 	textureCache = new PolymerNGTextureCache();
+
+	byte *blackBlankTextureBuffer = new byte[2 * 2 * 4];
+	blackImage = AllocHighresImage(-1, 2, 2, blackBlankTextureBuffer, IMAGE_FORMAT_RGBA8);
+	blackImage->UpdateImagePost(NULL);
+	delete blackBlankTextureBuffer;
 }
 
 //
 // PolymerNG::AllocHighresImage
 //
-BuildImage *PolymerNGImageManager::AllocHighresImage(int idx, int width, int height, byte *buffer)
+BuildImage *PolymerNGImageManager::AllocHighresImage(int idx, int width, int height, byte *buffer, BuildImageFormat format)
 {
 	BuildImageOpts opts;
 	opts.width = width;
@@ -155,7 +221,7 @@ BuildImage *PolymerNGImageManager::AllocHighresImage(int idx, int width, int hei
 	opts.heapType = BUILDIMAGE_CPU_HEAP_NONE;
 	opts.depth = 1;
 	opts.tileNum = idx;
-	opts.format = IMAGE_FORMAT_DXT5;
+	opts.format = format;
 	opts.inputBuffer = buffer;
 	opts.isHighQualityImage = true;
 
@@ -218,7 +284,26 @@ BuildImage *PolymerNGImageManager::LoadTexture(const char *name)
 	BuildImage *image = NULL;
 	if (data)
 	{
-		image = AllocHighresImage(-1, data->width, data->height, data->rawImageDataBlob);
+		BuildImageFormat format = (BuildImageFormat)-1;
+		switch (data->format)
+		{
+		case TEXTURE_CACHE_UNCOMPRESSED:
+			format = IMAGE_FORMAT_RGBA8;
+			break;
+		case TEXTURE_CACHE_DXT1:
+			format = IMAGE_FORMAT_DXT1;
+			break;
+		case TEXTURE_CACHE_DXT3:
+			format = IMAGE_FORMAT_DXT3;
+			break;
+		case TEXTURE_CACHE_DXT5:
+			format = IMAGE_FORMAT_DXT5;
+			break;
+		case TEXTURE_CACHE_BC3:
+			format = IMAGE_FORMAT_3DC;
+			break;
+		}
+		image = AllocHighresImage(-1, data->width, data->height, data->rawImageDataBlob, format);
 		AppendImageToUploadQueue(image);
 	}
 
@@ -228,32 +313,62 @@ BuildImage *PolymerNGImageManager::LoadTexture(const char *name)
 //
 // PolymerNGImageManager::LoadFromTileId
 //
-BuildImage *PolymerNGImageManager::LoadFromTileId(int tilenum)
+BuildImage *PolymerNGImageManager::LoadFromTileId(int tilenum, PolymerNGTextureCachePayloadImageType payloadImageType)
 {
-	if (images[tilenum] != NULL)
-		return images[tilenum];
+	if (images[tilenum][payloadImageType] != NULL)
+		return images[tilenum][payloadImageType];
 
 	// If we have a texture cache, load the hi resolution texture from there.
 	if (textureCache->IsLoaded())
 	{
-		const PolymerNGTextureCacheResidentData *data = textureCache->LoadHighqualityTextureForTile(tilenum);
+		const PolymerNGTextureCacheResidentData *data = textureCache->LoadHighqualityTextureForTile(tilenum, payloadImageType);
 
 		if (data)
 		{
-			images[tilenum] = AllocHighresImage(tilenum, data->width, data->height, data->rawImageDataBlob);
+			BuildImageFormat format = (BuildImageFormat)-1;
+			switch (data->format)
+			{
+			case TEXTURE_CACHE_UNCOMPRESSED:
+				format = IMAGE_FORMAT_RGBA8;
+				break;
+			case TEXTURE_CACHE_DXT1:
+				format = IMAGE_FORMAT_DXT1;
+				break;
+			case TEXTURE_CACHE_DXT3:
+				format = IMAGE_FORMAT_DXT3;
+				break;
+			case TEXTURE_CACHE_DXT5:
+				format = IMAGE_FORMAT_DXT5;
+				break;
+			case TEXTURE_CACHE_BC3:
+				format = IMAGE_FORMAT_DXT5;
+				break;
+			case TEXTURE_CACHE_RXGB:
+				format = IMAGE_FORMAT_DXT5;
+				break;
+			}
+
+			images[tilenum][payloadImageType] = AllocHighresImage(tilenum, data->width, data->height, data->rawImageDataBlob, format);
 		}	
 	}
 
 	// We only have the old data, so load in the original tile data.
-	if(images[tilenum] == NULL)
+	if(images[tilenum][payloadImageType] == NULL)
 	{
-		// Load in the original texture data
-		images[tilenum] = AllocArtTileImage(tilenum);
-		images[tilenum]->LoadInArtData();
+		if (payloadImageType == PAYLOAD_IMAGE_DIFFUSE)
+		{
+			// Load in the original texture data
+			images[tilenum][payloadImageType] = AllocArtTileImage(tilenum);
+			images[tilenum][payloadImageType]->LoadInArtData();
+		}
+		else
+		{
+			return NULL;
+		}
 	}
 
-	AppendImageToUploadQueue(images[tilenum]);
-	return images[tilenum];
+	AppendImageToUploadQueue(images[tilenum][payloadImageType]);
+	return images[tilenum][payloadImageType];
 }
 
 //
@@ -261,12 +376,12 @@ BuildImage *PolymerNGImageManager::LoadFromTileId(int tilenum)
 //
 void PolymerNGImageManager::FlushTile(int16_t tileNum)
 {
-	if (images[tileNum] == NULL)
+	if (images[tileNum][PAYLOAD_IMAGE_DIFFUSE] == NULL)
 	{
-		LoadFromTileId(tileNum);
+		LoadFromTileId(tileNum, PAYLOAD_IMAGE_DIFFUSE);
 	}
 
-	images[tileNum]->LoadInArtData();
+	images[tileNum][PAYLOAD_IMAGE_DIFFUSE]->LoadInArtData();
 }
 
 

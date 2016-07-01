@@ -37,10 +37,14 @@ void Renderer::Init()
 	ui_texture_hq_basic = PolymerNGRenderProgram::LoadRenderProgram("guishaderHighQuality", true);
 	albedoSimpleProgram = PolymerNGRenderProgram::LoadRenderProgram("AlbedoSimple", false);
 	albedoHQProgram = PolymerNGRenderProgram::LoadRenderProgram("AlbedoHighQuality", false);
+	albedoHQNoNormalMapProgram = PolymerNGRenderProgram::LoadRenderProgram("AlbedoHighQualityNoNormalMap", false);
 	spriteSimpleProgram = PolymerNGRenderProgram::LoadRenderProgram("SpriteSimple", false);
 	spriteHQProgram = PolymerNGRenderProgram::LoadRenderProgram("SpriteHighQuality", false);
 	spriteSimpleHorizProgram = PolymerNGRenderProgram::LoadRenderProgram("SpriteSimpleHoriz", false);
 	deferredLightingProgram = PolymerNGRenderProgram::LoadRenderProgram("DeferredLighting", false);
+	deferredLightingNoShadowsProgram = PolymerNGRenderProgram::LoadRenderProgram("DeferredLightingNoShadow", false);
+	postProcessProgram = PolymerNGRenderProgram::LoadRenderProgram("PostProcess", false);
+	classicFSProgram = PolymerNGRenderProgram::LoadRenderProgram("ClassicScreenFS", false);
 
 	// Initilizes the different draw passes.
 	drawUIPass.Init();
@@ -48,6 +52,11 @@ void Renderer::Init()
 	drawSpritePass.Init();
 	drawClassicSkyPass.Init();
 	drawLightingPass.Init();
+	drawPostProcessPass.Init();
+	classicFSPass.Init();
+
+	// Initilize the shadows
+	InitShadowMaps();
 
 	gpuPerfCounter = BuildRHI::AllocatePerformanceCounter();
 }
@@ -85,7 +94,7 @@ void Renderer::RenderFrame()
 
 	if (gpuPerfCounter)
 	{
-		gpuPerfCounter->Begin();
+		//gpuPerfCounter->Begin();
 	}
 
 	// Ensure all images loaded(we need a precache system, this is temporary).
@@ -93,7 +102,11 @@ void Renderer::RenderFrame()
 	{
 		BuildRenderCommand &command = currentRenderCommand[i];
 
-		if (command.taskId == BUILDRENDER_TASK_ROTATESPRITE && command.taskRotateSprite.is2D)
+		if (command.taskId == BUILDRENDER_TASK_DRAWCLASSICSCREEN)
+		{
+			classicFSPass.Draw(command);
+		}
+		else if (command.taskId == BUILDRENDER_TASK_ROTATESPRITE && command.taskRotateSprite.is2D)
 		{
 			// For some reason we are either getting bashed memory, or somehting wierd is going on, either way check the texnum value so we don't crash.
 			if (command.taskRotateSprite.texnum > MAXTILES)
@@ -156,9 +169,9 @@ void Renderer::RenderFrame()
 			rhi.SetDepthEnable(true);
 
 			drawWorldPass.BindDrawWorldRenderTarget(true);
+			rhi.ToggleDeferredRenderContext(true);
 			drawWorldPass.Draw(command);
-
-			// Fancy stuff goes here :).
+			rhi.ToggleDeferredRenderContext(false);
 		}
 		else if (command.taskId == BUILDRENDER_TASK_DRAWSPRITES)
 		{
@@ -168,15 +181,18 @@ void Renderer::RenderFrame()
 		else if (command.taskId == BUILDRENDER_TASK_DRAWLIGHTS)
 		{
 			drawLightingPass.Draw(command);
+
+			drawPostProcessPass.Draw(command);
 		}
 	}
+	
 	
 
 	if (gpuPerfCounter)
 	{
-		gpuPerfCounter->End();
+		//gpuPerfCounter->End();
 
-		gpuExecTimeInMilliseconds = gpuPerfCounter->GetTime();
+		//gpuExecTimeInMilliseconds = gpuPerfCounter->GetTime();
 	}
 }
 

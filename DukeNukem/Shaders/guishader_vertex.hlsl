@@ -6,16 +6,17 @@ struct VertexShaderInput
 	float2 texcoord0 : TEXCOORD0;
 };
 
+cbuffer VS_CONSTANT_BUFFER : register(b0)
+{
+	float4x4 projection_matrix;
+};
+
+
 VertexShaderOutput main(VertexShaderInput input) 
 {
 	VertexShaderOutput output;
 
-	float4x4 ui_matrix	 = float4x4(1.0f, 0.0f, 0.0f, 0.0f,
-									0.0f, 1024.0f / 768.0f, 0.0f, 0.0f,
-									0.0f, 0.0f, 1.0001f, -0.0001f,
-									0.0f, 0.0f, 1.0f, 0.0f);
-
-	float4 vertex = mul(ui_matrix, float4(input.position.xyz, 1.0));
+	float4 vertex = mul(projection_matrix, float4(input.position.xyz, 1.0));
 	output.position = vertex;
 	output.texcoord0 = input.texcoord0;
 

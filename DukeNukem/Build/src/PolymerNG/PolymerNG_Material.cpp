@@ -40,6 +40,40 @@ PolymerNGMaterial * PolymerNGMaterialManager::LoadMaterial(const char *fileName)
 	materials.push_back(material);
 	return materials[materials.size() - 1];
 }
+//
+// PolymerNGMaterialManager::LoadMaterialFromImage
+//
+PolymerNGMaterial * PolymerNGMaterialManager::LoadMaterialFromImage(const char *materialName, BuildImage *image)
+{
+	char materialname[256];
+	size_t materialHash;
+
+	sprintf(materialname, "engine/memory/%s", materialName);
+
+	materialHash = std::hash<std::string>()(materialname);
+
+	// Check to see if we have this material is already loaded.
+	int numLoadedMaterials = materials.size();
+	PolymerNGMaterial **loadedMaterials = NULL;
+
+	if (numLoadedMaterials > 0)
+	{
+		loadedMaterials = &materials[0];
+	}
+	for (int i = 0; i < numLoadedMaterials; i++)
+	{
+		if (loadedMaterials[i]->GetMaterialNameHash() == materialHash)
+			return loadedMaterials[i];
+	}
+
+	PolymerNGMaterial *material = new PolymerNGMaterial();
+	material->SetDiffuseTexture(image);
+
+	material->SetNameAndHash(materialname, materialHash);
+
+	materials.push_back(material);
+	return materials[materials.size() - 1];
+}
 
 //
 // PolymerNGMaterialManager::LoadMaterialForTile
@@ -69,8 +103,15 @@ PolymerNGMaterial *PolymerNGMaterialManager::LoadMaterialForTile(int tileNum)
 
 	PolymerNGMaterial *material = new PolymerNGMaterial();
 
-	BuildImage *diffuseImage = imageManager.LoadFromTileId(tileNum);
+	BuildImage *diffuseImage = imageManager.LoadFromTileId(tileNum, PAYLOAD_IMAGE_DIFFUSE);
 	material->SetDiffuseTexture(diffuseImage);
+
+	BuildImage *normalImage = imageManager.LoadFromTileId(tileNum, PAYLOAD_IMAGE_NORMAL);
+	material->SetNormalMap(normalImage);
+
+	BuildImage *specularImage = imageManager.LoadFromTileId(tileNum, PAYLOAD_IMAGE_SPECULAR);
+	material->SetSpecularMap(specularImage);
+
 	material->SetNameAndHash(materialname, materialHash);
 
 	materials.push_back(material);

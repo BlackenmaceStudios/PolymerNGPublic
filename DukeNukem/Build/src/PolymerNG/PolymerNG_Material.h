@@ -74,6 +74,8 @@ class PolymerNGMaterialManager
 public:
 	PolymerNGMaterial		*LoadMaterialForTile(int tileNum);
 	PolymerNGMaterial		*LoadMaterial(const char *fileName);
+
+	PolymerNGMaterial		*LoadMaterialFromImage(const char *materialName, BuildImage *image);
 private:
 	std::vector<PolymerNGMaterial *> materials;
 };

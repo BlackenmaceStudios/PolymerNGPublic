@@ -14,13 +14,13 @@ BuildRHIRenderTarget *BuildRHI::AllocateRHIRenderTarget(BuildRHITexture *diffuse
 //
 // BuildRHI::BindRenderTarget
 //
-void BuildRHI::BindRenderTarget(BuildRHIRenderTarget *renderTarget)
+void BuildRHI::BindRenderTarget(BuildRHIRenderTarget *renderTarget, int slice, bool shouldClear)
 {
 	BuildRHIRenderTargetDirect3D11 *rhiRenderTarget = static_cast<BuildRHIRenderTargetDirect3D11*>(renderTarget);
 
 	if (rhiRenderTarget)
 	{
-		rhiRenderTarget->Bind();
+		rhiRenderTarget->Bind(slice, shouldClear);
 	}
 	else
 	{
@@ -47,14 +47,35 @@ BuildRHIRenderTargetDirect3D11::BuildRHIRenderTargetDirect3D11(BuildRHITexture *
 
 		ZeroMemory(&dsvDesc, sizeof(dsvDesc));
 		dsvDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-		dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 
-		ID3D11Resource *depthRenderTargetRHI = this->depthTexture->GetTextureRHI();
-		hr = DX::RHIGetD3DDevice()->CreateDepthStencilView(depthRenderTargetRHI, &dsvDesc, &renderDepthStencilViewRHI);
-		if (FAILED(hr))
+		if (!this->depthTexture->_isCubeMap)
 		{
-			initprintf("BuildRHIRenderTargetDirect3D11: Failed to create render target(depth)!");
-			return;
+			dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+
+			ID3D11Resource *depthRenderTargetRHI = this->depthTexture->GetTextureRHI();
+			hr = DX::RHIGetD3DDevice()->CreateDepthStencilView(depthRenderTargetRHI, &dsvDesc, &renderDepthStencilViewRHI[0]);
+			if (FAILED(hr))
+			{
+				initprintf("BuildRHIRenderTargetDirect3D11: Failed to create render target(depth)!");
+				return;
+			}
+		}
+		else
+		{
+			dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DARRAY;
+			dsvDesc.Texture2DArray.ArraySize = 1;
+			for (int i = 0; i < 6; i++)
+			{
+				dsvDesc.Texture2DArray.FirstArraySlice = i;
+
+				ID3D11Resource *depthRenderTargetRHI = this->depthTexture->GetTextureRHI();
+				hr = DX::RHIGetD3DDevice()->CreateDepthStencilView(depthRenderTargetRHI, &dsvDesc, &renderDepthStencilViewRHI[i]);
+				if (FAILED(hr))
+				{
+					initprintf("BuildRHIRenderTargetDirect3D11: Failed to create render target(depth)!");
+					return;
+				}
+			}
 		}
 	}
 }
@@ -107,23 +128,48 @@ void BuildRHIRenderTargetDirect3D11::AddRenderTarget(BuildRHITexture *diffuseTex
 //
 // BuildRHIRenderTargetDirect3D11::Bind
 //
-void BuildRHIRenderTargetDirect3D11::Bind()
+void BuildRHIRenderTargetDirect3D11::Bind(int slice, bool shouldClear)
 {
-	DX::RHIGetD3DDeviceContext()->OMSetRenderTargets(numRenderTargets, &renderTargetViewRHI[0], renderDepthStencilViewRHI);
-	for (int i = 0; i < numRenderTargets; i++)
+	DX::RHIGetD3DDeviceContext()->OMSetRenderTargets(numRenderTargets, &renderTargetViewRHI[0], renderDepthStencilViewRHI[slice]);
+	if (shouldClear)
 	{
-		if(i == 0)
-			DX::RHIGetD3DDeviceContext()->ClearRenderTargetView(renderTargetViewRHI[i], DirectX::Colors::Blue);
-		else
-			DX::RHIGetD3DDeviceContext()->ClearRenderTargetView(renderTargetViewRHI[i], DirectX::Colors::Black);
+		for (int i = 0; i < numRenderTargets; i++)
+		{
+			if (i == 0)
+				DX::RHIGetD3DDeviceContext()->ClearRenderTargetView(renderTargetViewRHI[i], DirectX::Colors::Black);
+			else
+				DX::RHIGetD3DDeviceContext()->ClearRenderTargetView(renderTargetViewRHI[i], DirectX::Colors::Black);
+		}
+
+		if (renderDepthStencilViewRHI[slice])
+		{
+			DX::RHIGetD3DDeviceContext()->ClearDepthStencilView(renderDepthStencilViewRHI[slice], D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+		}
+		else if (slice > 0)
+		{
+			initprintf("BuildRHIRenderTargetDirect3D11::Bind: Slice without depth detected, if this is normal add use case here.\n");
+		}
 	}
-	DX::RHIGetD3DDeviceContext()->ClearDepthStencilView(renderDepthStencilViewRHI, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
+	int viewportWidth = 0;
+	int viewportHeight = 0;
+
+	if (diffuseTexture[0])
+	{
+		viewportWidth = diffuseTexture[0]->GetWidth();
+		viewportHeight = diffuseTexture[0]->GetHeight();
+	}
+	else
+	{
+		viewportWidth = depthTexture->GetWidth();
+		viewportHeight = depthTexture->GetHeight();
+	}
 
 	CD3D11_VIEWPORT m_screenViewport = CD3D11_VIEWPORT(
 		0.0f,
 		0.0f,
-		diffuseTexture[0]->GetWidth(),
-		diffuseTexture[0]->GetHeight()
+		viewportWidth,
+		viewportHeight
 		);
 
 	DX::RHIGetD3DDeviceContext()->RSSetViewports(1, &m_screenViewport);

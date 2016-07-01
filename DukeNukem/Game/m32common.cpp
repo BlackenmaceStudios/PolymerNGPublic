@@ -6,7 +6,7 @@
 #ifdef POLYMER
 # include "polymer.h"
 #endif
-#include "editor.h"
+#include "../editor/editor.h"
 #include "renderlayer.h"
 
 #include "m32script.h"

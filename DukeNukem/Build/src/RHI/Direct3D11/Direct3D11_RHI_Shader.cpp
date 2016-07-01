@@ -71,7 +71,7 @@ bool BuildRHIDirect3D11Shader::LoadShader(BuildShaderTarget target, const char *
 			{
 				if (!FAILED(hr))
 				{
-					hr = DX::RHIGetD3DDevice()->CreateInputLayout(worldModelInputElementDesc, 5, buffer, length, &worldInputLayout);
+					hr = DX::RHIGetD3DDevice()->CreateInputLayout(worldModelInputElementDesc, 3, buffer, length, &worldInputLayout);
 				}
 			}
 			break;

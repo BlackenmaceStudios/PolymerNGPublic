@@ -123,6 +123,11 @@ void BuildImage::UpdateImagePost(byte *buffer)
 		case IMAGETYPE_2D:
 			texture = BuildRHI::LoadTextureFromMemory(name, GetWidth(), GetHeight(), format, (const void *)tempbuffer, allowCPUWrites, imageOpts.allowCPUReads, imageOpts.isRenderTargetImage);
 			break;
+		case IMAGETYPE_CUBE:
+			texture = BuildRHI::LoadTextureCubeFromMemory(name, GetWidth(), GetHeight(), format, (const void *)tempbuffer, allowCPUWrites, imageOpts.allowCPUReads, imageOpts.isRenderTargetImage);
+			imageOpts.imageType = IMAGETYPE_2D; // THIS IS A HACK!!
+			break;
+
 	//	case IMAGETYPE_3D:
 	//		texture = BuildRHI::LoadTexture3DFromMemory(name, GetWidth(), GetHeight(), GetDepth(), format, (const void *)tempbuffer, allowCPUWrites);
 	//		break;

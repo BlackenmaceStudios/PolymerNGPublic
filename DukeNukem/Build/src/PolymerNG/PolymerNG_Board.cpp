@@ -184,7 +184,7 @@ void PolymerNGBoard::CreateProjectionMatrix(int32_t fov, Math::Matrix4 &projecti
 	aspect = (float)(width + 1) / (float)(height + 1);
 		
 	float matrix[16];
-	Math::glhPerspectivef2(matrix, fang / (2048.0f / 360.0f), aspect, 0.01f, 100.0f);
+	Math::glhPerspectivef2(matrix, fang / (2048.0f / 360.0f), aspect, 0.01f, 300.0f);
 	projectionMatrix.SetX(Math::Vector4(matrix[0], matrix[1], matrix[2], matrix[3]));
 	projectionMatrix.SetY(Math::Vector4(matrix[4], matrix[5], matrix[6], matrix[7]));
 	projectionMatrix.SetZ(Math::Vector4(matrix[8], matrix[9], matrix[10], matrix[11]));
@@ -201,7 +201,7 @@ void PolymerNGBoard::DrawRooms(int32_t daposx, int32_t daposy, int32_t daposz, i
 	float           skyhoriz, ang, tiltang;
 	Math::Vector3 position;
 	float			horizang;
-	Math::Matrix4 viewMatrix;
+	Math::Matrix4 viewMatrix, rotationMatrix;
 
 	// fogcalc needs this
 	//gvisibility = ((float)globalvisibility)*FOGSCALE;
@@ -224,11 +224,13 @@ void PolymerNGBoard::DrawRooms(int32_t daposx, int32_t daposy, int32_t daposz, i
 	// need to recompute it if we ever change the max horiz amplitude
 	//skyhoriz *= curskyangmul;
 
-	viewMatrix.Identity();
+	rotationMatrix.Identity();
 
-	viewMatrix.Rotatef(tiltang, 0.0f, 0.0f, -1.0f);
-	viewMatrix.Rotatef(skyhoriz, 1.0f, 0.0f, 0.0f);
-	viewMatrix.Rotatef(ang, 0.0f, 1.0f, 0.0f);
+	rotationMatrix.Rotatef(tiltang, 0.0f, 0.0f, -1.0f);
+	rotationMatrix.Rotatef(skyhoriz, 1.0f, 0.0f, 0.0f);
+	rotationMatrix.Rotatef(ang, 0.0f, 1.0f, 0.0f);
+
+	viewMatrix = rotationMatrix;
 
 	Math::Matrix4 skyModelView = viewMatrix;
 
@@ -241,7 +243,7 @@ void PolymerNGBoard::DrawRooms(int32_t daposx, int32_t daposy, int32_t daposz, i
 	Math::Matrix4 projectionMatrix;
 	Math::Matrix4 occlusionProjectionMatrix;
 	CreateProjectionMatrix(426, projectionMatrix, windowx2, windowy2);
-	CreateProjectionMatrix(510, occlusionProjectionMatrix, VISPASS_WIDTH, VISPASS_HEIGHT);
+	CreateProjectionMatrix(800, occlusionProjectionMatrix, VISPASS_WIDTH, VISPASS_HEIGHT);
 	//projectionMatrix.SetX(Math::Vector4(fydimen, 0.0f   , 1.0f, 0.0f));
 	//projectionMatrix.SetY(Math::Vector4(0.0f   , fxdimen, 1.0f, 1.0f));
 	//projectionMatrix.SetZ(Math::Vector4(0.0f   , 0.0f   , 1.0f, fydimen));
@@ -281,6 +283,11 @@ void PolymerNGBoard::DrawRooms(int32_t daposx, int32_t daposy, int32_t daposz, i
 		command.taskRenderWorld.renderplanes = command.taskRenderWorld.renderplanesFrames[smpframe];
 		FindVisibleSectors(command.taskRenderWorld, modelViewProjection, viewMatrix, projectionMatrix, cursectnum);
 
+		Math::Matrix4 inverseView = viewMatrix;
+		inverseView.Inverse();
+
+		inverseView.GetFloat4x4(&command.taskRenderWorld.inverseViewMatrix);
+		projectionMatrix.GetFloat4x4(&command.taskRenderWorld.projectionMatrix);
 		modelViewProjection.GetFloat4x4(&command.taskRenderWorld.viewProjMatrix);
 		viewMatrix.GetFloat4x4(&command.taskRenderWorld.viewMatrix);
 		skyModelViewProjection.GetFloat4x4(&command.taskRenderWorld.skyProjMatrix);
@@ -290,16 +297,21 @@ void PolymerNGBoard::DrawRooms(int32_t daposx, int32_t daposy, int32_t daposz, i
 	}
 
 	// Now render all the sprites.
-	DrawSprites(viewMatrix, projectionMatrix, horizang, daang);
+	DrawSprites(viewMatrix, projectionMatrix, horizang, daang, position);
 
 	// Now draw all the lights.
 	{
-		Math::Matrix4 inverseModelViewProjection = modelViewProjection;
-		modelViewProjection.Inverse();
+		Math::Matrix4 inverseModelViewProjection = projectionMatrix;
+		inverseModelViewProjection.Inverse();
+
+		Math::Matrix4 inverseModelViewInverse = viewMatrix;
+		inverseModelViewInverse.Inverse();
 
 		BuildRenderCommand command;
 		command.taskId = BUILDRENDER_TASK_DRAWLIGHTS;
 		inverseModelViewProjection.GetFloat4x4(&command.taskDrawLights.inverseModelViewMatrix);
+		inverseModelViewInverse.GetFloat4x4(&command.taskDrawLights.inverseViewMatrix);
+		viewMatrix.GetFloat4x4(&command.taskDrawLights.viewMatrix);
 		FindVisibleLightsForScene(&command.taskDrawLights.visibleLights[0], command.taskDrawLights.numLights);
 		renderer.AddRenderCommand(command);
 	}
@@ -442,9 +454,18 @@ bool PolymerNGBoard::ComputeSpritePlane(Math::Matrix4 &viewMatrix, Math::Matrix4
 	sprite->plane.shadeNum = tspr->shade;
 	//Build3D::CalculateFogForPlane(sprite->plane.tileNum, sprite->plane.shadeNum, sprite->plane.visibility, sprite->plane.paletteNum, &sprite->plane);
 
+#if !POLYMERNG_NOSYNC_SPRITES
 	Math::Matrix4 mvp = projectionMatrix * (viewMatrix * modelMatrix);
+#else
+	Math::Matrix4 mvp = projectionMatrix * (viewMatrix);
+#endif
 	mvp.GetFloat4x4(&sprite->modelViewProjectionMatrix);
 	modelMatrix.GetFloat4x4(&sprite->modelMatrix);
+	viewMatrix.GetFloat4x4(&sprite->ViewMatrix);
+
+	Math::Matrix4 modelViewInverseMatrix = viewMatrix;
+	modelViewInverseMatrix.Inverse();
+	modelViewInverseMatrix.GetFloat4x4(&sprite->modelViewInverse);
 
 	return true;
 }
@@ -687,13 +708,13 @@ bool PolymerNGBoard::ComputeModelSpriteRender(Math::Matrix4 &viewMatrix, Math::M
 PolymerNG::DrawSprites
 =============
 */
-void PolymerNGBoard::DrawSprites(Math::Matrix4 &viewMatrix, Math::Matrix4 &projectionMatrix, float horizang, int16_t daang)
+void PolymerNGBoard::DrawSprites(Math::Matrix4 &viewMatrix, Math::Matrix4 &projectionMatrix, float horizang, int16_t daang, Math::Vector3 &position)
 {
 	BuildRenderCommand command;
 	command.taskId = BUILDRENDER_TASK_DRAWSPRITES;
 	command.taskRenderSprites.numSprites = localspritesortcnt;
 	command.taskRenderSprites.prsprites = &prsprites[renderer.GetCurrentFrameNum()][0];
-
+	command.taskRenderSprites.position = position;
 	
 	for (int i = 0; i < localspritesortcnt; i++)
 	{
@@ -704,18 +725,14 @@ void PolymerNGBoard::DrawSprites(Math::Matrix4 &viewMatrix, Math::Matrix4 &proje
 		// Load in the model for this sprite, if its preached this should NOT cause any hitches...
 		sprite->cacheModel = modelCacheSystem.LoadModelForTile(tspr->picnum);
 
-		// Load in the material for the sprite if we don't have a high quality model.
-		if (sprite->plane.renderMaterialHandle == NULL && sprite->cacheModel != NULL)
-		{
-			sprite->plane.renderMaterialHandle = materialManager.LoadMaterialForTile(tspr->picnum);
-		}
-
 		sprite->plane.buffer = NULL;
 		sprite->plane.vertcount = 4;
 		sprite->plane.vbo_offset = startVertex;
 
-		//DO_TILE_ANIM(tspr->picnum, tspr->owner + 32768);
-
+		if (!sprite->cacheModel)
+		{
+			DO_TILE_ANIM(tspr->picnum, tspr->owner + 32768);
+		}
 		
 		sprite->paletteNum = tspr->pal;
 		sprite->plane.tileNum = tspr->picnum;
@@ -762,6 +779,6 @@ PolymerNG::AddLightToCurrentBoard
 */
 PolymerNGLight *PolymerNG::AddLightToCurrentBoard(PolymerNGLightOpts lightOpts)
 {
-	PolymerNGLightLocal light(lightOpts);
+	PolymerNGLightLocal *light = new PolymerNGLightLocal(lightOpts, polymerNGPrivate.currentBoard->GetBoard());
 	return polymerNGPrivate.currentBoard->AddLightToMap(light);
 }

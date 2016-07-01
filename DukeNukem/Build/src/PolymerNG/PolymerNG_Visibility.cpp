@@ -34,12 +34,19 @@ void PolymerNGVisibilityEngine::CreateOcclusionFromBoard()
 //
 // PolymerNGVisibilityEngine::FindVisibleSectors
 //
-void PolymerNGVisibilityEngine::FindVisibleSectors(BuildRenderThreadTaskRenderWorld &renderWorldTask, float *modelViewMatrix, float *projectionMatrix, std::vector<int32_t> &visibleSectorList)
+void PolymerNGVisibilityEngine::FindVisibleSectors(BuildRenderThreadTaskRenderWorld &renderWorldTask, float *modelViewMatrix, float *projectionMatrix, int32_t *visibleSectorList, int &numVisibleSectors)
 {
 	Build3DBoardPolymost *polymostGenericRenderer = ((Build3DBoard *)renderWorldTask.board)->GetGenericPolymostRenderer();
 	polymostGenericRenderer->drawrooms();
 
-	visibleSectorList = polymostGenericRenderer->visibleSectorList;
+	numVisibleSectors = 0;
+	for (int i = 0; i < MAXSECTORS; i++)
+	{
+		if (!polymostGenericRenderer->visibleSectorList[i])
+			continue;
+
+		visibleSectorList[numVisibleSectors++] = i;
+	}
 
 //	std::sort(visibleSectorList.begin(), visibleSectorList.end());
 //	visibleSectorList.erase(std::unique(visibleSectorList.begin(), visibleSectorList.end()), visibleSectorList.end());

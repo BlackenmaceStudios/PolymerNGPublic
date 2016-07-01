@@ -10,6 +10,18 @@
 class BuildFile;
 
 //
+// PolymerNGTextureCachePayloadImageType
+//
+enum PolymerNGTextureCachePayloadImageType
+{
+	PAYLOAD_IMAGE_DIFFUSE = 0,
+	PAYLOAD_IMAGE_NORMAL,
+	PAYLOAD_IMAGE_SPECULAR,
+	PAYLOAD_IMAGE_GLOW,
+	PAYLOAD_IMAGE_NUMTYPES
+};
+
+//
 // PolymerNGTextureCachePayload
 //
 struct PolymerNGTextureCachePayload
@@ -41,8 +53,10 @@ struct PolymerNGTextureCacheResidentData
 		width = -1;
 		height = -1;
 		name_hash = -1;
+		format = (TextureCacheImageFormat)-1;
 	}
 	byte *rawImageDataBlob;
+	TextureCacheImageFormat format;
 	int width;
 	int height;
 	std::size_t name_hash;
@@ -61,9 +75,9 @@ public:
 
 	bool IsLoaded() { return isLoaded; }
 
-	const PolymerNGTextureCacheResidentData *LoadHighqualityTextureForTile(int tileNum);
+	const PolymerNGTextureCacheResidentData *LoadHighqualityTextureForTile(int tileNum, PolymerNGTextureCachePayloadImageType payloadImageType);
 	const PolymerNGTextureCacheResidentData *LoadHighqualityTexture(const char *name);
-	bool SetHighQualityTextureForTile(const char *fileName, int tileNum);
+	bool SetHighQualityTextureForTile(const char *fileName, int tileNum, PolymerNGTextureCachePayloadImageType payloadImageType);
 private:
 	void LoadTextureCache();
 
@@ -78,7 +92,7 @@ private:
 
 	bool isLoaded;
 
-	PolymerNGTileCacheOverride tileCacheOverride[MAXTILES];
-	PolymerNGTextureCacheResidentData residentDataStorage[MAXTILES];
+	PolymerNGTileCacheOverride tileCacheOverride[PAYLOAD_IMAGE_NUMTYPES][MAXTILES];
+	PolymerNGTextureCacheResidentData residentDataStorage[PAYLOAD_IMAGE_NUMTYPES][MAXTILES];
 	std::vector<PolymerNGTextureCacheResidentData> residentDataStorageDyanmic;
 };

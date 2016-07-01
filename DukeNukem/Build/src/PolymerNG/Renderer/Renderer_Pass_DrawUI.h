@@ -1,10 +1,14 @@
 // Renderer_DrawUI.h
 //
 
+struct VS_DRAWUI_BUFFER
+{
+	float projectionMatrix[16];
+};
+
 struct PS_DRAWUI_BUFFER
 {
 	float modulationColor[4];
-
 };
 
 class RendererDrawPassDrawUI : public RendererDrawPassBase
@@ -18,4 +22,7 @@ public:
 private:
 	PS_DRAWUI_BUFFER			drawUIBuffer;
 	BuildRHIConstantBuffer		*drawUIConstantBuffer;
+
+	VS_DRAWUI_BUFFER			drawVSUIBuffer;
+	BuildRHIConstantBuffer		*drawVSUIConstantBuffer;
 };

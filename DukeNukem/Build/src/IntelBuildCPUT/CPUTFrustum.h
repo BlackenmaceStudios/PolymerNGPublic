@@ -48,6 +48,8 @@ public:
 
 	void InitializeFrustum(CPUTCamera *pCamera);
 
+	bool IsVisible(float3 point);
+
     bool IsVisible(
         const float3 &center,
         const float3 &half

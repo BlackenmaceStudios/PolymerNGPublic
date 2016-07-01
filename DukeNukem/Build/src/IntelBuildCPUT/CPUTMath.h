@@ -213,6 +213,14 @@ struct float3
         float f[3];
     };
 
+	static const float3 Left;
+	static const float3 Right;
+	static const float3 Up;
+	static const float3 Down;
+	static const float3 Forward;
+	static const float3 Backward;
+	static const float3 ZeroF;
+
     /***************************************\
     |   Constructors                        |
     \***************************************/
@@ -261,6 +269,11 @@ struct float3
 	float Dot(const float3 &a) const
 	{
 		return x * a.x + y * a.y + z * a.z;
+	}
+
+	static float Dot(const float3 &a, const float3 &b)
+	{
+		return a.x * b.x + a.y * b.y + a.z * b.z;
 	}
 
 
@@ -1720,5 +1733,70 @@ inline float4 operator*(const float4 &v, const float4x4 &m)
 
     return result;
 }
+
+/*
+============================
+CreateLookAtMatrix
+============================
+*/
+inline float4x4 CreateLookAtMatrix(float3 cameraPosition, float3 cameraTarget, float3 cameraUpVector)
+{
+	float3 vector3_1 = (cameraPosition - cameraTarget).normalize();
+	float3 vector3_2;
+	
+	vector3_2.Cross(cameraUpVector, vector3_1);
+	vector3_2.NormalizeSelf();
+
+	float3 vector1;
+	vector1.Cross(vector3_1, vector3_2);
+
+	float4x4 matrix;
+	matrix.r0.x = vector3_2.x;
+	matrix.r0.y = vector1.x;
+	matrix.r0.z = vector3_1.x;
+	matrix.r0.w = 0.0f;
+	matrix.r1.x = vector3_2.y;
+	matrix.r1.y = vector1.y;
+	matrix.r1.z = vector3_1.y;
+	matrix.r1.w = 0.0f;
+	matrix.r2.x = vector3_2.z;
+	matrix.r2.y = vector1.z;
+	matrix.r2.z = vector3_1.z;
+	matrix.r2.w = 0.0f;
+	matrix.r3.x = -float3::Dot(vector3_2, cameraPosition);
+	matrix.r3.y = -float3::Dot(vector1, cameraPosition);
+	matrix.r3.z = -float3::Dot(vector3_1, cameraPosition);
+	matrix.r3.w = 1.0f;
+
+	return matrix;
+}
+
+__inline float3 abs(const float3 xyz)
+{
+	float3 result(fabs(xyz.x), fabs(xyz.y), fabs(xyz.z));
+	return result;
+}
+
+
+__inline float4 abs(const float4 xyz)
+{
+	float4 result(fabs(xyz.x), fabs(xyz.y), fabs(xyz.z), fabs(xyz.w));
+	return result;
+}
+
+__inline float3 fabs(const float3 xyz)
+{
+	float3 result(fabs(xyz.x), fabs(xyz.y), fabs(xyz.z));
+	return result;
+}
+
+
+__inline float4 fabs(const float4 xyz)
+{
+	float4 result(fabs(xyz.x), fabs(xyz.y), fabs(xyz.z), fabs(xyz.w));
+	return result;
+}
+
+#include "AxisAlignedBox.h"
 
 #endif // #ifndef __CPUTMath_h__

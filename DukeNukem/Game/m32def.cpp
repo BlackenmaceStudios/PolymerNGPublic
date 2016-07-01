@@ -93,10 +93,10 @@ ofstype aEventOffsets[MAXEVENTS];
 int32_t aEventSizes[MAXEVENTS];
 uint16_t aEventNumLocals[MAXEVENTS];
 
-gamevar_t aGameVars[MAXGAMEVARS];
-gamearray_t aGameArrays[MAXGAMEARRAYS];
-int32_t g_gameVarCount=0, g_systemVarCount=0;
-int32_t g_gameArrayCount=0, g_systemArrayCount=0;
+//gamevar_t aGameVars[MAXGAMEVARS];
+//gamearray_t aGameArrays[MAXGAMEARRAYS];
+static int32_t g_gameVarCount = 0, g_systemVarCount=0;
+static int32_t g_gameArrayCount=0, g_systemArrayCount=0;
 
 
 // "magic" number for { and }, overrides line number in compiled code for later detection

@@ -13,6 +13,8 @@
 class XBuildInputSystemPrivate : public XBuildInputSystem
 {
 public:
+	XBuildInputSystemPrivate() { Init(); }
+
 	void XBuildInputSystemPrivate::Init();
 
 	virtual bool KB_KeyPressed(unsigned char c);
@@ -29,6 +31,7 @@ public:
 	int currentPlayerId;
 
 	bool controllerButtonForcedUp[XB_NumButtons];
+	bool keyboardInputLocalState[512];
 };
 
 extern XBuildInputSystemPrivate xBuildInputSystemPrivate;

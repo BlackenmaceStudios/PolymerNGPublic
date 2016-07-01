@@ -18,6 +18,7 @@ private:
 	void InitBuffer(int initialSize, int stride, void *initialData, bool isDynamicBuffer);
 
 	int rhiStride;
+	int vertexBufferSize;
 	ID3D11Buffer*      rhiVertexBufferHandle;
 };
 
@@ -49,7 +50,7 @@ public:
 
 	virtual void UpdateBuffer(void *data, int size, int offset);
 
-	void Bind(bool bindToVertexShader, bool bindToFragmentShader);
+	void Bind(BuildShaderBindTarget target);
 private:
 	void InitBuffer(int initialSize, void *initialData);
 

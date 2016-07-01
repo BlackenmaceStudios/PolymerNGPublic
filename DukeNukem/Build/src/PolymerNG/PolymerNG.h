@@ -6,6 +6,8 @@
 #define MAX_QUEUED_IMAGES	MAXTILES
 #define POLYMER_INLINE		__forceinline
 
+#define POLYMERNG_NOSYNC_SPRITES		1
+
 #include <vector>
 
 #include "../RHI/BuildRHI.h"
@@ -44,7 +46,12 @@ public:
 	void		DrawRooms(int32_t daposx, int32_t daposy, int32_t daposz, int16_t daang, int32_t dahoriz, int16_t dacursectnum);
 
 
-	bool		SetHighQualityTextureForTile(const char *fileName, int tileNum);
+	bool		SetHighQualityTextureForTile(const char *fileName, int tileNum, PolymerNGTextureCachePayloadImageType payloadImageType);
+
+	// Allocates the font image.
+	PolymerNGMaterial	*AllocFontImage(const char *smallFont, const char *bigFont);
+
+	virtual void		MoveLightsInSector(int sectorNum, float deltax, float deltay);
 //	BuildImage *GetImage(int texnum) { return images[texnum]; }
 //
 //	BuildImage *GetHighresImage(int idx) { return hiresImages[idx]; }

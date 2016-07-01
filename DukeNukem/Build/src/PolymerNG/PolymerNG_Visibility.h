@@ -16,7 +16,7 @@ public:
 
 	void					CreateOcclusionFromBoard();
 
-	void					FindVisibleSectors(BuildRenderThreadTaskRenderWorld &renderWorldTask, float *modelViewMatrix, float *projectionMatrix, std::vector<int32_t> &visibleSectorList);
+	void					FindVisibleSectors(BuildRenderThreadTaskRenderWorld &renderWorldTask, float *modelViewMatrix, float *projectionMatrix, int32_t *visibleSectorList, int &numVisibleSectors);
 private:
 
 	PolymerNGBoard			*currentBoard;

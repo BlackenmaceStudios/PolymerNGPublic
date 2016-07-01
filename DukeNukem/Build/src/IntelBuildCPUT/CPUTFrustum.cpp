@@ -79,10 +79,10 @@ void CPUTFrustum::InitializeFrustum
     
     // Create two vectors each for the near and far clip planes.
     // These are the scaled up and right vectors.
-    float3 upNear      = (up    * halfNearHeight) + 0.000005;
-    float3 rightNear   = (right * halfNearWidth) + 0.000005;
-    float3 upFar       = (up    * halfFarHeight) + 0.000005;
-    float3 rightFar    = (right * halfFarWidth) + 0.000005;
+    float3 upNear      = (up    * halfNearHeight);
+    float3 rightNear   = (right * halfNearWidth);
+    float3 upFar       = (up    * halfFarHeight);
+    float3 rightFar    = (right * halfFarWidth);
 
     // Use the center positions and the up and right vectors
     // to compute the positions for the near and far clip plane vertices (four each)
@@ -126,6 +126,25 @@ void CPUTFrustum::InitializeFrustum
 		mPlanes[2*8 + i] = 0;
 		mPlanes[3*8 + i] = -1.0f;
 	}
+}
+
+//
+// CPUTFrustum::IsVisible
+//
+bool CPUTFrustum::IsVisible(float3 point)
+{
+	// Check if the point is inside all six planes of the view frustum.
+	for (int i = 0; i < 6; i++)
+	{
+		float3 plane(mPlanes[0 * 8 + i], mPlanes[1 * 8 + i], mPlanes[2 * 8 + i]);
+
+		if (dot3(plane, point) < 0.0f)
+		{
+			return false;
+		}
+	}
+
+	return true;
 }
 
 //-----------------------------------------------

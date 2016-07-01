@@ -3,7 +3,8 @@
 cbuffer VS_CONSTANT_BUFFER : register(b0)
 {
 	matrix mWorldViewProjection;
-	matrix mWorldView;
+	matrix mWorldViewInverse;
+	float4 viewposition;
 };
 
 
@@ -11,6 +12,7 @@ struct VertexShaderInput
 {
 	float4 position  : POSITION;
 	float2 texcoord0 : TEXCOORD0;
+	float3 normal    : NORMAL;
 };
 
 float3 TransformPoint(float3 inpos)
@@ -27,10 +29,13 @@ VertexShaderOutput main(VertexShaderInput input)
 {
 	VertexShaderOutput output;
 
-	float4 vertex = mul(mWorldViewProjection, float4(TransformPoint(input.position.xyz), 1.0));
+	float4 vertex = mul(mWorldViewProjection, float4(input.position.xyz, 1.0));
 	output.position = vertex;
 	output.position.w += 0.001;
 	output.texcoord0 = input.texcoord0;
-	output.texcoord1 = mul(mWorldView, float4(input.position.xyz, 1.0));
+	output.texcoord1 = input.position; // mul(mView, float4(input.position.xyz, 1.0));
+	output.texcoord2 = mul(transpose(mWorldViewInverse), float4(input.normal.xyz, 1.0));
+	output.texcoord3 = viewposition - input.position.xyz;
+	output.vDepthVS = vertex;
 	return output;
 }

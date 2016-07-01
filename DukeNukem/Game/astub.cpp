@@ -22,7 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "pch.h"
 #include "compat.h"
 #include "build.h"
-#include "editor.h"
+#include "../Editor/editor.h"
 #include "pragmas.h"
 
 #include "baselayer.h"
@@ -76,8 +76,8 @@ extern const char *s_buildInfo;
 # undef stat
 #endif
 
-const char* AppProperName = "Mapster32";
-const char* AppTechnicalName = "mapster32";
+//const char* AppProperName = "Mapster32";
+//const char* AppTechnicalName = "mapster32";
 
 #if defined(_WIN32)
 #define DEFAULT_GAME_EXEC "eduke32.exe"
@@ -96,8 +96,8 @@ const char* DefaultGameLocalExec = DEFAULT_GAME_LOCAL_EXEC;
 static int32_t floor_over_floor;
 static int32_t g_fillCurSector = 0;
 
-const char* defaultsetupfilename = SETUPFILENAME;
-char setupfilename[BMAX_PATH] = SETUPFILENAME;
+//const char* defaultsetupfilename = SETUPFILENAME;
+//char setupfilename[BMAX_PATH] = SETUPFILENAME;
 
 static int32_t fixmaponsave_walls = 0;
 static int32_t lastsave = -180*60;
@@ -3460,16 +3460,16 @@ static void tilescreen_drawrest(int32_t iSelected, int32_t showmsg)
         printext256(xdim>>2,ydim-10,whitecol,-1,szT,0);
 
         // EditArt offset flags.
-        Bsprintf(szT,"%d, %d", picanm[idTile].xofs, picanm[idTile].yofs);
+        Bsprintf(szT,"%d, %d", picanm[idTile].flags.xofs, picanm[idTile].flags.yofs);
         printext256((xdim>>2)+100,ydim-10,whitecol,-1,szT,0);
 
         // EditArt animation flags.
-        if (picanm[idTile].sf&PICANM_ANIMTYPE_MASK)
+        if (picanm[idTile].flags.sf&PICANM_ANIMTYPE_MASK)
         {
             static const char *anmtype[] = {"", "Osc", "Fwd", "Bck"};
-            int32_t ii = (picanm[idTile].sf&PICANM_ANIMTYPE_MASK)>>PICANM_ANIMTYPE_SHIFT;
+            int32_t ii = (picanm[idTile].flags.sf&PICANM_ANIMTYPE_MASK)>>PICANM_ANIMTYPE_SHIFT;
 
-            Bsprintf(szT,"%s %d", anmtype[ii], picanm[idTile].num);
+            Bsprintf(szT,"%s %d", anmtype[ii], picanm[idTile].flags.num);
             printext256((xdim>>2)+100+14*8,ydim-10,whitecol,-1,szT,0);
         }
     }
@@ -3633,10 +3633,10 @@ static char const *tileinfo_colorstr = "";
 
 static void tileinfo_doprint(int32_t x, int32_t y, char *buf, const char *label, int32_t value, int32_t pos)
 {
-    int32_t small = (xdimgame<=640), i = ydimgame>>6;
+    int32_t _small = (xdimgame<=640), i = ydimgame>>6;
     Bsprintf(buf,"%s:%s%4d", label, tileinfo_colorstr, value);
-    printext256(x+2, y+2+i*pos, 0, -1, buf, small);
-    printext256(x, y+i*pos, whitecol, -1, buf, small);
+    printext256(x+2, y+2+i*pos, 0, -1, buf, _small);
+    printext256(x, y+i*pos, whitecol, -1, buf, _small);
 }
 
 // flags: 1:draw asterisk for lotag
@@ -3646,13 +3646,13 @@ static void drawtileinfo(const char *title,int32_t x,int32_t y,int32_t picnum,in
                          int32_t lotag,int32_t hitag,int32_t extra, uint32_t flags)
 {
     char buf[64];
-    int32_t small = (xdimgame<=640);
+    int32_t _small = (xdimgame<=640);
 
     if (tilesiz[picnum].x>0 && tilesiz[picnum].y>0)
     {
         int32_t x1 = x+80;
 
-        if (small)
+        if (_small)
             x1 /= 2;
 
         x1 = (int32_t)(x1 * 320.0/xdimgame);
@@ -3670,8 +3670,8 @@ static void drawtileinfo(const char *title,int32_t x,int32_t y,int32_t picnum,in
     y = (int32_t)(y * ydimgame/200.0);
 
     begindrawing();
-    printext256(x+2,y+2,0,-1,title,small);
-    printext256(x,y,editorcolors[14],-1,title,small);
+    printext256(x+2,y+2,0,-1,title,_small);
+    printext256(x,y,editorcolors[14],-1,title,_small);
 
     if (flags&4)
     {
@@ -3883,8 +3883,8 @@ ENDFOR1:
     curspr = linebegspr = startspr;
 
     t = sprite[startspr].picnum;
-    sprite[startspr].xoffset = -picanm[t].xofs;
-    sprite[startspr].yoffset = -picanm[t].yofs;
+    sprite[startspr].xoffset = -picanm[t].flags.xofs;
+    sprite[startspr].yoffset = -picanm[t].flags.yofs;
 
     spritenums = (int16_t *)Xmalloc(stackallocsize * sizeof(int16_t));
 
@@ -4002,8 +4002,8 @@ ENDFOR1:
                 sprite[i].picnum = t;
                 sprite[i].ang = daang;
 
-                sprite[i].xoffset = -picanm[t].xofs;
-                sprite[i].yoffset = -picanm[t].yofs;
+                sprite[i].xoffset = -picanm[t].flags.xofs;
+                sprite[i].yoffset = -picanm[t].flags.yofs;
                 sprite[i].xoffset += alphabets[alphidx].xofs[(int32_t)ch-33];
                 sprite[i].yoffset += alphabets[alphidx].yofs[(int32_t)ch-33];
 
@@ -5505,12 +5505,12 @@ static void Keys3d(void)
 
     if (helpon==1)
     {
-        int32_t small = !(xdimgame > 640);
+        int32_t _small = !(xdimgame > 640);
         for (i=0; i<MAXHELP3D; i++)
         {
             begindrawing();
-            printext256(2, 8+(i*(8+!small))+2, 0, -1, Help3d[i], small);
-            printext256(0, 8+(i*(8+!small)), whitecol, -1, Help3d[i], small);
+            printext256(2, 8+(i*(8+!_small))+2, 0, -1, Help3d[i], _small);
+            printext256(0, 8+(i*(8+!_small)), whitecol, -1, Help3d[i], _small);
             enddrawing();
 
             switch (i)
@@ -5546,8 +5546,8 @@ static void Keys3d(void)
             else if (!Bstrcmp(tempbuf,"2"))
                 Bsprintf(tempbuf,"ON (2)");
 
-            printext256((20+(!small * 20))*8+2, 8+(i*(8+!small))+2, 0, -1, tempbuf, small);
-            printext256((20+(!small * 20))*8, 8+(i*(8+!small)), whitecol, -1, tempbuf, small);
+            printext256((20+(!_small * 20))*8+2, 8+(i*(8+!_small))+2, 0, -1, tempbuf, _small);
+            printext256((20+(!_small * 20))*8, 8+(i*(8+!_small)), whitecol, -1, tempbuf, _small);
             enddrawing();
         }
     }
@@ -8391,7 +8391,7 @@ static int32_t check_filename_casing(void)
 }
 #endif
 
-int32_t ExtPreInit(int32_t argc,char const * const * argv)
+int32_t ExtPreInit(int32_t argc, const char **argv)
 {
 #if defined(_WIN32) && defined(DEBUGGINGAIDS)
     {
@@ -8700,7 +8700,7 @@ static int32_t osdcmd_vars_pk(const osdfuncparm_t *parm)
 
         return OSDCMD_OK;
     }
-
+#if 0
     if (!Bstrcasecmp(parm->name, "pointhighlightdist"))
     {
         if (parm->numparms > 1)
@@ -8726,7 +8726,7 @@ static int32_t osdcmd_vars_pk(const osdfuncparm_t *parm)
 
         return OSDCMD_OK;
     }
-
+#endif
     if (!Bstrcasecmp(parm->name, "corruptcheck"))
     {
         if (parm->numparms >= 1)
@@ -9043,15 +9043,15 @@ static int32_t osdcmd_do(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-void M32RunScript(const char *s)
-{
-    osdfuncparm_t parm;
-
-    parm.numparms = -1;
-    parm.raw = s;
-
-    osdcmd_do(&parm);
-}
+//void M32RunScript(const char *s)
+//{
+//    osdfuncparm_t parm;
+//
+//    parm.numparms = -1;
+//    parm.raw = s;
+//
+//    osdcmd_do(&parm);
+//}
 
 static int32_t osdcmd_endisableevent(const osdfuncparm_t *parm)
 {
@@ -9309,27 +9309,27 @@ static int32_t parsegroupfiles(scriptfile *script)
     return 0;
 }
 
-int32_t loaddefinitions_game(const char *fn, int32_t preload)
-{
-    scriptfile *script;
-    int32_t i;
-
-    UNREFERENCED_PARAMETER(preload);
-
-    script = scriptfile_fromfile(fn);
-    if (script)
-        parsegroupfiles(script);
-
-    for (i=0; i < g_defModulesNum; ++i)
-        parsegroupfiles_include(g_defModules[i], NULL, "null");
-
-    if (script)
-        scriptfile_close(script);
-
-    scriptfile_clearsymbols();
-
-    return 0;
-}
+//int32_t loaddefinitions_game(const char *fn, int32_t preload)
+//{
+//    scriptfile *script;
+//    int32_t i;
+//
+//    UNREFERENCED_PARAMETER(preload);
+//
+//    script = scriptfile_fromfile(fn);
+//    if (script)
+//        parsegroupfiles(script);
+//
+//    for (i=0; i < g_defModulesNum; ++i)
+//        parsegroupfiles_include(g_defModules[i], NULL, "null");
+//
+//    if (script)
+//        scriptfile_close(script);
+//
+//    scriptfile_clearsymbols();
+//
+//    return 0;
+//}
 
 int32_t parsetilegroups(scriptfile *script)
 {
@@ -9937,8 +9937,8 @@ int32_t ExtInit(void)
     if (Bstrcmp(setupfilename, SETUPFILENAME))
         initprintf("Using config file \"%s\".\n",setupfilename);
 
-    if (loadsetup(setupfilename) < 0)
-        initprintf("Configuration file not found, using defaults.\n"), rv = 1;
+ //   if (loadsetup(setupfilename) < 0)
+ //       initprintf("Configuration file not found, using defaults.\n"), rv = 1;
 //#endif
     Bmemcpy(buildkeys, default_buildkeys, NUMBUILDKEYS);   //Trick to make build use setup.dat keys
 
@@ -10038,7 +10038,7 @@ void ExtUnInit(void)
 {
 //    int32_t i;
     // setvmode(0x03);
-    writesetup(setupfilename);
+   // writesetup(setupfilename);
 
     S_SoundShutdown();
     uninitgroupfile();
@@ -10894,10 +10894,10 @@ void ExtCheckKeys(void)
 
 ////
 
-void faketimerhandler(void)
-{
-    sampletimer();
-}
+//void faketimerhandler(void)
+//{
+//    sampletimer();
+//}
 
 void SetGamePalette(int32_t palid)
 {

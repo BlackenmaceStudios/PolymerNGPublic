@@ -32,7 +32,7 @@ public:
 	void BeginLevelLoad();
 	void EndLevelLoad();
 
-	BuildImage *LoadFromTileId(int tilenum);
+	BuildImage *LoadFromTileId(int tilenum, PolymerNGTextureCachePayloadImageType payloadImageType);
 	BuildImage *LoadTexture(const char *name);
 
 	void FlushTile(int16_t tileNum);
@@ -41,20 +41,30 @@ public:
 	void UploadPendingImages();
 
 	// Sets the high quality texture for tile.
-	bool SetHighQualityTextureForTile(const char *fileName, int tileNum);
+	bool SetHighQualityTextureForTile(const char *fileName, int tileNum, PolymerNGTextureCachePayloadImageType payloadImageType);
 
 	// Returns the handle to the palette manager.
 	PolymerNGPaletteManager *GetPaletteManager() { return &paletteManager; }
+
+	// Allocates the font image.
+	BuildImage *AllocFontImage(const char *smallFont, const char *bigFont);
+
+	// Returns a black image.
+	BuildImage *GetBlackImage() { return blackImage; }
 private:
 	BuildImage *AllocArtTileImage(int idx);
-	BuildImage *AllocHighresImage(int idx, int width, int height, byte *buffer);
+	BuildImage *AllocHighresImage(int idx, int width, int height, byte *buffer, BuildImageFormat format);
 
 	void AppendImageToUploadQueue(BuildImage *image);
 
-	BuildImage *images[MAXTILES];
+	BuildImage *images[MAXTILES][PAYLOAD_IMAGE_NUMTYPES];
 
 	PolymerNGPaletteManager paletteManager;
 	PolymerNGTextureCache *textureCache;
+
+	BuildImage *fontImage;
+
+	BuildImage *blackImage;
 
 	int numImagesWaitingForUpload;
 	BuildImage *images_waiting_for_upload[MAX_QUEUED_IMAGES * 2];

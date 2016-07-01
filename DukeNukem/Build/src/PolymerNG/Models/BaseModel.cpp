@@ -17,10 +17,13 @@ void BaseModel::AllocateBuffer(int size)
 	meshVertexes.resize(size);
 }
 
-int BaseModel::UpdateBuffer(int startPosition, int numVertexes, Build3DVertex *vertexes, int sectorNum)
+int BaseModel::UpdateBuffer(int startPosition, int numVertexes, Build3DVertex *vertexes, int sectorNum, bool cpuUpdateOnly)
 {
 	Build3DVertex *vertexpool = &meshVertexes[startPosition];
 	memcpy(vertexpool, vertexes, sizeof(Build3DVertex) * numVertexes);
+
+	if (cpuUpdateOnly)
+		return startPosition;
 
 	if (sectorNum != -1)
 	{

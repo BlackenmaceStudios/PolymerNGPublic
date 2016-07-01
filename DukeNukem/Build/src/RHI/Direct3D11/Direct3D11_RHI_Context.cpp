@@ -5,86 +5,164 @@
 
 void RHIProtected_SetPrimitiveType(D3D11_PRIMITIVE_TOPOLOGY topology)
 {
-	static D3D11_PRIMITIVE_TOPOLOGY current_topology = (D3D11_PRIMITIVE_TOPOLOGY)-1;
-
-	if (current_topology == topology)
+	if (rhiPrivate.renderState.current_topology == topology)
 		return;
 
-	current_topology = topology;
-	DX::RHIGetD3DDeviceContext()->IASetPrimitiveTopology(current_topology);
+	rhiPrivate.renderState.current_topology = topology;
+	DX::RHIGetD3DDeviceContext()->IASetPrimitiveTopology(rhiPrivate.renderState.current_topology);
 }
 
 void BuildRHIDirect3D11Private::ResetContext()
 {
 	for (int i = 0; i < RHIMAX_BOUNDTEXTURES; i++)
 	{
-		rhiPrivate.boundTextures[i] = NULL;
+		rhiPrivate.renderState.boundTextures[i] = NULL;
+		rhiPrivate.renderState.samplerStates[i] = NULL;
 	}
-
-//	
+	
+	rhiPrivate.renderState.current_topology = (D3D11_PRIMITIVE_TOPOLOGY)-1;
+	rhiPrivate.renderState.currentPixelShader = NULL;
+	rhiPrivate.renderState.currentGeomtryShader = NULL;
+	rhiPrivate.renderState.currentVertexShader = NULL;
+	rhiPrivate.renderState.currentLayout = NULL;
+	for (int i = 0; i < SHADER_BIND_NUMTYPES; i++)
+	{
+		rhiPrivate.renderState.currentConstantBuffer[i] = NULL;
+	}
+	rhiPrivate.renderState.currentVertexBuffer = NULL;
+	rhiPrivate.renderState.currentIndexBuffer = NULL;
 }
 
-void BuildRHI::SetImageForContext(int rootIndex, const BuildRHITexture *image)
+void BuildRHI::SetBlendState(BuildBlendState blendstate)
+{
+	switch (blendstate)
+	{
+		case BLENDSTATE_ALPHA:
+			DX::RHIGetD3DDeviceContext()->OMSetBlendState(rhiPrivate.alphaBlendState, 0, 0xffffffff);
+			break;
+
+		case BLENDSTATE_ADDITIVE:
+			DX::RHIGetD3DDeviceContext()->OMSetBlendState(rhiPrivate.additiveBlendState, 0, 0xffffffff);
+			break;
+
+		default:
+			initprintf("BuildRHI::SetBlendState: Unknown blend state!!!");
+			break;
+	}
+}
+
+void BuildRHI::SetFaceCulling(BuildRHIFaceCulling cullMode)
+{
+	switch (cullMode)
+	{
+		case CULL_FACE_NONE:
+			DX::RHIGetD3DDeviceContext()->RSSetState(rhiPrivate.cullModeBuildState);
+			break;
+		case CULL_FACE_BACK:
+			DX::RHIGetD3DDeviceContext()->RSSetState(rhiPrivate.cullModeBuildBackState);
+			break;
+		case CULL_FACE_FRONT:
+			DX::RHIGetD3DDeviceContext()->RSSetState(rhiPrivate.cullModeBuildFrontState);
+			break;
+		default:
+			initprintf("BuildRHI::SetFaceCulling: Unknown cull mode!");
+			break;
+	}
+}
+
+void BuildRHI::ToggleDeferredRenderContext(bool enable)
+{
+//	return;
+//
+//	if (enable)
+//	{
+//		DX::SetRHID3DDeviceContextOverride(rhiPrivate.pDeferredContext);
+//		RHIApiSetupContext(rhiPrivate.pDeferredContext);
+//		rhiPrivate.ResetContext();
+//	}
+//	else
+//	{
+//		// Reset the render context.
+//		DX::SetRHID3DDeviceContextOverride(NULL);
+//
+//		ID3D11CommandList* pd3dCommandList = NULL;
+//		HRESULT hr;
+//		hr = rhiPrivate.pDeferredContext->FinishCommandList(FALSE, &pd3dCommandList);
+//
+//		DX::RHIGetD3DDeviceContext()->ExecuteCommandList(pd3dCommandList, FALSE);
+//		rhiPrivate.ResetContext();
+//	}
+}
+
+void BuildRHI::SetImageForContext(int rootIndex, const BuildRHITexture *image, bool useLinearFilter)
 {
 	const BuildRHITextureDirect3D11 *rhiImage = static_cast<const BuildRHITextureDirect3D11 *>(image);
+	ID3D11SamplerState *rhiSamplerState = rhiPrivate.pointSampleState;
+	//if (useLinearFilter)
+	//{
+	//	rhiSamplerState = rhiPrivate.linearSampleState;
+	//}
+	//if (rhiPrivate.renderState.boundTextures[rootIndex] == image)
+	//{
+	//	if (rhiPrivate.renderState.samplerStates[rootIndex] == rhiSamplerState)
+	//	{
+	//		return;
+	//	}
+	//}
+
 	DX::RHIGetD3DDeviceContext()->PSSetShaderResources(rootIndex, 1, &rhiImage->resourceView);
-	DX::RHIGetD3DDeviceContext()->PSSetSamplers(rootIndex, 1, &rhiPrivate.pointSampleState);
-	rhiPrivate.boundTextures[rootIndex] = image;
+	DX::RHIGetD3DDeviceContext()->PSSetSamplers(rootIndex, 1, &rhiSamplerState);
+	rhiPrivate.renderState.boundTextures[rootIndex] = image;
+	rhiPrivate.renderState.samplerStates[rootIndex] = rhiSamplerState;
 }
 
 void BuildRHI::SetShader(BuildRHIShader *shader)
 {
-	rhiPrivate.currentShader = static_cast<BuildRHIDirect3D11Shader *>(shader);
+	rhiPrivate.renderState.currentShader = static_cast<BuildRHIDirect3D11Shader *>(shader);
 }
 
 void BuildRHIDirect3D11Private::SetPixelShader(ID3D11PixelShader *pixelShader)
 {
-	static ID3D11PixelShader *currentPixelShader = NULL;
-	if (pixelShader != currentPixelShader)
+	if (pixelShader != rhiPrivate.renderState.currentPixelShader)
 	{
 		DX::RHIGetD3DDeviceContext()->PSSetShader(pixelShader, NULL, 0);
-		pixelShader = currentPixelShader;
+		rhiPrivate.renderState.currentPixelShader = pixelShader;
 	}
 }
 
 void BuildRHIDirect3D11Private::SetGeomtryShader(ID3D11GeometryShader *geometryShader)
 {
-	static ID3D11GeometryShader *currentGeomtryShader = NULL;
-	if (geometryShader != currentGeomtryShader)
+	if (geometryShader != rhiPrivate.renderState.currentGeomtryShader)
 	{
 		DX::RHIGetD3DDeviceContext()->GSSetShader(geometryShader, NULL, 0);
-		currentGeomtryShader = currentGeomtryShader;
+		rhiPrivate.renderState.currentGeomtryShader = geometryShader;
 	}
 }
 
 void BuildRHIDirect3D11Private::SetVertexShader(ID3D11VertexShader *vertexShader)
 {
-	static ID3D11VertexShader *currentVertexShader = NULL;
-	if (vertexShader != currentVertexShader)
+	if (vertexShader != rhiPrivate.renderState.currentVertexShader)
 	{
 		DX::RHIGetD3DDeviceContext()->VSSetShader(vertexShader, NULL, 0);
-		vertexShader = currentVertexShader;
+		rhiPrivate.renderState.currentVertexShader = vertexShader;
 	}
 }
 
 void BuildRHIDirect3D11Private::SetInputLayout(ID3D11InputLayout *layout)
 {
-	static ID3D11InputLayout *currentLayout = NULL;
-
-	if (layout != currentLayout)
+	if (layout != rhiPrivate.renderState.currentLayout)
 	{
 		DX::RHIGetD3DDeviceContext()->IASetInputLayout(layout);
-		currentLayout = layout;
+		rhiPrivate.renderState.currentLayout = layout;
 	}
 }
 
-void BuildRHI::SetConstantBuffer(int index, BuildRHIConstantBuffer *constantBuffer, bool bindToVertexShader, bool bindToPixelShader)
+void BuildRHI::SetConstantBuffer(int index, BuildRHIConstantBuffer *constantBuffer, BuildShaderBindTarget target)
 {
-	static BuildRHIConstantBuffer *currentConstantBuffer = NULL;
-	if (currentConstantBuffer != constantBuffer)
+	if (rhiPrivate.renderState.currentConstantBuffer[target] != constantBuffer)
 	{
-		static_cast<BuildD3D11GPUBufferConstantBuffer *>(constantBuffer)->Bind(bindToVertexShader, bindToPixelShader);
-		constantBuffer = currentConstantBuffer;
+		static_cast<BuildD3D11GPUBufferConstantBuffer *>(constantBuffer)->Bind(target);
+		rhiPrivate.renderState.currentConstantBuffer[target] = constantBuffer;
 	}
 }
 
@@ -109,7 +187,7 @@ void BuildRHI::DrawUnoptimizedQuad(BuildRHIShader *shader, BuildRHIMesh *mesh, i
 	//		}
 	//	}
 	DX::RHIGetD3DDeviceContext()->Draw(numVertexes, startVertex);
-	rhiPrivate.ResetContext();
+	//rhiPrivate.ResetContext();
 }
 
 void BuildRHI::DrawIndexedQuad(BuildRHIShader *shader, BuildRHIMesh *mesh, int startVertex, int startIndex, int numIndexes)
@@ -131,5 +209,5 @@ void BuildRHI::DrawIndexedQuad(BuildRHIShader *shader, BuildRHIMesh *mesh, int s
 	//		}
 	//	}
 	DX::RHIGetD3DDeviceContext()->DrawIndexed(numIndexes, startIndex, startVertex);
-	rhiPrivate.ResetContext();
+	//rhiPrivate.ResetContext();
 }

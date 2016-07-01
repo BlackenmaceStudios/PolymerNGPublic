@@ -69,19 +69,23 @@ void PolymerNGTextureCache::EndLevelLoad()
 	initprintf("----------------------------------------------------\n");
 }
 
-const PolymerNGTextureCacheResidentData *PolymerNGTextureCache::LoadHighqualityTextureForTile(int tileNum)
+const PolymerNGTextureCacheResidentData *PolymerNGTextureCache::LoadHighqualityTextureForTile(int tileNum, PolymerNGTextureCachePayloadImageType payloadImageType)
 {
-	PolymerNGTextureCachePayload *currentPayload = tileCacheOverride[tileNum].payload;
-	CachePayloadInfo *currentPayloadInfo = tileCacheOverride[tileNum].payloadInfo;
+	PolymerNGTextureCachePayload *currentPayload = tileCacheOverride[payloadImageType][tileNum].payload;
+	CachePayloadInfo *currentPayloadInfo = tileCacheOverride[payloadImageType][tileNum].payloadInfo;
 
-	if (residentDataStorage[tileNum].rawImageDataBlob)
-		return &residentDataStorage[tileNum];
+	if (residentDataStorage[payloadImageType][tileNum].rawImageDataBlob)
+		return &residentDataStorage[payloadImageType][tileNum];
 
-	if (tileCacheOverride[tileNum].payload == NULL)
+	if (tileCacheOverride[payloadImageType][tileNum].payload == NULL)
 		return NULL;
 
+	if (currentPayload == NULL || currentPayloadInfo == NULL)
+		return NULL;
 
-	return ReadDataFromTextureCache(currentPayload, currentPayloadInfo, &residentDataStorage[tileNum]);
+	return ReadDataFromTextureCache(currentPayload, currentPayloadInfo, &residentDataStorage[payloadImageType][tileNum]);
+
+	return NULL;
 }
 
 const PolymerNGTextureCacheResidentData *PolymerNGTextureCache::LoadHighqualityTexture(const char *name)
@@ -147,6 +151,7 @@ const PolymerNGTextureCacheResidentData *PolymerNGTextureCache::ReadDataFromText
 	//BuildImage *image = polymerNG.AllocHighresImage(tileNum, currentPayloadInfo->width, currentPayloadInfo->height, decompressedBuffer);
 	storage->width = currentPayloadInfo->width;
 	storage->height = currentPayloadInfo->height;
+	storage->format = currentPayloadInfo->format;
 	storage->rawImageDataBlob = decompressedBuffer;
 	std::string name = currentPayloadInfo->cacheFileName;
 	storage->name_hash = std::hash<std::string>()(name);
@@ -159,7 +164,7 @@ const PolymerNGTextureCacheResidentData *PolymerNGTextureCache::ReadDataFromText
 	return storage;
 }
 
-bool PolymerNGTextureCache::SetHighQualityTextureForTile(const char *fileName, int tileNum)
+bool PolymerNGTextureCache::SetHighQualityTextureForTile(const char *fileName, int tileNum, PolymerNGTextureCachePayloadImageType payloadImageType)
 {
 	PolymerNGTextureCachePayload *currentPayload = NULL;
 	CachePayloadInfo *currentPayloadInfo = NULL;
@@ -182,8 +187,8 @@ bool PolymerNGTextureCache::SetHighQualityTextureForTile(const char *fileName, i
 	if (currentPayloadInfo == NULL || currentPayload == NULL)
 		return false;
 
-	tileCacheOverride[tileNum].payload = currentPayload;
-	tileCacheOverride[tileNum].payloadInfo = currentPayloadInfo;
+	tileCacheOverride[payloadImageType][tileNum].payload = currentPayload;
+	tileCacheOverride[payloadImageType][tileNum].payloadInfo = currentPayloadInfo;
 
 	return true;
 }

@@ -15,7 +15,7 @@
 #include "build3d.h"
 #include "PolymerNG/Renderer/Renderer.h"
 #include "build.h"
-#include "editor.h"
+//#include "editor.h"
 #include "pragmas.h"
 #include "cache1d.h"
 #include "a.h"
@@ -143,7 +143,7 @@ static void drawpixel_safe(void *s, char a)
 #if defined __GNUC__
     if (__builtin_expect((intptr_t)s >= frameplace && (intptr_t)s < frameplace+bytesperline*ydim, 1))
 #else
-    if ((intptr_t)s >= frameplace && (intptr_t)s < frameplace+bytesperline*ydim)
+    if (frameplace != 0 && (intptr_t)s >= frameplace && (intptr_t)s < frameplace+bytesperline*ydim)
 #endif
         drawpixel(s, a);
 #ifdef DEBUGGINGAIDS
@@ -11478,7 +11478,7 @@ int32_t loadmaphack(const char *filename)
 			scriptfile_getnumber(script, &value);
 			lightOpts.tilenum = value;
 
-			lightOpts.hasShadows = true;
+			lightOpts.castShadows = true;
 
 			polymerNG.AddLightToCurrentBoard(lightOpts);
 
@@ -11811,6 +11811,8 @@ int32_t setgamemode(char davidoption, int32_t daxdim, int32_t daydim, int32_t da
     daxdim = max(320, daxdim);
     daydim = max(200, daydim);
 
+	bpp = dabpp;
+
     if (in3dmode() && videomodereset == 0 &&
             (davidoption == fullscreen) && (xdim == daxdim) && (ydim == daydim) && (bpp == dabpp))
         return(0);
@@ -11902,6 +11904,8 @@ void nextpage(void)
     permfifotype *per;
 
 #ifdef BUILD_D3D12
+	void sampletimer();
+	sampletimer();
 	renderer.SubmitFrame();
 #endif
 
@@ -15941,6 +15945,11 @@ void clearallviews(int32_t dacol)
     }
 #endif
 
+	if (bpp > 8)
+	{
+		return;
+	}
+
     begindrawing(); //{{{
     Bmemset((void *)frameplace,dacol,bytesperline*yres);
     enddrawing();   //}}}
@@ -16953,7 +16962,10 @@ void qsetmodeany(int32_t daxdim, int32_t daydim)
         midydim16 = ydim16 >> 1; // scale(200,yres,480);
 
         begindrawing(); //{{{
-        Bmemset((char *)frameplace, 0, yres*bytesperline);
+		if (frameplace != NULL)
+		{
+			Bmemset((char *)frameplace, 0, yres*bytesperline);
+		}
         enddrawing();   //}}}
     }
 
@@ -16968,7 +16980,10 @@ void clear2dscreen(void)
 {
     int32_t const clearsz = (ydim16 <= yres - STATUS2DSIZ2) ? yres - STATUS2DSIZ2 : yres;
     begindrawing();  //{{{
-    Bmemset((char *)frameplace, 0, bytesperline*clearsz);
+	if (frameplace != NULL)
+	{
+		Bmemset((char *)frameplace, 0, bytesperline*clearsz);
+	}
     enddrawing();   //}}}
 }
 
@@ -17951,6 +17966,7 @@ void printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, const
     if (fontsize) { fontptr = smalltextfont; charxsiz = 4; }
     else { fontptr = textfont; charxsiz = 8; }
 
+	Build3D::printext256(xpos, ypos, col, backcol, name, fontsize);
 	//jmarshall:
 	return; // FIXME!!!
 #ifdef USE_OPENGL

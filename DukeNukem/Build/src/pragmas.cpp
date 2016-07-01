@@ -255,6 +255,8 @@ void qinterpolatedown16short(intptr_t bufptr, int32_t num, int32_t val, int32_t 
 void clearbuf(void *d, int32_t c, int32_t a)
 {
     int32_t *p = (int32_t *)d;
+	if (d == NULL)
+		return;
 
     while ((c--) > 0) *(p++) = a;
 }

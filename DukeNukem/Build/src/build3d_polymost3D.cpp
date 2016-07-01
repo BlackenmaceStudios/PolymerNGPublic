@@ -1596,16 +1596,17 @@ static int32_t domostpolymethod = 0;
 
 void Build3DBoardPolymost::AddUniqueSector(short sectnum)
 {
-	if (std::find(visibleSectorList.begin(), visibleSectorList.end(), sectnum) == visibleSectorList.end())
-	{
-		visibleSectorList.push_back(sectnum);
-	}
+	if (sectnum < 0)
+		return;
+
+	visibleSectorList[sectnum] = 1;
 }
 
 void Build3DBoardPolymost::domost(float x0, float y0, float x1, float y1, short sectorNum)
 {
 	int32_t const dir = (x0 < x1);
 
+	AddUniqueSector(sectorNum);
 
 	if (dir) //clip dmost (floor)
 	{
@@ -2315,6 +2316,8 @@ void Build3DBoardPolymost::drawalls(int32_t const bunch)
 		twalltype * const wal = (twalltype *)&wall[wallnum], *wal2 = (twalltype *)&wall[wal->point2];
 		int32_t const nextsectnum = wal->nextsector;
 		tsectortype * const nextsec = nextsectnum >= 0 ? (tsectortype *)&sector[nextsectnum] : NULL;
+
+		AddUniqueSector(nextsectnum);
 
 		//Offset&Rotate 3D coordinates to screen 3D space
 		vec2f_t walpos = { (float)(wal->x - globalposx), (float)(wal->y - globalposy) };
@@ -3164,6 +3167,8 @@ void Build3DBoardPolymost::scansector(int32_t sectnum)
 		twalltype *wal;
 		int z;
 
+		AddUniqueSector(sectnum);
+
 		for (z = startwall, wal = (twalltype *)&wall[z]; z<endwall; z++, wal++)
 		{
 			twalltype const * const wal2 = (twalltype *)&wall[wal->point2];
@@ -3174,7 +3179,10 @@ void Build3DBoardPolymost::scansector(int32_t sectnum)
 
 			vec2f_t p1;
 
+			AddUniqueSector(nextsectnum);
+
 			if (nextsectnum >= 0 /*&& !(wal->cstat&32)*/ && sectorbordercnt < ARRAY_SSIZE(sectorborder))
+			{
 #ifdef YAX_ENABLE
 				if (yax_nomaskpass == 0 || !yax_isislandwall(z, !yax_globalcf) || (yax_nomaskdidit = 1, 0))
 #endif
@@ -3190,6 +3198,7 @@ void Build3DBoardPolymost::scansector(int32_t sectnum)
 							gotsector[nextsectnum >> 3] |= pow2char[nextsectnum & 7];
 						}
 					}
+			}
 
 			if ((z == startwall) || (wall[z - 1].point2 != z))
 			{
@@ -3505,7 +3514,7 @@ void Build3DBoardPolymost::editorfunc(void)
 void Build3DBoardPolymost::drawrooms()
 {
 	numDrawPolyCommands = 0;
-	visibleSectorList.clear();
+	memset(&visibleSectorList[0], 0, sizeof(bool) * MAXSECTORS);
 
 //	begindrawing();
 	frameoffset = frameplace + windowy1*bytesperline + windowx1;
@@ -3673,6 +3682,9 @@ void Build3DBoardPolymost::drawmaskwall(int32_t damaskwallcnt)
 	// wal->nextsector is -1, WGR2 SVN Lochwood Hollow (Til' Death L1)  (or trueror1.map)
 
 	tsectortype const * const nsec = (tsectortype *)&sector[wal->nextsector];
+
+	AddUniqueSector(sectnum);
+	AddUniqueSector(wal->nextsector);
 
 	globalpicnum = wal->overpicnum;
 	if ((uint32_t)globalpicnum >= MAXTILES)

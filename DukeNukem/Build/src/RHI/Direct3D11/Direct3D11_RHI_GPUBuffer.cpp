@@ -33,7 +33,7 @@ void BuildD3D11GPUBufferVertexBuffer::InitBuffer(int initialSize, int stride, vo
 		}
 		bufferDesc.CPUAccessFlags = 0;
 	}
-	bufferDesc.ByteWidth = stride * initialSize;
+	vertexBufferSize = bufferDesc.ByteWidth = stride * initialSize;
 	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	bufferDesc.MiscFlags = 0;
 
@@ -58,7 +58,15 @@ void BuildD3D11GPUBufferVertexBuffer::InitBuffer(int initialSize, int stride, vo
 //
 void BuildD3D11GPUBufferVertexBuffer::UpdateBuffer(void *data, int size, int offset)
 {
-	
+
+	if (offset + size > vertexBufferSize)
+	{
+#ifdef _DEBUG
+		initprintf("BuildD3D11GPUBufferVertexBuffer::UpdateBuffer: Tried to update buffer when size exceeds vertex buffer size!\n");
+#endif
+		return;
+	}
+
 	D3D11_BOX box;
 	box.left = offset;
 	box.right = offset + size;
@@ -71,12 +79,10 @@ void BuildD3D11GPUBufferVertexBuffer::UpdateBuffer(void *data, int size, int off
 
 void BuildD3D11GPUBufferVertexBuffer::Bind()
 {
-	static BuildD3D11GPUBufferVertexBuffer *currentVertexBuffer = NULL;
-
-	if (this == currentVertexBuffer)
+	if (this == rhiPrivate.renderState.currentVertexBuffer)
 		return;
 
-	currentVertexBuffer = this;
+	rhiPrivate.renderState.currentVertexBuffer = this;
 
 	UINT offset = 0;
 	DX::RHIGetD3DDeviceContext()->IASetVertexBuffers(0, 1, &rhiVertexBufferHandle, (UINT *)&rhiStride, &offset);
@@ -159,12 +165,11 @@ void BuildD3D11GPUBufferIndexBuffer::UpdateBuffer(void *data, int size, int offs
 
 void BuildD3D11GPUBufferIndexBuffer::Bind()
 {
-	static BuildD3D11GPUBufferIndexBuffer *currentIndexBuffer = NULL;
 
-	if (this == currentIndexBuffer)
+	if (this == rhiPrivate.renderState.currentIndexBuffer)
 		return;
 
-	currentIndexBuffer = this;
+	rhiPrivate.renderState.currentIndexBuffer = this;
 
 	UINT offset = 0;
 	DX::RHIGetD3DDeviceContext()->IASetIndexBuffer(rhiIndexBufferHandle, DXGI_FORMAT_R32_UINT, offset);
@@ -236,18 +241,22 @@ void BuildD3D11GPUBufferConstantBuffer::UpdateBuffer(void *data, int size, int o
 	DX::RHIGetD3DDeviceContext()->Unmap(rhiConstantBufferHandle, 0);
 }
 
-void BuildD3D11GPUBufferConstantBuffer::Bind(bool bindToVertexShader, bool bindToFragmentShader)
+void BuildD3D11GPUBufferConstantBuffer::Bind(BuildShaderBindTarget target)
 {
 	UINT offset = 0;
 
-	if (bindToVertexShader)
+	if (target == SHADER_BIND_VERTEXSHADER)
 	{
 		DX::RHIGetD3DDeviceContext()->VSSetConstantBuffers(0, 1, &rhiConstantBufferHandle);
 		//	DX::RHIGetD3DDeviceContext()->GSSetConstantBuffers(0, 1, &rhiConstantBufferHandle);
 	}
-	else if (bindToFragmentShader)
+	else if (target == SHADER_BIND_PIXELSHADER)
 	{
 		DX::RHIGetD3DDeviceContext()->PSSetConstantBuffers(0, 1, &rhiConstantBufferHandle);
+	}
+	else if (target == SHADER_BIND_GEOMETRYSHADER)
+	{
+		DX::RHIGetD3DDeviceContext()->GSSetConstantBuffers(0, 1, &rhiConstantBufferHandle);
 	}
 	else
 	{

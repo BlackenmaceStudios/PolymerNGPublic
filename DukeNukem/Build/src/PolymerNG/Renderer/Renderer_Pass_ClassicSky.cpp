@@ -62,7 +62,7 @@ void RendererDrawPassDrawClassicSky::Draw(const BuildRenderCommand &command)
 	//drawSpriteBuffer.modelMatrix = sprite->modelMatrix;
 	classicSkyConstantBuffer->UpdateBuffer(&drawClassicSkyBuffer, sizeof(VS_DRAWCLASSICSKY_BUFFER), 0);
 
-	rhi.SetConstantBuffer(0, classicSkyConstantBuffer);
+	rhi.SetConstantBuffer(0, classicSkyConstantBuffer, SHADER_BIND_VERTEXSHADER);
 
 	rhi.SetImageForContext(0, material->GetDiffuseTexture()->GetRHITexture());
 	rhi.SetImageForContext(1, imageManager.GetPaletteManager()->GetPaletteImage()->GetRHITexture());

@@ -18,9 +18,11 @@ public:
 	void		 CreateProjectionMatrix(int32_t fov, Math::Matrix4 &projectionMatrix, int width, int height);
 	void		 AddRenderPlaneToDrawList(BuildRenderThreadTaskRenderWorld &renderWorldTask, Build3DPlane *plane);
 
-	PolymerNGLightLocal		*AddLightToMap(PolymerNGLightLocal light) { mapLights.push_back(light); return &mapLights[mapLights.size() - 1]; }
+	PolymerNGLightLocal		*AddLightToMap(PolymerNGLightLocal *light) { mapLights.push_back(light); return mapLights[mapLights.size() - 1]; }
 
 	Build3DBoard *GetBoard() { return board; }
+
+	void		 MoveLightsInSector(int sectorNum, float deltax, float deltay);
 
 private:
 	void		 InitBoard();
@@ -31,7 +33,7 @@ private:
 	void		 InitOcclusion();
 	bool		 IsSectorVisible(const Math::Matrix4 &modelViewProjectionMatrix, Build3DSector *sector);
 
-	void		 DrawSprites(Math::Matrix4 &viewMatrix, Math::Matrix4 &projectionMatrix, float horizang, int16_t daang);
+	void		 DrawSprites(Math::Matrix4 &viewMatrix, Math::Matrix4 &projectionMatrix, float horizang, int16_t daang, Math::Vector3 &position);
 	bool		 ComputeSpritePlane(Math::Matrix4 &viewMatrix, Math::Matrix4 &projectionMatrix, float horizang, int16_t daang, Build3DSprite *sprite, tspritetype *tspr);
 	bool		 ComputeModelSpriteRender(Math::Matrix4 &viewMatrix, Math::Matrix4 &projectionMatrix, float horizang, int16_t daang, Build3DSprite *sprite, tspritetype *tspr);
 
@@ -50,5 +52,8 @@ private:
 	tspritetype     localtsprite[MAXSPRITESONSCREEN];
 
 	PolymerNGVisibilityEngine *visibilityEngine;
-	std::vector<PolymerNGLightLocal> mapLights;
+	std::vector<PolymerNGLightLocal *> mapLights;
+
+	int visibleSectorsArray[MAXSECTORS];
+	int numVisibleSectors;
 };

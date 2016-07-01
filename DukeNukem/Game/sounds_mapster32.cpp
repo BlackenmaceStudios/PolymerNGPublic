@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 
 // Stripped sounds.c for use in Mapster32, breaks all ties to game & music
-
+#include "pch.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -33,7 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "cache1d.h"
 #include "build.h"  // vec3_t
-#include "editor.h"
+#include "../editor/editor.h"
 
 #include "macros.h"
 #include "common.h"
@@ -57,7 +57,7 @@ int32_t MixRate = 44100;
 
 int32_t g_numEnvSoundsPlaying;
 
-void MUSIC_Update(void) {}  // needed when linking
+//void MUSIC_Update(void) {}  // needed when linking
 
 void S_Callback(uint32_t);
 

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="DebugSW|Win32">
@@ -49,7 +49,6 @@
     <ClInclude Include="build\include\dxdidf.h" />
     <ClInclude Include="build\include\dxtfilter.h" />
     <ClInclude Include="build\include\dynamicgtk.h" />
-    <ClInclude Include="build\include\editor.h" />
     <ClInclude Include="build\include\glbuild.h" />
     <ClInclude Include="build\include\glext.h" />
     <ClInclude Include="build\include\gtkbits.h" />
@@ -97,9 +96,9 @@
     <ClInclude Include="build\include\xxhash.h" />
     <ClInclude Include="Build\src\Input\InputSystem.h" />
     <ClInclude Include="Build\src\Input\InputSystem_private.h" />
+    <ClInclude Include="Build\src\Input\sdlkeytranslation.h" />
     <ClInclude Include="Build\src\Input\XGamePad.h" />
-    <ClInclude Include="Build\src\Input\XKeyboard.h" />
-    <ClInclude Include="Build\src\Input\XMouse.h" />
+    <ClInclude Include="Build\src\IntelBuildCPUT\AxisAlignedBox.h" />
     <ClInclude Include="Build\src\IntelBuildCPUT\CPUT.h" />
     <ClInclude Include="Build\src\IntelBuildCPUT\CPUTCamera.h" />
     <ClInclude Include="Build\src\IntelBuildCPUT\CPUTFrustum.h" />
@@ -133,11 +132,14 @@
     <ClInclude Include="Build\src\PolymerNG\PolymerNG_RenderTarget.h" />
     <ClInclude Include="Build\src\PolymerNG\PolymerNG_Visibility.h" />
     <ClInclude Include="build\src\PolymerNG\Renderer\Renderer.h" />
+    <ClInclude Include="Build\src\PolymerNG\Renderer\Renderer_Pass_ClassicFS.h" />
     <ClInclude Include="Build\src\PolymerNG\Renderer\Renderer_Pass_ClassicSky.h" />
     <ClInclude Include="Build\src\PolymerNG\Renderer\Renderer_Pass_DrawSprite.h" />
     <ClInclude Include="build\src\PolymerNG\Renderer\Renderer_Pass_DrawUI.h" />
     <ClInclude Include="Build\src\PolymerNG\Renderer\Renderer_Pass_DrawWorld.h" />
     <ClInclude Include="Build\src\PolymerNG\Renderer\Renderer_Pass_Lighting.h" />
+    <ClInclude Include="Build\src\PolymerNG\Renderer\Renderer_Pass_PostProcess.h" />
+    <ClInclude Include="Build\src\PolymerNG\Renderer\Renderer_Shadows.h" />
     <ClInclude Include="Build\src\PolymerNG\TextureCache\TextureCache.h" />
     <ClInclude Include="Build\src\PolymerNG\TextureCache\TextureCacheFormat.h" />
     <ClInclude Include="build\src\RHI\BuildRHI.h" />
@@ -190,24 +192,14 @@
     <ClCompile Include="build\src\DXTCompressor\DXT5YcocgCompression.cpp" />
     <ClCompile Include="build\src\dxtfilter.cpp" />
     <ClCompile Include="build\src\engine.cpp" />
+    <ClCompile Include="Build\src\engine_2ddraw.cpp" />
     <ClCompile Include="build\src\glbuild.cpp" />
     <ClCompile Include="build\src\hightile.cpp" />
     <ClCompile Include="Build\src\Input\InputSystem.cpp" />
     <ClCompile Include="Build\src\Input\XGamePad.cpp" />
-    <ClCompile Include="Build\src\Input\XKeyboard.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugSW|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseSW|x64'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="Build\src\Input\XMouse.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugSW|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseSW|x64'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="Build\src\IntelBuildCPUT\CPUTCamera.cpp" />
     <ClCompile Include="Build\src\IntelBuildCPUT\CPUTFrustum.cpp" />
+    <ClCompile Include="Build\src\IntelBuildCPUT\CPUTMath.cpp" />
     <ClCompile Include="build\src\kplib.cpp" />
     <ClCompile Include="build\src\lz4.cpp" />
     <ClCompile Include="build\src\md4.cpp" />
@@ -231,11 +223,14 @@
     <ClCompile Include="Build\src\PolymerNG\PolymerNG_RenderTarget.cpp" />
     <ClCompile Include="Build\src\PolymerNG\PolymerNG_Visibility.cpp" />
     <ClCompile Include="build\src\PolymerNG\Renderer\Renderer.cpp" />
+    <ClCompile Include="Build\src\PolymerNG\Renderer\Renderer_Pass_ClassicFS.cpp" />
     <ClCompile Include="Build\src\PolymerNG\Renderer\Renderer_Pass_ClassicSky.cpp" />
     <ClCompile Include="Build\src\PolymerNG\Renderer\Renderer_Pass_DrawSprite.cpp" />
     <ClCompile Include="build\src\PolymerNG\Renderer\Renderer_Pass_DrawUI.cpp" />
     <ClCompile Include="Build\src\PolymerNG\Renderer\Renderer_Pass_DrawWorld.cpp" />
     <ClCompile Include="Build\src\PolymerNG\Renderer\Renderer_Pass_Lighting.cpp" />
+    <ClCompile Include="Build\src\PolymerNG\Renderer\Renderer_Pass_PostProcess.cpp" />
+    <ClCompile Include="Build\src\PolymerNG\Renderer\Renderer_Shadows.cpp" />
     <ClCompile Include="Build\src\PolymerNG\TextureCache\TextureCache.cpp" />
     <ClCompile Include="build\src\polymost.cpp" />
     <ClCompile Include="build\src\pragmas.cpp" />

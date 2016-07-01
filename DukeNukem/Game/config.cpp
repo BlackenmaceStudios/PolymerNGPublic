@@ -160,7 +160,7 @@ void CONFIG_SetDefaults(void)
 #ifdef USE_OPENGL
     ud.config.ScreenBPP = 32;
 #else
-    ud.config.ScreenBPP = 8;
+	ud.config.ScreenBPP = 32; // jmarshall - changed
 #endif
     ud.config.useprecache = 1;
     ud.config.ForceSetup = 1;
@@ -612,7 +612,7 @@ int32_t CONFIG_ReadSetup(void)
         SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "MaxRefreshFreq", (int32_t *)&maxrefreshfreq);
 
         SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "ScreenBPP", &ud.config.ScreenBPP);
-        if (ud.config.ScreenBPP < 8) ud.config.ScreenBPP = 32;
+        ud.config.ScreenBPP = 32;
 
 #ifdef POLYMER
         SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "Polymer", &dummy);

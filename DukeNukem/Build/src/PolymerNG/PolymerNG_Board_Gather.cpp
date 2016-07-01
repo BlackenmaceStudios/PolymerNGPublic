@@ -141,14 +141,14 @@ void PolymerNGBoard::FindVisibleSectors(BuildRenderThreadTaskRenderWorld &render
 	localspritesortcnt = localmaskwallcnt = 0;
 
 
-	std::vector<int32_t> visibleSectorsArray;
+	;
 	{
 		float modelViewMatrixRaw[16];
 		float projectionMatrixRaw[16];
 		((Math::Matrix4)modelViewMatrix).GetFloat4x4((DirectX::XMFLOAT4X4 *)&modelViewMatrixRaw[0]);
 		((Math::Matrix4)projectionMatrix).GetFloat4x4((DirectX::XMFLOAT4X4 *)&projectionMatrixRaw[0]);
 
-		visibilityEngine->FindVisibleSectors(renderWorldTask, &modelViewMatrixRaw[0], &projectionMatrixRaw[0], visibleSectorsArray);
+		visibilityEngine->FindVisibleSectors(renderWorldTask, &modelViewMatrixRaw[0], &projectionMatrixRaw[0], visibleSectorsArray, numVisibleSectors);
 	}
 
 	//mirrorcount = 0;
@@ -169,7 +169,6 @@ void PolymerNGBoard::FindVisibleSectors(BuildRenderThreadTaskRenderWorld &render
 		board->GetWall(d)->flags.uptodate = 0;
 	}
 
-	int numVisibleSectors = visibleSectorsArray.size();
 	if (numVisibleSectors == 0)
 		return;
 

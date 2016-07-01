@@ -57,6 +57,10 @@
 
 #include "BuildEngineApp.h"
 
+#include "../Editor/editor_manager.h"
+
+int32_t editor_main(int32_t argc, const char **argv);
+
 class BuildEngineApp : public IBuildEngineApp
 {
 public:
@@ -82,10 +86,30 @@ private:
 	const char **_buildargv;
 	char *argvbuf;
 	class GameThread *gameThread;
+	class EditorThread *editorThread;
 };
 
 BuildEngineApp app_local;
 IBuildEngineApp *app = &app_local;
+
+class EditorThread : BuildThread
+{
+public:
+	EditorThread(int32_t buildargc, const char **buildargv) : BuildThread(2) {
+		_buildargc = buildargc; _buildargv = buildargv;
+	}
+	virtual int Execute();
+
+	int32_t _buildargc;
+	const char **_buildargv;
+};
+
+int EditorThread::Execute()
+{
+	editor_main(_buildargc, _buildargv);
+
+	return 0;
+}
 
 class GameThread : BuildThread
 {
@@ -191,7 +215,14 @@ void BuildEngineApp::Startup()
 
 	numpages = 1;
 
-	gameThread = new GameThread(_buildargc, _buildargv);
+	if (editorManager.IsEditorModeEnabled())
+	{
+		editorThread = new EditorThread(_buildargc, _buildargv);
+	}
+	else
+	{
+		gameThread = new GameThread(_buildargc, _buildargv);
+	}
 }
 
 void BuildEngineApp::Cleanup()

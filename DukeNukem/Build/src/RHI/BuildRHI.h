@@ -39,6 +39,7 @@ enum BuildImageType
 	IMAGETYPE_1D = 0,
 	IMAGETYPE_2D,
 	IMAGETYPE_3D,
+	IMAGETYPE_CUBE,
 
 	IMAGETYPE_NONE
 };
@@ -48,11 +49,19 @@ enum BuildImageType
 //
 enum BuildImageFormat
 {
-	IMAGE_FORMAT_RGBA32 = 0,
+	IMAGE_FORMAT_RGBA8 = 0,
 	IMAGE_FORMAT_R8,
 	IMAGE_FORMAT_R16,
+	IMAGE_FORMAT_R16_FLOAT,
 	IMAGE_FORMAT_R8G8,
+	IMAGE_FORMAT_RGB32,
+	IMAGE_FORMAT_RGB16,
+	IMAGE_FORMAT_R11G11B10_FLOAT,
+	IMAGE_FORMAT_R10G10B10A2,
 	IMAGE_FORMAT_DEPTH,
+	IMAGE_FORMAT_3DC,
+	IMAGE_FORMAT_DXT1,
+	IMAGE_FORMAT_DXT3,
 	IMAGE_FORMAT_DXT5
 };
 
@@ -64,6 +73,26 @@ enum BuildShaderTarget
 	SHADER_TARGET_VERTEX = 0,
 	SHADER_TARGET_GEOMETRY,
 	SHADER_TARGET_FRAGMENT
+};
+
+//
+// BuildShaderBindTarget
+//
+enum BuildShaderBindTarget
+{
+	SHADER_BIND_VERTEXSHADER,
+	SHADER_BIND_GEOMETRYSHADER,
+	SHADER_BIND_PIXELSHADER,
+	SHADER_BIND_NUMTYPES
+};
+
+//
+// BuildBlendState
+//
+enum BuildBlendState
+{
+	BLENDSTATE_ALPHA = 0,
+	BLENDSTATE_ADDITIVE
 };
 
 //
@@ -196,6 +225,16 @@ __declspec(align(16)) struct BuildRHIUIVertex
 #define MAX_RENDER_TARGETS 8
 
 //
+// BuildRHIFaceCulling
+//
+enum BuildRHIFaceCulling
+{
+	CULL_FACE_NONE = 0,
+	CULL_FACE_FRONT,
+	CULL_FACE_BACK
+};
+
+//
 // BuildRHI
 //
 class BuildRHI
@@ -204,7 +243,7 @@ public:
 	static void Init();
 
 	// Sets the image for the current context.
-	static void SetImageForContext(int rootIndex, const BuildRHITexture *image);
+	static void SetImageForContext(int rootIndex, const BuildRHITexture *image, bool useLinearFilter = false);
 
 	// Direct3D 12 pso not used.
 	static void SetPSOForContext(class GraphicsContext& Context, BuildRHIPipelineStateObject *pso);
@@ -214,6 +253,7 @@ public:
 
 	// Returns the number of bits for a format.
 	static int GetImageBitsFromTextureFormat(BuildRHITextureFormat format);
+	static int GetImagePitchFromTextureFormat(BuildRHITextureFormat format, int width);
 
 	// Allocates a PSO, not used.
 	static BuildRHIPipelineStateObject *CreatePipelineStateObject();
@@ -224,6 +264,9 @@ public:
 	// Loads in a texture from memory.
 	static const BuildRHITexture* LoadTextureFromMemory(const std::wstring &textureName, size_t Width, size_t Height, BuildRHITextureFormat Format, const void* InitData, bool allowCPUWrites = false, bool allowCPUReads = false, bool isRenderTargetImage = false);
 
+	// Loads in a texture from memory.
+	static const BuildRHITexture* LoadTextureCubeFromMemory(const std::wstring &textureName, size_t Width, size_t Height, BuildRHITextureFormat Format, const void* InitData, bool allowCPUWrites = false, bool allowCPUReads = false, bool isRenderTargetImage = false);
+
 	// Not used.
 	static const BuildRHITexture* LoadTexture3DFromMemory(const std::wstring &textureName, size_t Width, size_t Height, size_t Depth, BuildRHITextureFormat Format, const void* InitData, bool allowCPUWrites = false);
 
@@ -231,7 +274,7 @@ public:
 	static void SetShader(BuildRHIShader *shader);
 
 	// Sets the constant buffer.
-	static void SetConstantBuffer(int index, BuildRHIConstantBuffer *constantBuffer, bool bindToVertexShader = true, bool bindToPixelShader = false);
+	static void SetConstantBuffer(int index, BuildRHIConstantBuffer *constantBuffer, BuildShaderBindTarget target);
 
 	// Draws a quad.
 	static void DrawUnoptimized2DQuad( BuildRHIUIVertex *vertexes);
@@ -247,6 +290,9 @@ public:
 
 	// Sets the index buffer to a mesh.
 	static void SetRHIMeshIndexBuffer(BuildRHIMesh *mesh, BuildRHIMesh *parentMesh);
+
+	// Sets wether to use front or back face culling
+	static void SetFaceCulling(BuildRHIFaceCulling cullMode);
 
 	// Allocates a constant buffer.
 	static BuildRHIConstantBuffer *AllocateRHIConstantBuffer(int size, void *initialData);
@@ -264,21 +310,29 @@ public:
 	static BuildRHIRenderTarget *AllocateRHIRenderTarget(BuildRHITexture *diffuseTexture, BuildRHITexture *depthTexture, BuildRHITexture *stencilTexture);
 
 	// Binds a render target.
-	static void BindRenderTarget(BuildRHIRenderTarget *renderTarget);
+	static void BindRenderTarget(BuildRHIRenderTarget *renderTarget, int slice, bool shouldClear);
 
 	// Copies a image to another image.
 	static void CopyImageToAnotherImage(const BuildRHITexture *src, const BuildRHITexture *dst, int x, int y, int width, int height);
+	static void CopyDepthToAnotherImage(const BuildRHITexture *src, const BuildRHITexture *dst);
 
 	// Reads back pixels from a image(assumes the caller allocated enough memory for the copy :) ).
 	static void ReadBackPixelsFromImage(const BuildRHITexture *image, byte *buffer);
+
+	// Enables or disables the deferred render context. Upon disable it renders everything in that buffer.
+	static void ToggleDeferredRenderContext(bool enable);
 
 	// Allocates a occlusion query.
 	static BuildRHIGPUOcclusionQuery *AllocateOcclusionQuery();
 
 	// Allocates a performance counter.
 	static BuildRHIGPUPerformanceCounter *AllocatePerformanceCounter();
+
+	// Sets the RHI blend state.
+	static void SetBlendState(BuildBlendState blendstate);
 };
 
 extern BuildRHIInputElementDesc *ui_VertexElementDescriptor;
 extern BuildRHIInputElementDesc *world_VertexElementDescriptor;
 extern BuildRHI rhi;
+

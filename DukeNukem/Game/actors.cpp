@@ -25,6 +25,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define actors_c_
 #include "duke3d.h"
 
+#include "../Build/src/PolymerNG/PolymerNG_Public.h"
+
 #if KRANDDEBUG
 # define ACTOR_STATIC
 #else
@@ -753,9 +755,17 @@ void A_MoveSector(int i)
     int32_t p, pl = A_FindPlayer(s, &p);
     int const k = VM_OnEventWithBoth(EVENT_MOVESECTOR, i, pl, p, T3);
     int j = T2;
+// jmarshall
+//    s->x += (s->xvel * (sintable[(s->ang + 512) & 2047])) >> 14;
+//    s->y += (s->xvel * (sintable[s->ang & 2047])) >> 14;
+	float deltaX = (s->xvel * (sintable[(s->ang + 512) & 2047])) >> 14;
+	float deltaY = (s->xvel * (sintable[s->ang & 2047])) >> 14;
 
-    s->x += (s->xvel * (sintable[(s->ang + 512) & 2047])) >> 14;
-    s->y += (s->xvel * (sintable[s->ang & 2047])) >> 14;
+	s->x += deltaX;
+	s->y += deltaY;
+// jmarshall end
+
+	bool firstTransition = false;
 
     const int endwall = sector[s->sectnum].wallptr + sector[s->sectnum].wallnum;
 
@@ -764,6 +774,12 @@ void A_MoveSector(int i)
         vec2_t const v = g_origins[j];
         vec2_t t;
         rotatepoint(zerovec, v, k & 2047, &t);
+		if (!firstTransition)
+		{
+			polymerNGPublic->MoveLightsInSector(s->sectnum, t.x, t.y);
+			firstTransition = true;
+		}
+
         dragpoint(i, s->x + t.x, s->y + t.y, 0);
 
         j++;
@@ -6283,19 +6299,47 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             sc->ceilingshade = t[0];
             sc->floorshade = t[0];
 
-            wal = &wall[sc->wallptr];
+			if (s->xvel == 1)
+			{
+				
+				int spritenum = s->extra;
+				PolymerNGLight *light = actor[spritenum].light;
+				const PolymerNGLightOpts *lightOriginalOpts = light->GetOriginalOpts();
+				light->GetOpts()->color[0] = (g_globalRandom & (int)lightOriginalOpts->color[0]);
+				if (light->GetOpts()->color[0] < lightOriginalOpts->color[0] / 2)
+				{
+					light->GetOpts()->color[0] = lightOriginalOpts->color[0] / 2;
+				}
+				light->GetOpts()->color[1] = (g_globalRandom & (int)lightOriginalOpts->color[1]);
+				if (light->GetOpts()->color[1] < lightOriginalOpts->color[1] / 2)
+				{
+					light->GetOpts()->color[1] = lightOriginalOpts->color[1] / 2;
+				}
+				light->GetOpts()->color[2] = (g_globalRandom & (int)lightOriginalOpts->color[2]);
+				if (light->GetOpts()->color[2] < lightOriginalOpts->color[2] / 2)
+				{
+					light->GetOpts()->color[2] = lightOriginalOpts->color[2] / 2;
+				}
+				//light->GetOpts()->radius = (g_globalRandom & (int)lightOriginalOpts->radius);
+				//if (light->GetOpts()->radius < lightOriginalOpts->radius / 2)
+				//	light->GetOpts()->radius = lightOriginalOpts->radius / 2;
+			}
+			else
+			{
+				wal = &wall[sc->wallptr];
 
-            for (x=sc->wallnum; x > 0; x--,wal++)
-            {
-                if (wal->hitag != 1)
-                {
-                    wal->shade = t[0];
-                    if ((wal->cstat&2) && wal->nextwall >= 0)
-                    {
-                        wall[wal->nextwall].shade = wal->shade;
-                    }
-                }
-            }
+				for (x = sc->wallnum; x > 0; x--, wal++)
+				{
+					if (wal->hitag != 1)
+					{
+						wal->shade = t[0];
+						if ((wal->cstat & 2) && wal->nextwall >= 0)
+						{
+							wall[wal->nextwall].shade = wal->shade;
+						}
+					}
+				}
+			}
 
             break;
         }

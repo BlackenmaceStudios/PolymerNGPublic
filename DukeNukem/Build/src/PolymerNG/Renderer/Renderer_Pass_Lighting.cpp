@@ -13,6 +13,19 @@ RendererDrawPassLighting::Init
 */
 void RendererDrawPassLighting::Init()
 {
+	BuildImage *diffuseRenderBuffer, *depthRenderBuffer;
+	{
+		BuildImageOpts opts;
+		opts.width = globalWindowWidth;
+		opts.height = globalWindowHeight;
+		opts.format = IMAGE_FORMAT_RGBA8;
+		opts.isHighQualityImage = true;
+		opts.isRenderTargetImage = true;
+
+		diffuseRenderBuffer = new BuildImage(opts);
+		diffuseRenderBuffer->UpdateImagePost(NULL);
+	}
+	renderTarget = new PolymerNGRenderTarget(diffuseRenderBuffer, NULL, NULL);
 	drawLightingConstantBuffer = rhi.AllocateRHIConstantBuffer(sizeof(PS_DRAWLIGHTING_BUFFER), &drawLightingBuffer);
 }
 
@@ -24,24 +37,84 @@ RendererDrawPassLighting::Draw
 void RendererDrawPassLighting::Draw(const BuildRenderCommand &command)
 {
 	PolymerNGRenderTarget *drawWorldRenderTarget = renderer.GetWorldRenderTarget();
+	ShadowMap *shadowMapPool[NUM_QUEUED_SHADOW_MAPS];
+	int numShadowedLights = 0;
 
-	//spos[0] = (float)tspr->y;
-	//spos[1] = -(float)(tspr->z) / 16.0f;
-	//spos[2] = -(float)tspr->x;
+	rhi.SetBlendState(BLENDSTATE_ALPHA);
+	rhi.SetFaceCulling(CULL_FACE_BACK);
+	
+	for (int i = 0; i < command.taskDrawLights.numLights; i++)
+	{
+		if (command.taskDrawLights.visibleLights[i]->GetOpts()->castShadows)
+		{
+			shadowMapPool[numShadowedLights] = renderer.RenderShadowsForLight(command.taskDrawLights.visibleLights[i], numShadowedLights);
+			numShadowedLights++;
+		}
+	}
+	rhi.SetFaceCulling(CULL_FACE_NONE);
+	rhi.SetBlendState(BLENDSTATE_ADDITIVE);
 
-	rhi.SetShader(renderer.deferredLightingProgram->GetRHIShader());
+	renderTarget->Bind(0, true);
 
-	rhi.SetImageForContext(0, drawWorldRenderTarget->GetDiffuseImage(0)->GetRHITexture());
-	rhi.SetImageForContext(1, drawWorldRenderTarget->GetDepthImage()->GetRHITexture());
-	//rhi.SetImageForContext(1, imageManager.GetPaletteManager()->GetPaletteImage()->GetRHITexture());
+	for (int i = 0, d  = 0; i < command.taskDrawLights.numLights; i++)
+	{
+		ShadowMap *shadowMap = NULL;
+		
+		if (command.taskDrawLights.visibleLights[i]->GetOpts()->castShadows)
+		{
+			shadowMap = shadowMapPool[d++];
+		}
+		
+		if (command.taskDrawLights.visibleLights[i]->GetOpts()->castShadows)
+		{
+			rhi.SetShader(renderer.deferredLightingProgram->GetRHIShader());
+		}
+		else
+		{
+			rhi.SetShader(renderer.deferredLightingNoShadowsProgram->GetRHIShader());
+		}
 
-	//drawLightingBuffer.invModelViewProjectionMatrix = command.taskDrawLights.inverseModelViewMatrix;
-	//
-	//drawLightingBuffer.lightposition[0] = command.taskDrawLights.visibleLights[0]->GetOpts()->position[1];
-	//drawLightingBuffer.lightposition[1] = -(command.taskDrawLights.visibleLights[0]->GetOpts()->position[2] / 16.0f);
-	//drawLightingBuffer.lightposition[2] = -command.taskDrawLights.visibleLights[0]->GetOpts()->position[0];
+		rhi.SetImageForContext(0, drawWorldRenderTarget->GetDiffuseImage(0)->GetRHITexture());
+		rhi.SetImageForContext(1, drawWorldRenderTarget->GetDiffuseImage(1)->GetRHITexture());
+		rhi.SetImageForContext(2, drawWorldRenderTarget->GetDiffuseImage(2)->GetRHITexture());
+		rhi.SetImageForContext(3, drawWorldRenderTarget->GetDiffuseImage(3)->GetRHITexture());
+		rhi.SetImageForContext(4, drawWorldRenderTarget->GetDiffuseImage(4)->GetRHITexture());
+		rhi.SetImageForContext(5, renderer.GetWorldDepthBuffer()->GetRHITexture());
 
-	drawLightingConstantBuffer->UpdateBuffer(&drawLightingBuffer, sizeof(PS_DRAWLIGHTING_BUFFER), 0);
-	rhi.SetConstantBuffer(0, drawLightingConstantBuffer, false, true);
-	rhi.DrawUnoptimized2DQuad(NULL);
+		if (command.taskDrawLights.visibleLights[i]->GetOpts()->castShadows)
+		{
+			rhi.SetImageForContext(6, shadowMap->shadowMapCubeMap->GetDepthImage()->GetRHITexture(), true);
+		}
+
+		drawLightingBuffer.viewMatrix = command.taskDrawLights.viewMatrix;
+		drawLightingBuffer.invModelViewProjectionMatrix = command.taskDrawLights.inverseModelViewMatrix;
+		drawLightingBuffer.inverseViewMatrix = command.taskDrawLights.inverseViewMatrix;
+
+		drawLightingBuffer.lightViewMatrix = command.taskDrawLights.visibleLights[i]->GetShadowPass(0)->shadowViewMatrix;
+		drawLightingBuffer.lightProjectionMatrix = command.taskDrawLights.visibleLights[i]->GetShadowPass(0)->shadowProjectionMatrix;
+
+		drawLightingBuffer.lightposition_and_range[0] = command.taskDrawLights.visibleLights[i]->GetOpts()->position[1];
+		drawLightingBuffer.lightposition_and_range[1] = -command.taskDrawLights.visibleLights[i]->GetOpts()->position[2] / 16.0f;
+		drawLightingBuffer.lightposition_and_range[2] = -command.taskDrawLights.visibleLights[i]->GetOpts()->position[0];
+		drawLightingBuffer.lightposition_and_range[3] = command.taskDrawLights.visibleLights[i]->GetOpts()->radius;
+
+		drawLightingBuffer.lightrangcolor[0] = command.taskDrawLights.visibleLights[i]->GetOpts()->color[0] / 255.0f;
+		drawLightingBuffer.lightrangcolor[1] = command.taskDrawLights.visibleLights[i]->GetOpts()->color[1] / 255.0f;
+		drawLightingBuffer.lightrangcolor[2] = command.taskDrawLights.visibleLights[i]->GetOpts()->color[2] / 255.0f;
+		drawLightingBuffer.lightrangcolor[3] = command.taskDrawLights.visibleLights[i]->GetOpts()->radius;
+
+		drawLightingBuffer.lightbrightnessandunknown.x = command.taskDrawLights.visibleLights[i]->GetOpts()->brightness;
+
+		drawLightingBuffer.numLightsUnkown[0] = 1;
+
+		drawLightingConstantBuffer->UpdateBuffer(&drawLightingBuffer, sizeof(PS_DRAWLIGHTING_BUFFER), 0);
+		rhi.SetConstantBuffer(0, drawLightingConstantBuffer, SHADER_BIND_PIXELSHADER);
+		rhi.DrawUnoptimized2DQuad(NULL);
+	}
+	rhi.SetBlendState(BLENDSTATE_ALPHA);
+	
+
+	
+
+	PolymerNGRenderTarget::BindDeviceBuffer();
 }

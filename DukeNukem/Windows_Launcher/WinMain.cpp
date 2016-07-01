@@ -8,17 +8,22 @@
 #include "../Build/include/BuildEngineApp.h"
 #include "../Common/GraphicsContext.h"
 
+#include "../platform/Windows/include/SDL2/SDL.h"
+#include "../platform/Windows/include/SDL2/SDL_syswm.h"
+
 /*
 =============================================================
 
 EDuke32 Windows Launcher
 
-The goal of the initial launcher is to support the same level of functionality as UWP PC does. This will expand as time goes on.
+The Win64 launcher for EDuke32.
 
 =============================================================
 */
 
 #pragma comment(lib, "Ws2_32.lib")
+
+#include "../Editor/editor_manager.h"
 
 #ifdef _DEBUG
 #define BUILD_TYPE "Debug"
@@ -26,13 +31,15 @@ The goal of the initial launcher is to support the same level of functionality a
 #define BUILD_TYPE "Release"
 #endif
 
-#define EDUKE32_CLASSNAME L"Eduke32"
-#define EDUKE32_WINDOWS_TITLE L"Eduke32 with PolymerNG(" BUILD_TYPE " - For Testing Purposes Only) - " __DATE__ " " __TIME__
+#define EDUKE32_CLASSNAME "Eduke32"
+#define EDUKE32_WINDOWS_TITLE "Eduke32 with PolymerNG(" BUILD_TYPE " - For Testing Purposes Only) - " __DATE__ " " __TIME__
 
 HWND g_hwnd = NULL;
 
 float globalWindowWidth = 0;
 float globalWindowHeight = 0;
+
+extern "C" char keystatus[256];
 
 namespace DX
 {
@@ -41,6 +48,8 @@ namespace DX
 	ID3D11DeviceContext1 *g_d3D11Context = NULL;
 	ID3D11DeviceContext  *g_d3D11Context_0 = NULL;
 	IDXGISwapChain *g_swapChain;
+
+	ID3D11DeviceContext1 *g_d3d11ContextOverride = NULL;
 
 	int g_videoCardMemory;
 
@@ -53,8 +62,16 @@ namespace DX
 
 	D3D_FEATURE_LEVEL g_d3dCurrentFeatureLevel;
 
+	void SetRHID3DDeviceContextOverride(ID3D11DeviceContext1 *g_override) { g_d3d11ContextOverride = g_override; }
+
 	ID3D11Device1 *RHIGetD3DDevice() { return g_d3d11Device; }
-	ID3D11DeviceContext1* RHIGetD3DDeviceContext() { return g_d3D11Context; }
+	ID3D11DeviceContext1* RHIGetD3DDeviceContext() 
+	{ 
+		if (g_d3d11ContextOverride != NULL)
+			return g_d3d11ContextOverride;
+
+		return g_d3D11Context; 
+	}
 
 	ID2D1Factory1 *RHIGetD2D1DeviceFactory3() { return NULL; }
 	ID2D1DeviceContext1 *RHIGet2D1DeviceContext2() { return NULL; }
@@ -338,6 +355,11 @@ namespace DX
 			return false;
 		}
 
+		DX::m_screenViewport.TopLeftX = 0;
+		DX::m_screenViewport.TopLeftY = 0;
+		DX::m_screenViewport.Width = globalWindowWidth;
+		DX::m_screenViewport.Height = globalWindowHeight;
+
 		return true;
 	}
 }
@@ -356,24 +378,6 @@ void GetDesktopResolution(int& horizontal, int& vertical)
 	// (horizontal, vertical)
 	horizontal = desktop.right;
 	vertical = desktop.bottom;
-}
-
-LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
-	PAINTSTRUCT ps;
-	HDC hdc;
-
-	switch (message)
-	{
-	case WM_DESTROY:
-		PostQuitMessage(0);
-		break;
-	default:
-		return DefWindowProc(hWnd, message, wParam, lParam);
-		break;
-	}
-
-	return 0;
 }
 
 // This is REALLY evil!!!!!
@@ -396,6 +400,17 @@ void RHIAppToggleDepthTest(bool enableDepthTest)
 		DX::g_d3D11Context->OMSetRenderTargets(1, targets, NULL);
 		DX::g_d3D11Context->RSSetViewports(1, &DX::m_screenViewport);
 	}
+}
+
+void RHIApiSetupContext(ID3D11DeviceContext1 *context)
+{
+	// Reset the viewport to target the whole screen.
+	context->RSSetViewports(1, &DX::m_screenViewport);
+
+	// Reset render targets to the screen.
+	viewportDepthStencilView = DX::m_d3dDepthStencilView;
+	targets[0] = DX::m_d3dRenderTargetView;
+	context->OMSetRenderTargets(1, targets, DX::m_d3dDepthStencilView);
 }
 
 void DrawFrame(GraphicsContext &fakeContext)
@@ -426,54 +441,42 @@ void DrawFrame(GraphicsContext &fakeContext)
 
 int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nShowCmd)
 {
-	WNDCLASSEX wcex;
 	GraphicsContext fakeContext;
 
 	int window_width, window_height;
 
-	wcex.cbSize = sizeof(WNDCLASSEX);
-	wcex.style = CS_HREDRAW | CS_VREDRAW;
-	wcex.lpfnWndProc = WndProc;
-	wcex.cbClsExtra = 0;
-	wcex.cbWndExtra = 0;
-	wcex.hInstance = hInstance;
-	wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_APPLICATION));
-	wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
-	wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-	wcex.lpszMenuName = NULL;
-	wcex.lpszClassName = EDUKE32_CLASSNAME;
-	wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_APPLICATION));
+	SDL_Window *window;
 
-	if (!RegisterClassEx(&wcex))
-	{
-		return false;
-	}
+	if (strstr(lpCmdLine, "-editor"))
+		editorManager.SetIsEditorMode(true);
+	else
+		editorManager.SetIsEditorMode(false);
+
+	SDL_Init(SDL_INIT_VIDEO);              // Initialize SDL2
 
 	GetDesktopResolution(window_width, window_height);
-
-	g_hwnd = CreateWindow(
-		EDUKE32_CLASSNAME,
-		EDUKE32_WINDOWS_TITLE,
-		WS_OVERLAPPEDWINDOW,
-		0, 0,
-		window_width, window_height,
-		NULL,
-		NULL,
-		hInstance,
-		NULL
+	window = SDL_CreateWindow(
+		EDUKE32_WINDOWS_TITLE,              // window title
+		0,								   // initial x position
+		0,								   // initial y position
+		window_width,                      // width, in pixels
+		window_height,                     // height, in pixels
+		SDL_WINDOW_SHOWN                  // flags - see below
 	);
 
-	if (!g_hwnd)
+	if (window == NULL)
 	{
-		static int errorcode = GetLastError();
-		return 1;
+		return 0;
 	}
 
 	globalWindowWidth = window_width;
 	globalWindowHeight = window_height;
 
-	ShowWindow(g_hwnd, SW_SHOW);
-	UpdateWindow(g_hwnd);
+	SDL_SysWMinfo wmInfo;
+	SDL_VERSION(&wmInfo.version);
+	SDL_GetWindowWMInfo(window, &wmInfo);
+
+	g_hwnd = wmInfo.info.win.window;
 
 	// Initialize the graphics device
 	if (!DX::InitializeGraphicsDevice())
@@ -485,23 +488,29 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	// Start the game thread.
 	app->Startup();
 
+	int LastPeekMessage = 0;
+
 	// Main message loop:
-	MSG msg = { 0 };
-	while (WM_QUIT != msg.message)
+	while (true)
 	{
-		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+		//Handle events on queue
+		SDL_Event e;
+		while (SDL_PollEvent(&e) != 0)
 		{
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-		}
-		else
-		{
-			if (app->HasWork())
+			//User requests quit
+			if (e.type == SDL_QUIT)
 			{
-				DrawFrame(fakeContext);
+				break;
 			}
+		}
+
+		app->Update(0);
+
+		if (app->HasWork())
+		{
+			DrawFrame(fakeContext);
 		}
 	}
 
-	return (int)msg.wParam;
+	return 0;
 }

@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "compat.h"
 #include "baselayer.h"
 #include "build.h"
-#include "editor.h"
+#include "../editor/editor.h"
 
 #define MAXQUOTES 2048
 #define MAXQUOTELEN 128

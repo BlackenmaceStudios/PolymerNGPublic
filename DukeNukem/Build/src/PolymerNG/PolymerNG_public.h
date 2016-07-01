@@ -46,8 +46,9 @@ struct PolymerNGLightOpts
 	int priority;
 	int tilenum;
 	int faderadius;
+	int brightness;
 
-	bool hasShadows;
+	bool castShadows;
 };
 
 //
@@ -56,7 +57,8 @@ struct PolymerNGLightOpts
 class PolymerNGLight
 {
 public:
-
+	virtual PolymerNGLightOpts *GetOpts() = 0;
+	virtual const PolymerNGLightOpts *GetOriginalOpts() = 0;
 };
 
 //
@@ -66,6 +68,8 @@ class PolymerNGPublic
 {
 public:
 	virtual PolymerNGLight *AddLightToCurrentBoard(PolymerNGLightOpts lightOpts) = 0;
+
+	virtual void MoveLightsInSector(int sectorNum, float deltax, float deltay) = 0;
 };
 
 extern PolymerNGPublic *polymerNGPublic;

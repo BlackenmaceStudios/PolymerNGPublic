@@ -26,17 +26,43 @@ void BuildRHI::Init()
 		initprintf("Failed to create point sample state\n");
 	}
 
+	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	if (FAILED(DX::RHIGetD3DDevice()->CreateSamplerState(&samplerDesc, &rhiPrivate.linearSampleState)))
+	{
+		initprintf("Failed to create point sample state\n");
+	}
+
 	{
 		// We want to use back face culling.
 		D3D11_RASTERIZER_DESC cullModeDesc;
 		memset(&cullModeDesc, 0, sizeof(D3D11_RASTERIZER_DESC));
-		cullModeDesc.CullMode = D3D11_CULL_NONE; // Should be D3D11_CULL_FRONT!
+		cullModeDesc.CullMode = D3D11_CULL_NONE; 
 		cullModeDesc.FillMode = D3D11_FILL_SOLID;
 		DX::RHIGetD3DDevice()->CreateRasterizerState(&cullModeDesc, &rhiPrivate.cullModeBuildState);
 
 		// HACK HACK
 		DX::RHIGetD3DDeviceContext()->RSSetState(rhiPrivate.cullModeBuildState);
 	}
+
+	{
+		// We want to use back face culling.
+		D3D11_RASTERIZER_DESC cullModeDesc;
+		memset(&cullModeDesc, 0, sizeof(D3D11_RASTERIZER_DESC));
+		cullModeDesc.CullMode = D3D11_CULL_FRONT;
+		cullModeDesc.FillMode = D3D11_FILL_SOLID;
+		DX::RHIGetD3DDevice()->CreateRasterizerState(&cullModeDesc, &rhiPrivate.cullModeBuildFrontState);
+
+	}
+
+	{
+		// We want to use back face culling.
+		D3D11_RASTERIZER_DESC cullModeDesc;
+		memset(&cullModeDesc, 0, sizeof(D3D11_RASTERIZER_DESC));
+		cullModeDesc.CullMode = D3D11_CULL_BACK;
+		cullModeDesc.FillMode = D3D11_FILL_SOLID;
+		DX::RHIGetD3DDevice()->CreateRasterizerState(&cullModeDesc, &rhiPrivate.cullModeBuildBackState);
+	}
+
 
 	{
 		// Always have alpha blend enabled.
@@ -53,6 +79,34 @@ void BuildRHI::Init()
 		BlendState.RenderTarget[0].RenderTargetWriteMask = 0x0f;
 		DX::RHIGetD3DDevice()->CreateBlendState1(&BlendState, &rhiPrivate.alphaBlendState);
 		DX::RHIGetD3DDeviceContext()->OMSetBlendState(rhiPrivate.alphaBlendState, 0, 0xffffffff);
+	}
+
+	{
+		// Additive blend
+		D3D11_BLEND_DESC1 BlendState;
+
+		ZeroMemory(&BlendState, sizeof(D3D11_BLEND_DESC1));
+		BlendState.RenderTarget[0].BlendEnable = TRUE;
+		BlendState.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+		BlendState.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
+		BlendState.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
+		BlendState.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+		BlendState.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+		BlendState.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
+		BlendState.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+		BlendState.RenderTarget[0].RenderTargetWriteMask = 0x0f;
+		DX::RHIGetD3DDevice()->CreateBlendState1(&BlendState, &rhiPrivate.additiveBlendState);
+		//DX::RHIGetD3DDeviceContext()->OMSetBlendState(rhiPrivate.alphaBlendState, 0, 0xffffffff);
+	}
+
+	// Create our deferred context.
+	if (FAILED(DX::RHIGetD3DDevice()->CreateDeferredContext(0, &rhiPrivate.pDeferredContext_0)))
+	{
+		initprintf("Failed to create deferred render context!!\n");
+	}
+	else
+	{
+		(void)(rhiPrivate.pDeferredContext_0)->QueryInterface(__uuidof(ID3D11DeviceContext1), reinterpret_cast<void**>(&rhiPrivate.pDeferredContext));
 	}
 }
 

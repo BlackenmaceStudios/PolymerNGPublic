@@ -6,8 +6,14 @@
 #include "InputSystem_private.h"
 #include "../../include/build.h"
 
+#include <SDL.h>
+#include "sdlkeytranslation.h"
+
 XBuildInputSystemPrivate xBuildInputSystemPrivate;
 XBuildInputSystem *xBuildInputSystem = &xBuildInputSystemPrivate;
+
+extern float globalWindowWidth;
+extern float globalWindowHeight;
 
 void XBuildInputSystemPrivate::Init()
 {
@@ -23,6 +29,13 @@ void XBuildInputSystemPrivate::Init()
 		controllerButtonForcedUp[i] = false;
 	}
 
+	SDL_JoystickEventState(SDL_ENABLE);
+	//SDL_SetRelativeMouseMode(SDL_TRUE);
+
+	buildkeytranslationtable();
+
+	memset(&keyboardInputLocalState[0], 0, sizeof(bool) * 256);
+
 	if (gamePad == nullptr)
 		return;
 
@@ -34,6 +47,8 @@ void XBuildInputSystemPrivate::Init()
 			currentPlayerId = i;
 		}
 	}
+
+
 }
 
 bool XBuildInputSystemPrivate::KB_KeyPressed(unsigned char c)
@@ -46,6 +61,30 @@ extern "C" void readmousexy(int32_t *x, int32_t *y)
 
 	static int32_t lastMouseX = 0;
 	static int32_t lastMouseY = 0;
+	static int32_t currentMouseX = 0;
+	static int32_t currentMouseY = 0;
+
+	// Get the mouse position.
+	SDL_GetMouseState(&currentMouseX, &currentMouseY);
+	if (currentMouseX - lastMouseX != 0 || currentMouseY - lastMouseY != 0)
+	{
+		//int32_t mousePositionX = currentMouseX - lastMouseX;
+		//int32_t mousePositionY = currentMouseY - lastMouseY;
+		//
+		//float movementDirX = 0;
+		//float movementDirY = 0;
+		//
+		//movementDirX = (((currentMouseX - 0) / (globalWindowWidth - 0)) - 0.5f) * 2.0f;
+		//movementDirY = (((currentMouseY - 0) / (globalWindowHeight - 0)) - 0.5f) * 2.0f;
+		//
+		//
+		//lastMouseX = currentMouseX;
+		//lastMouseY = currentMouseY;
+		//
+		//*x = movementDirX * 50;
+		//*y = (movementDirY * 50);
+		//return;
+	}
 
 	if (xBuildInputSystemPrivate.gamePad == nullptr)
 	{
@@ -61,6 +100,11 @@ extern "C" void readmousexy(int32_t *x, int32_t *y)
 		*x = controllerState.thumbSticks.rightX * 100;
 		*y = (-controllerState.thumbSticks.rightY * 100) * 2.0f;
 		return;
+	}
+	else
+	{
+		*x = 0;
+		*y = 0;
 	}
 #if 0
 	int32_t mousePositionX = xBuildInputSystemPrivate.m_mouse->GetState().x - lastMouseX;
@@ -78,6 +122,12 @@ extern "C" void readmousexy(int32_t *x, int32_t *y)
 
 extern "C" void readmousebstatus(int32_t *b)
 {
+	if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT))
+	{
+		b[0] = 1;
+		return;
+	}
+
 	if (xBuildInputSystemPrivate.gamePad == nullptr)
 		return;
 
@@ -172,59 +222,85 @@ void XBuildInputSystemPrivate::SetControllerButtonsUp()
 
 void XBuildInputSystemPrivate::Update()
 {
-	if (xBuildInputSystemPrivate.gamePad == nullptr)
-		return;
+	const uint8_t* keystate = SDL_GetKeyboardState(NULL);
 
-	DirectX::GamePad::State controllerState = xBuildInputSystemPrivate.gamePad->GetState(xBuildInputSystemPrivate.GetCurrentPlayerId(), DirectX::GamePad::DEAD_ZONE_INDEPENDENT_AXES);
-
-	if (controllerState.connected)
+	for (int i = 0; i < SDL_NUM_SCANCODES; i++)
 	{
-		for (int i = 0; i < XB_NumButtons; i++)
+		if (keystate[keytranslation[i].sdlkey])
 		{
-			switch (i)
+			// The game can intentionally disable key down's, we need to handle this.
+			if(keyboardInputLocalState[keytranslation[i].buildkey] == false && keystatus[keytranslation[i].buildkey] == false)
+				keystatus[keytranslation[i].buildkey] = 1;
+
+			keyboardInputLocalState[keytranslation[i].buildkey] = 1;
+		}
+		else
+		{
+			keystatus[keytranslation[i].buildkey] = 0;
+			keyboardInputLocalState[keytranslation[i].buildkey] = 0;
+		}
+	}
+
+	if (xBuildInputSystemPrivate.gamePad != nullptr)
+	{
+		try
+		{
+			DirectX::GamePad::State controllerState = xBuildInputSystemPrivate.gamePad->GetState(xBuildInputSystemPrivate.GetCurrentPlayerId(), DirectX::GamePad::DEAD_ZONE_INDEPENDENT_AXES);
+
+			if (controllerState.connected)
 			{
-			case XB_Button_A:
-				if(controllerState.buttons.a == false)
-					controllerButtonForcedUp[i] = false;
-				break;
-			case XB_Button_B:
-				if (controllerState.buttons.b == false)
-					controllerButtonForcedUp[i] = false;
-				break;
-			case XB_Button_Y:
-				if (controllerState.buttons.y == false)
-					controllerButtonForcedUp[i] = false;
-				break;
-			case XB_Button_X:
-				if (controllerState.buttons.x == false)
-					controllerButtonForcedUp[i] = false;
-				break;
-			case XB_Button_DPAD_Up:
-				if (controllerState.dpad.up == false)
-					controllerButtonForcedUp[i] = false;
-				break;
-			case XB_Button_DPAD_Down:
-				if (controllerState.dpad.down == false)
-					controllerButtonForcedUp[i] = false;
-				break;
-			case XB_Button_DPAD_Left:
-				if (controllerState.dpad.left == false)
-					controllerButtonForcedUp[i] = false;
-				break;
-			case XB_Button_DPAD_Right:
-				if (controllerState.dpad.right == false)
-					controllerButtonForcedUp[i] = false;
-				break;
-			case XB_Shoulder_Left:
-				if (controllerState.IsLeftShoulderPressed() == false)
-					controllerButtonForcedUp[i] = false;
-				break;
-			case XB_Shoulder_Right:
-				if (controllerState.IsRightShoulderPressed() == false)
-					controllerButtonForcedUp[i] = false;
-				break;
+				for (int i = 0; i < XB_NumButtons; i++)
+				{
+					switch (i)
+					{
+					case XB_Button_A:
+						if (controllerState.buttons.a == false)
+							controllerButtonForcedUp[i] = false;
+						break;
+					case XB_Button_B:
+						if (controllerState.buttons.b == false)
+							controllerButtonForcedUp[i] = false;
+						break;
+					case XB_Button_Y:
+						if (controllerState.buttons.y == false)
+							controllerButtonForcedUp[i] = false;
+						break;
+					case XB_Button_X:
+						if (controllerState.buttons.x == false)
+							controllerButtonForcedUp[i] = false;
+						break;
+					case XB_Button_DPAD_Up:
+						if (controllerState.dpad.up == false)
+							controllerButtonForcedUp[i] = false;
+						break;
+					case XB_Button_DPAD_Down:
+						if (controllerState.dpad.down == false)
+							controllerButtonForcedUp[i] = false;
+						break;
+					case XB_Button_DPAD_Left:
+						if (controllerState.dpad.left == false)
+							controllerButtonForcedUp[i] = false;
+						break;
+					case XB_Button_DPAD_Right:
+						if (controllerState.dpad.right == false)
+							controllerButtonForcedUp[i] = false;
+						break;
+					case XB_Shoulder_Left:
+						if (controllerState.IsLeftShoulderPressed() == false)
+							controllerButtonForcedUp[i] = false;
+						break;
+					case XB_Shoulder_Right:
+						if (controllerState.IsRightShoulderPressed() == false)
+							controllerButtonForcedUp[i] = false;
+						break;
+					}
+
+				}
 			}
-			
+		}
+		catch (...)
+		{
+
 		}
 	}
 }
