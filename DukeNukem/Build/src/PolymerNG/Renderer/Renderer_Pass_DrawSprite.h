@@ -13,8 +13,8 @@ enum SpriteFacingType
 
 struct VS_DRAWSPRITE_BUFFER
 {
-	Math::XMFLOAT4X4  mWorldViewProj;
-	Math::XMFLOAT4X4   modelMatrixInverse;
+	float4x4  mWorldViewProj;
+	float4x4   modelMatrixInverse;
 	float viewPosition[4];
 };
 
@@ -23,7 +23,12 @@ struct PS_DRAWSPRITE_BUFFER
 	float shadeOffsetVisibility[4];
 	float fogDensistyScaleEnd[4];
 	float fogColor[4];
+	float normal[4];
+	float tangent[4];
+	float ambient[4];
 };
+
+bool G_IsGlowSprite(int idx);
 
 class RendererDrawPassDrawSprite : public RendererDrawPassBase
 {

@@ -159,7 +159,7 @@ bool PolymerNGModelCache::SetModelTile(const char *fileName, int tileNum)
 
 	for (int i = 0; i < numPayloads; i++)
 	{
-		if (!strcmp(payloadHeaders[i].modelpath, fileName))
+		if (!stricmp(payloadHeaders[i].modelpath, fileName))
 		{
 			currentPayloadInfo = &payloadHeaders[i];
 			currentPayload = &payloads[i];

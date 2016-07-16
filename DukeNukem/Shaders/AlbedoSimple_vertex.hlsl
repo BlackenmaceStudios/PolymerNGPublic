@@ -7,7 +7,7 @@ cbuffer VS_CONSTANT_BUFFER : register(b0)
 	matrix mWorldView;
 	matrix mWorldViewInverse;
 	matrix mProjection;
-	float4 viewposition;
+	float4 viewpositionanddepthoffset;
 };
 
 
@@ -20,7 +20,7 @@ VertexShaderOutput main(VertexShaderInput input)
 	output.texcoord0 = input.texcoord0;
 	output.texcoord1 = input.position.xyz; // mul(mWorldView, float4(input.position.xyz, 1.0));
 	output.texcoord2 = mul(transpose(mWorldViewInverse), float4(input.normal.xyz, 1.0));
-	output.texcoord3 = viewposition - input.position.xyz;
+	output.texcoord3 = viewpositionanddepthoffset.xyz - input.position.xyz;
 
 	float4 vertex_world = mul(mWorldView, float4(input.position.xyz, 1.0));
 	float4 vertex_screen = mul(mProjection, float4(input.position.xyz, 1.0));

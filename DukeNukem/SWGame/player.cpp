@@ -145,7 +145,7 @@ extern BOOL DebugOperate;
 //unsigned char synctics, lastsynctics;
 
 long dimensionmode;
-int32_t zoom;
+extern int32_t zoom;
 
 PLAYER Player[MAX_SW_PLAYERS_REG + 1];
 

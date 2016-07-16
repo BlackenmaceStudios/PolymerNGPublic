@@ -80,3 +80,11 @@ void PolymerNG::MoveLightsInSector(int sectorNum, float deltax, float deltay)
 {
 	polymerNGPrivate.currentBoard->MoveLightsInSector(sectorNum, deltax, deltay);
 }
+
+//
+// PolymerNG::SetAmbientLightForSector
+//
+void PolymerNG::SetAmbientLightForSector(int sectorNum, int ambientLightNum)
+{
+	polymerNGPrivate.currentBoard->SetAmbientLightForSector(sectorNum, ambientLightNum);
+}

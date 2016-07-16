@@ -1298,7 +1298,7 @@ static int32_t defsparser(scriptfile *script)
                 break;
             }
 
-            if (EDUKE32_PREDICT_FALSE(qloadkvx(nextvoxid, fn)))
+            if (EDUKE32_PREDICT_FALSE(qloadkvx(nextvoxid, fn, -1)))
             {
                 initprintf("Failure loading voxel file \"%s\"\n",fn);
                 break;
@@ -1856,7 +1856,7 @@ static int32_t defsparser(scriptfile *script)
                 break;
             }
 
-            if (EDUKE32_PREDICT_FALSE(qloadkvx(nextvoxid, fn)))
+            if (EDUKE32_PREDICT_FALSE(qloadkvx(nextvoxid, fn, -1)))
             {
                 initprintf("Failure loading voxel file \"%s\"\n",fn);
                 break;

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Source Files">
@@ -32,9 +32,6 @@
     </Filter>
     <Filter Include="Source Files\Tesselation">
       <UniqueIdentifier>{4543b558-6800-4ada-a729-ff56e6f177c7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Math">
-      <UniqueIdentifier>{99a81778-cb83-4cbe-a7e5-85e7fe5da965}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\RHI\Direct3D11">
       <UniqueIdentifier>{c73b310a-34a8-4e07-b463-666a7791beeb}</UniqueIdentifier>
@@ -251,9 +248,6 @@
     <ClInclude Include="build\src\PolymerNG\Renderer\Renderer_Pass_DrawUI.h">
       <Filter>Source Files\PolymerNG\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="build\src\PolymerNG\PolymerNG_RenderParam.h">
-      <Filter>Source Files\PolymerNG</Filter>
-    </ClInclude>
     <ClInclude Include="build\src\PolymerNG\PolymerNG_Board.h">
       <Filter>Source Files\PolymerNG</Filter>
     </ClInclude>
@@ -302,39 +296,6 @@
     <ClInclude Include="build\src\Tesselation\GLU.h">
       <Filter>Source Files\Tesselation</Filter>
     </ClInclude>
-    <ClInclude Include="Build\src\Math\BoundingPlane.h">
-      <Filter>Source Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Build\src\Math\BoundingSphere.h">
-      <Filter>Source Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Build\src\Math\Common.h">
-      <Filter>Source Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Build\src\Math\Frustum.h">
-      <Filter>Source Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Build\src\Math\Matrix3.h">
-      <Filter>Source Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Build\src\Math\Matrix4.h">
-      <Filter>Source Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Build\src\Math\Quaternion.h">
-      <Filter>Source Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Build\src\Math\Random.h">
-      <Filter>Source Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Build\src\Math\Scalar.h">
-      <Filter>Source Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Build\src\Math\Transform.h">
-      <Filter>Source Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Build\src\Math\Vector.h">
-      <Filter>Source Files\Math</Filter>
-    </ClInclude>
     <ClInclude Include="Build\include\BuildEngineApp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -349,9 +310,6 @@
     </ClInclude>
     <ClInclude Include="Build\src\PolymerNG\Models\Models.h">
       <Filter>Source Files\PolymerNG\Models</Filter>
-    </ClInclude>
-    <ClInclude Include="Build\src\Math\Mesa3DMath.h">
-      <Filter>Source Files\Math</Filter>
     </ClInclude>
     <ClInclude Include="Build\src\PolymerNG\Renderer\Renderer_Pass_DrawWorld.h">
       <Filter>Source Files\PolymerNG\Renderer</Filter>
@@ -480,6 +438,12 @@
       <Filter>Source Files\IntelBuildCPUT</Filter>
     </ClInclude>
     <ClInclude Include="Build\src\PolymerNG\Renderer\Renderer_Pass_ClassicFS.h">
+      <Filter>Source Files\PolymerNG\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Build\src\PolymerNG\Renderer\Renderer_Pass_AntiAlias.h">
+      <Filter>Source Files\PolymerNG\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Build\src\PolymerNG\Renderer\Renderer_Pass_DOF.h">
       <Filter>Source Files\PolymerNG\Renderer</Filter>
     </ClInclude>
   </ItemGroup>
@@ -630,9 +594,6 @@
     </ClCompile>
     <ClCompile Include="build\src\RHI\Direct3D12\Direct3D12_RHI_GraphicsDebug.cpp">
       <Filter>Source Files\RHI\Direct3D12</Filter>
-    </ClCompile>
-    <ClCompile Include="build\src\PolymerNG\PolymerNG_RenderParam.cpp">
-      <Filter>Source Files\PolymerNG</Filter>
     </ClCompile>
     <ClCompile Include="build\src\RHI\Direct3D12\Direct3D12_RHI_GPUBuffer.cpp">
       <Filter>Source Files\RHI\Direct3D12</Filter>
@@ -838,10 +799,11 @@
     <ClCompile Include="Build\src\PolymerNG\Renderer\Renderer_Pass_ClassicFS.cpp">
       <Filter>Source Files\PolymerNG\Renderer</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Build\src\Math\Functions.inl">
-      <Filter>Source Files\Math</Filter>
-    </None>
+    <ClCompile Include="Build\src\PolymerNG\Renderer\Renderer_Pass_AntiAlias.cpp">
+      <Filter>Source Files\PolymerNG\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Build\src\PolymerNG\Renderer\Renderer_Pass_DOF.cpp">
+      <Filter>Source Files\PolymerNG\Renderer</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

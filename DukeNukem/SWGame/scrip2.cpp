@@ -348,7 +348,8 @@ void LoadKVXFromScript ( char *filename )
         strcpy ( sName, token );        // Copy the whole token as a file name and path
         
         // Load the voxel file into memory
-        if ( !qloadkvx ( lNumber, sName ) )
+		// jmarshall: added lTile here, were just going to override the tile when the load is called. 
+        if ( !qloadkvx ( lNumber, sName, lTile) )
         {
             // Store the sprite and voxel numbers for later use
             aVoxelArray[lTile].Voxel = lNumber; // Voxel num

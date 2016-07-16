@@ -87,7 +87,7 @@ enum DukeExpansionType
 	DUKE_MOD_BLOODCM
 };
 
-DukeExpansionType currentDukeExpansion = DUKE_EXPANSION_ATOMIC;
+DukeExpansionType currentDukeExpansion = DUKE_MOD_BLOODCM;
 
 #ifdef LUNATIC
 camera_t g_camera;
@@ -185,6 +185,16 @@ enum gametokens
     T_RENAMEFILE,
     T_GLOBALGAMEFLAGS,
 };
+
+bool G_IsGlowSprite(int idx)
+{
+	return false;
+}
+
+bool IsTransparentTile(int idx)
+{
+	return false;
+}
 
 void G_HandleSpecialKeys(void)
 {
@@ -2705,6 +2715,9 @@ int32_t A_Spawn(int32_t j, int32_t pn)
 
             switch (sp->lotag)
             {
+			case SE_100_AMBIENT_LIGHT:
+				polymerNGPublic->SetAmbientLightForSector(sp->sectnum, sp->hitag);
+				break;
 #ifdef LEGACY_ROR
             case 40:
             case 41:
@@ -2745,6 +2758,9 @@ int32_t A_Spawn(int32_t j, int32_t pn)
 					opts.lightType = POLYMERNG_LIGHTTYPE_SPOT;
 				}
 
+				opts.angle = sp->ang;
+				opts.horiz = sp->extra;
+				opts.faderadius = sp->shade;
 				opts.radius = sp->hitag;
 				opts.position[0] = actor[i].bpos.x;
 				opts.position[1] = actor[i].bpos.y;

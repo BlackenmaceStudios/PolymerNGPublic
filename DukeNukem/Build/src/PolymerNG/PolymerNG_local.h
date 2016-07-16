@@ -16,11 +16,8 @@
 #include "colmatch.h"
 #include "build3d.h"
 
-#include "../VectorMath.h"
-
 #include "PolymerNG.h"
 #include "PolymerNG_ImageManager.h"
-#include "PolymerNG_RenderParam.h"
 #include "PolymerNG_RenderProgram.h"
 #include "PolymerNG_RenderTarget.h"
 #include "PolymerNG_Visibility.h"

@@ -30,7 +30,7 @@ void PolymerNGBoard::InitOcclusion()
 PolymerNGBoard::RenderOccluderFromPlane
 =============
 */
-void PolymerNGBoard::RenderOccluderFromPlane(const Math::Matrix4 &modelViewProjectionMatrix, const Build3DPlane *plane)
+void PolymerNGBoard::RenderOccluderFromPlane(const float4x4 &modelViewProjectionMatrix, const Build3DPlane *plane)
 {
 
 }
@@ -40,7 +40,7 @@ void PolymerNGBoard::RenderOccluderFromPlane(const Math::Matrix4 &modelViewProje
 PolymerNGBoard::IsSectorVisible
 =============
 */
-bool PolymerNGBoard::IsSectorVisible(const Math::Matrix4 &modelViewProjectionMatrix, Build3DSector *sector)
+bool PolymerNGBoard::IsSectorVisible(const  float4x4 &modelViewProjectionMatrix, Build3DSector *sector)
 {
 	return true;
 }
@@ -50,8 +50,15 @@ bool PolymerNGBoard::IsSectorVisible(const Math::Matrix4 &modelViewProjectionMat
 PolymerNGBoard::AddRenderPlaneToDrawList
 =============
 */
-void PolymerNGBoard::AddRenderPlaneToDrawList(BuildRenderThreadTaskRenderWorld &renderWorldTask, Build3DPlane *plane)
+void PolymerNGBoard::AddRenderPlaneToDrawList(BuildRenderThreadTaskRenderWorld &renderWorldTask, Build3DPlane *plane, int buildTileNum)
 {
+	PolymerNGMaterial *material = static_cast<PolymerNGMaterial *>(plane->renderMaterialHandle);
+	if (material && buildTileNum > 0 && buildTileNum != material->GetTileNum())
+	{
+		plane->tileNum = buildTileNum;
+		plane->renderMaterialHandle = materialManager.LoadMaterialForTile(buildTileNum);
+	}
+
 	//Build3D::CalculateFogForPlane(plane->tileNum, plane->shadeNum, plane->visibility, plane->paletteNum, plane);
 	memcpy((void *)&renderWorldTask.renderplanes[renderWorldTask.numRenderPlanes++], &plane, sizeof(Build3DPlane *));
 }
@@ -113,7 +120,7 @@ void PolymerNGBoard::PokeSector(int16_t sectnum)
 PolymerNGBoard::FindVisibleSectors
 =============
 */
-void PolymerNGBoard::FindVisibleSectors(BuildRenderThreadTaskRenderWorld &renderWorldTask, const Math::Matrix4 &modelViewProjectionMatrix, const Math::Matrix4 &modelViewMatrix, const Math::Matrix4 &projectionMatrix, int16_t dacursectnum)
+void PolymerNGBoard::FindVisibleSectors(BuildRenderThreadTaskRenderWorld &renderWorldTask, const float4x4 &modelViewProjectionMatrix, const float4x4 &modelViewMatrix, const float4x4 &projectionMatrix, int16_t dacursectnum)
 {
 	int32_t         front;
 	int32_t         back;
@@ -140,15 +147,9 @@ void PolymerNGBoard::FindVisibleSectors(BuildRenderThreadTaskRenderWorld &render
 	renderWorldTask.numRenderPlanes = 0;
 	localspritesortcnt = localmaskwallcnt = 0;
 
-
-	;
 	{
-		float modelViewMatrixRaw[16];
-		float projectionMatrixRaw[16];
-		((Math::Matrix4)modelViewMatrix).GetFloat4x4((DirectX::XMFLOAT4X4 *)&modelViewMatrixRaw[0]);
-		((Math::Matrix4)projectionMatrix).GetFloat4x4((DirectX::XMFLOAT4X4 *)&projectionMatrixRaw[0]);
 
-		visibilityEngine->FindVisibleSectors(renderWorldTask, &modelViewMatrixRaw[0], &projectionMatrixRaw[0], visibleSectorsArray, numVisibleSectors);
+		visibilityEngine->FindVisibleSectors(renderWorldTask, ((float *)&modelViewMatrix.r0), ((float *)&projectionMatrix.r0), visibleSectorsArray, numVisibleSectors);
 	}
 
 	//mirrorcount = 0;
@@ -187,12 +188,18 @@ void PolymerNGBoard::FindVisibleSectors(BuildRenderThreadTaskRenderWorld &render
 
 		PokeSector(sectorNum);
 
+		byte ambient[4] = { 0, 0, 0, 0 };
+		GetAmbientSectorColor(sector->ambientSectorId, &ambient[0]);
+		
 		if (!sector->IsCeilParalaxed() && yax_getbunch(sectorNum, YAX_CEILING) < 0)
 		{
 			sector->ceil.paletteNum = sec->ceilingpal;
 			sector->ceil.shadeNum = sec->ceilingshade;
 			sector->ceil.visibility = sectorVisiblity;
-			AddRenderPlaneToDrawList(renderWorldTask, &sector->ceil);
+			sector->ceil.ambient[0] = ambient[0];
+			sector->ceil.ambient[1] = ambient[1];
+			sector->ceil.ambient[2] = ambient[2];
+			AddRenderPlaneToDrawList(renderWorldTask, &sector->ceil, sector->ceilingpicnum_anim);
 		}
 
 		if (!sector->IsFloorParalaxed() && yax_getbunch(sectorNum, YAX_FLOOR) < 0)
@@ -200,7 +207,10 @@ void PolymerNGBoard::FindVisibleSectors(BuildRenderThreadTaskRenderWorld &render
 			sector->floor.paletteNum = sec->floorpal;
 			sector->floor.shadeNum = sec->floorshade;
 			sector->floor.visibility = sectorVisiblity;
-			AddRenderPlaneToDrawList(renderWorldTask, &sector->floor);
+			sector->floor.ambient[0] = ambient[0];
+			sector->floor.ambient[1] = ambient[1];
+			sector->floor.ambient[2] = ambient[2];
+			AddRenderPlaneToDrawList(renderWorldTask, &sector->floor, sector->floorpicnum_anim);
 		}
 
 		ScanSprites(sectorNum, localtsprite, &localspritesortcnt);
@@ -235,24 +245,34 @@ void PolymerNGBoard::FindVisibleSectors(BuildRenderThreadTaskRenderWorld &render
 					wall->wall.paletteNum = ::wall[wallNum].pal;
 					wall->wall.shadeNum = ::wall[wallNum].shade;
 					wall->wall.visibility = sectorVisiblity;
-					AddRenderPlaneToDrawList(renderWorldTask, &wall->wall);
+					wall->wall.ambient[0] = ambient[0];
+					wall->wall.ambient[1] = ambient[1];
+					wall->wall.ambient[2] = ambient[2];
+					AddRenderPlaneToDrawList(renderWorldTask, &wall->wall, wall->picnum);
 				}
 
 				bool parralaxCeiling = (neighborSector != NULL && neighborSector && sector->IsCeilParalaxed() && neighborSector->IsCeilParalaxed());
 				if ((wall->underover & 2) && (!parralaxCeiling || searchit == 2))
 				{
-					wall->wall.paletteNum = ::wall[wallNum].pal;
-					wall->wall.shadeNum = ::wall[wallNum].shade;
-					wall->wall.visibility = sectorVisiblity;
-					AddRenderPlaneToDrawList(renderWorldTask, &wall->over);
+					wall->over.paletteNum = ::wall[wallNum].pal;
+					wall->over.shadeNum = ::wall[wallNum].shade;
+					wall->over.visibility = sectorVisiblity;
+					wall->over.ambient[0] = ambient[0];
+					wall->over.ambient[1] = ambient[1];
+					wall->over.ambient[2] = ambient[2];
+					AddRenderPlaneToDrawList(renderWorldTask, &wall->over, wall->overpicnum);
 				}
 
-				if ((::wall[wallNum].cstat & 32) && (::wall[wallNum].nextsector >= 0))
+			//	if ((::wall[wallNum].cstat & 32) && (::wall[wallNum].nextsector >= 0))
+				if ((::wall[wallNum].cstat & 48) == 16)
 				{
-					wall->wall.paletteNum = ::wall[wallNum].pal;
-					wall->wall.shadeNum = ::wall[wallNum].shade;
-					wall->wall.visibility = sectorVisiblity;
-					AddRenderPlaneToDrawList(renderWorldTask, &wall->mask);
+					wall->mask.paletteNum = ::wall[wallNum].pal;
+					wall->mask.shadeNum = ::wall[wallNum].shade;
+					wall->mask.visibility = sectorVisiblity;
+					wall->mask.ambient[0] = ambient[0];
+					wall->mask.ambient[1] = ambient[1];
+					wall->mask.ambient[2] = ambient[2];
+					AddRenderPlaneToDrawList(renderWorldTask, &wall->mask, wall->overpicnum);
 				}
 			}
 		} while (--i >= 0);

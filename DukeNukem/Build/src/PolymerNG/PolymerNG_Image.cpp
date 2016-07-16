@@ -107,6 +107,8 @@ void BuildImage::UpdateImagePost(byte *buffer)
 	else if(imageOpts.tileNum != -1)
 	{
 		tempbuffer = ConvertARTImage();
+		imageOpts.width = tilesiz[imageOpts.tileNum].x;
+		imageOpts.height = tilesiz[imageOpts.tileNum].y;
 	}
 
 	if (!IsLoaded())

@@ -40,6 +40,7 @@ public:
 	void		UploadPendingImages();
 
 	PolymerNGLight *AddLightToCurrentBoard(PolymerNGLightOpts lightOpts);
+	virtual void RemoveLightFromCurrentBoard(PolymerNGLight *);
 
 	// Loads in the new board.
 	void		LoadBoard();
@@ -52,6 +53,8 @@ public:
 	PolymerNGMaterial	*AllocFontImage(const char *smallFont, const char *bigFont);
 
 	virtual void		MoveLightsInSector(int sectorNum, float deltax, float deltay);
+
+	virtual void SetAmbientLightForSector(int sectorNum, int ambientLightNum);
 //	BuildImage *GetImage(int texnum) { return images[texnum]; }
 //
 //	BuildImage *GetHighresImage(int idx) { return hiresImages[idx]; }

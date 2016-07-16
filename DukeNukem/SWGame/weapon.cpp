@@ -48,6 +48,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "track.h"
 #include "player.h"
 
+#include "../Build/src/PolymerNG/PolymerNG_public.h"
+
 //
 // Damage Amounts defined in damage.h
 //
@@ -2881,6 +2883,19 @@ STATEp UserStateSetup ( short base_tile, short num_tiles )
     return ( base_state );
 }
 #endif
+
+
+bool GrenadeLightTick(class PolymerNGLight *light, PolymerNGLightOpts *opts)
+{
+	opts->radius -= 0.0067f;
+	opts->brightness -= 0.055f;
+	if (opts->brightness <= 0)
+	{
+		return false; // remove the light.
+	}
+
+	return true;
+}
 
 int
 SpawnShrap ( short ParentNum, short Secondary )
@@ -12371,6 +12386,25 @@ SpawnGrenadeExp ( SHORT Weapon )
     ang = ang + 512 + RANDOM_P2 ( 256 );
     SpawnGrenadeSecondaryExp ( explosion, ang );
     #endif
+
+	PolymerNGLightOpts opts;
+	opts.lightType = POLYMERNG_LIGHTTYPE_POINT;
+	opts.angle = exp->ang;
+	opts.horiz = 0;
+	opts.faderadius = 0;
+	opts.radius = 6;
+	opts.position[0] = exp->x;
+	opts.position[1] = exp->y;
+	opts.position[2] = exp->z;
+	opts.color[0] = 128;
+	opts.color[1] = 48;
+	opts.color[2] = 0;
+	opts.sector = exp->sectnum;
+	opts.brightness = 4;
+	opts.LightTick = GrenadeLightTick;
+	opts.castShadows = 1;
+	PolymerNGLight *light = polymerNGPublic->AddLightToCurrentBoard(opts);
+
     return ( explosion );
 }
 
@@ -12599,6 +12633,23 @@ SpawnLargeExp ( SHORT Weapon )
     DoExpDamageTest ( explosion );
     SetExpQuake ( explosion );
     SpawnVis ( -1, exp->sectnum, exp->x, exp->y, exp->z, 16 );
+	PolymerNGLightOpts opts;
+	opts.lightType = POLYMERNG_LIGHTTYPE_POINT;
+	opts.angle = exp->ang;
+	opts.horiz = 0;
+	opts.faderadius = 0;
+	opts.radius = 6;
+	opts.position[0] = exp->x;
+	opts.position[1] = exp->y;
+	opts.position[2] = exp->z;
+	opts.color[0] = 128;
+	opts.color[1] = 48;
+	opts.color[2] = 0;
+	opts.sector = exp->sectnum;
+	opts.brightness = 4;
+	opts.LightTick = GrenadeLightTick;
+	opts.castShadows = 1;
+	PolymerNGLight *light = polymerNGPublic->AddLightToCurrentBoard(opts);
     return ( explosion );
 }
 

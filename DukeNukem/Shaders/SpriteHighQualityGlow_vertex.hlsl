@@ -1,0 +1,1 @@
+#include "SpriteHighQuality_vertex.hlsl"

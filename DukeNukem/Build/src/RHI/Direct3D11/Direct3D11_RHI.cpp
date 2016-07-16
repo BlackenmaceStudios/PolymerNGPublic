@@ -144,8 +144,14 @@ BuildRHIConstantBuffer *BuildRHI::AllocateRHIConstantBuffer(int size, void *init
 }
 
 void RHIAppToggleDepthTest(bool enableDepthTest);
+void RHIAppToggleDepthWrite(bool enableDepthWrite);
 
 void BuildRHI::SetDepthEnable(bool depthEnable)
 {
 	RHIAppToggleDepthTest(depthEnable);
+}
+
+void BuildRHI::SetDepthWriteEnable(bool depthWriteEnable)
+{
+	RHIAppToggleDepthWrite(depthWriteEnable);
 }

@@ -3,7 +3,11 @@
 
 #pragma once
 
-#define MODELCACHE_FILENAME "Assets\\DukeData\\game_meshes.payloads"
+#ifdef SWGAME
+	#define MODELCACHE_FILENAME "Assets\\SWData\\game_meshes.payloads"
+#else
+	#define MODELCACHE_FILENAME "Assets\\DukeData\\game_meshes.payloads"
+#endif
 
 class CacheModel;
 class BuildFile;

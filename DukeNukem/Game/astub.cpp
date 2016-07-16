@@ -71,6 +71,9 @@ extern const char *s_buildInfo;
 
 #include <signal.h>
 
+int32_t NumVoices = 32;
+int32_t MixRate = 44000;
+
 // Workaround for namespace pollution in <sys/stat.h> introduced in MinGW 4.8.
 #ifdef stat
 # undef stat

@@ -3,8 +3,8 @@
 
 struct VS_DRAWCLASSICSKY_BUFFER
 {
-	Math::XMFLOAT4X4  mWorldViewProj;
-	//Math::XMFLOAT4X4   modelMatrix;
+	float4x4  mWorldViewProj;
+	//float4x4   modelMatrix;
 };
 
 class RendererDrawPassDrawClassicSky : public RendererDrawPassBase

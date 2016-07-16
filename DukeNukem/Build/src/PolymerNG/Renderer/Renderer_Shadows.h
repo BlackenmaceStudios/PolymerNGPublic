@@ -4,7 +4,7 @@
 #pragma once
 
 #define NUM_QUEUED_SHADOW_MAPS 30
-#define SHADOW_MAP_SIZE		512
+#define SHADOW_MAP_SIZE		1024
 
 //
 // VS_SHADOW_POINT_CONSTANT_BUFFER
@@ -21,4 +21,5 @@ struct VS_SHADOW_POINT_CONSTANT_BUFFER
 struct ShadowMap
 {
 	PolymerNGRenderTarget *shadowMapCubeMap;
+	PolymerNGRenderTarget *spotLightMap;
 };

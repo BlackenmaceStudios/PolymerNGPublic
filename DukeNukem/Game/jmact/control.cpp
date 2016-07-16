@@ -603,16 +603,17 @@ static void CONTROL_ApplyAxis(int32_t axis, ControlInfo *info, controldevice dev
     default: return;
     }
 
-    switch (map[axis].analogmap)
-    {
-    case analog_turning:          info->dyaw   += set[axis].analog; break;
-    case analog_strafing:         info->dx     += set[axis].analog; break;
-    case analog_lookingupanddown: info->dpitch += set[axis].analog; break;
-    case analog_elevation:        info->dy     += set[axis].analog; break;
-    case analog_rolling:          info->droll  += set[axis].analog; break;
-    case analog_moving:           info->dz     += set[axis].analog; break;
-    default: 
-	{
+// jmarshall - we need to redue alot of this logic, I'm resorting to the default because the analogmap is wrong somehow and I don't want to look into it at this time :).
+//    switch (map[axis].analogmap)
+//    {
+//    case analog_turning:          info->dyaw   += set[axis].analog; break;
+//    case analog_strafing:         info->dx     += set[axis].analog; break;
+//    case analog_lookingupanddown: info->dpitch += set[axis].analog; break;
+//    case analog_elevation:        info->dy     += set[axis].analog; break;
+//    case analog_rolling:          info->droll  += set[axis].analog; break;
+//    case analog_moving:           info->dz     += set[axis].analog; break;
+//    default: 
+//	{
 		if (axis == 0)
 		{
 			info->dyaw += set[axis].analog;
@@ -621,10 +622,10 @@ static void CONTROL_ApplyAxis(int32_t axis, ControlInfo *info, controldevice dev
 		{
 			info->dpitch += set[axis].analog;
 		}
-	}
-		
-		break;
-    }
+//	}
+//		
+//		break;
+//    }
 }
 
 static void CONTROL_PollDevices(ControlInfo *info)

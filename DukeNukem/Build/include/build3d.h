@@ -13,7 +13,6 @@ typedef unsigned char byte;
 
 //#include "../../rhi/D3D12/Core/PCH.h"
 #include <DirectXMath.h>
-#include "../src/VectorMath.h"
 #include "../src/IntelBuildCPUT/CPUTMath.h"
 #include "../src/IntelBuildCPUT/AxisAlignedBox.h"
 
@@ -46,13 +45,15 @@ enum BuildRenderTaskId
 //
 struct BuildVertex
 {
-	Math::Vector4			vertex;
-	Math::Vector3			textureCoords0;
-	Math::Vector3			normal;
+	float4			vertex;
+	float3			textureCoords0;
+	float3			normal;
 };
 
-extern const Build3DPlane		*renderPlanesGlobalPool[60000];
-extern const Build3DPlane		*renderPlanesGlobalPool2[60000];
+#define MAX_CONCURRENT_DRAWBOARDS 5
+
+extern const Build3DPlane		*renderPlanesGlobalPool[MAX_CONCURRENT_DRAWBOARDS][60000];
+extern const Build3DPlane		*renderPlanesGlobalPool2[MAX_CONCURRENT_DRAWBOARDS][60000];
 
 //
 // BuildRenderThreadTaskDrawLights
@@ -63,9 +64,10 @@ struct BuildRenderThreadTaskDrawLights
 {
 	PolymerNGLightLocal *visibleLights[MAX_VISIBLE_LIGHTS];
 	int numLights;
-	Math::XMFLOAT4X4 inverseModelViewMatrix;
-	Math::XMFLOAT4X4 inverseViewMatrix;
-	Math::XMFLOAT4X4 viewMatrix;
+	float4x4 inverseModelViewMatrix;
+	float4x4 inverseModelViewProjectionMatrix;
+	float4x4 inverseViewMatrix;
+	float4x4 viewMatrix;
 };
 
 //
@@ -87,18 +89,22 @@ struct BuildRenderThreadTaskRenderWorld
 	{
 		skyMaterialHandle = NULL;
 		renderplanes = NULL;
-		renderplanesFrames[0] = (const Build3DPlane	**)&renderPlanesGlobalPool[0]; // We only draw one board at a time.
-		renderplanesFrames[1] = (const Build3DPlane	**)&renderPlanesGlobalPool2[1]; // We only draw one board at a time.
+
+		for (int i = 0; i < MAX_CONCURRENT_DRAWBOARDS; i++)
+		{
+			renderplanesFrames[i][0] = (const Build3DPlane	**)&renderPlanesGlobalPool[i][0]; // We only draw one board at a time.
+			renderplanesFrames[i][1] = (const Build3DPlane	**)&renderPlanesGlobalPool2[i][1]; // We only draw one board at a time.
+		}
 	}
-	Math::Vector3			position;
-	Math::XMFLOAT4X4		viewProjMatrix;
-	Math::XMFLOAT4X4		viewMatrix;
-	Math::XMFLOAT4X4		inverseViewMatrix;
-	Math::XMFLOAT4X4		projectionMatrix;
-	Math::XMFLOAT4X4		skyProjMatrix;
-	Math::XMFLOAT4X4		occlusionViewProjMatrix;
+	float3					position;
+	float4x4				viewProjMatrix;
+	float4x4				viewMatrix;
+	float4x4				inverseViewMatrix;
+	float4x4				projectionMatrix;
+	float4x4				skyProjMatrix;
+	float4x4				occlusionViewProjMatrix;
 	const Build3DPlane		**renderplanes;
-	const Build3DPlane		**renderplanesFrames[2];
+	const Build3DPlane		**renderplanesFrames[MAX_CONCURRENT_DRAWBOARDS][2];
 	int						numRenderPlanes;
 	const Build3DBoard		*board;
 	int						gameSmpFrame;
@@ -117,7 +123,7 @@ struct BuildRenderThreadTaskRenderSprites
 
 	int					    numSprites;
 	Build3DSprite			*prsprites;
-	Math::Vector3			position;
+	float3					position;
 };
 
 class BuildRHIMesh;
@@ -169,7 +175,7 @@ struct BuildRenderThreadTaskRotateSprite
 	float textureScale_X;
 	float textureScale_Y;
 
-	Math::Vector4 spriteColor;
+	float4 spriteColor;
 
 	BuildVertex	vertexes[4];
 };
@@ -191,7 +197,7 @@ __forceinline BuildRenderThreadTaskRotateSprite::BuildRenderThreadTaskRotateSpri
 	useOrtho = false;
 	textureScale_Y = 1;
 	renderMaterialHandle = NULL;
-	spriteColor = Math::Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+	spriteColor = float4(1.0f, 1.0f, 1.0f, 1.0f);
 }
 
 //
@@ -280,6 +286,10 @@ struct Build3DPlane
 		shadeNum = 0;
 		visibility = 0;
 
+		ambient[0] = 0;
+		ambient[1] = 0;
+		ambient[2] = 0;
+
 		fogColor[0] = 0.0f;
 		fogColor[1] = 0.0f;
 		fogColor[2] = 0.0f;
@@ -287,6 +297,8 @@ struct Build3DPlane
 		fogDensity = 0;
 		fogStart = 0;
 		fogEnd = 0;
+
+		isMaskWall = false;
 
 		dynamic_vbo_offset = -1;
 	}
@@ -308,12 +320,15 @@ struct Build3DPlane
 	float		        plane[4];
 
 	byte				diffusemodulation[4];
-	
+	byte				ambient[4];
+
 	int					tileNum;
 	void				*renderMaterialHandle;
 
 	int					vbo_offset;
 	int					ibo_offset;
+
+	bool				isMaskWall;
 
 	bool				isDynamicPlane;
 
@@ -403,6 +418,8 @@ struct Build3DSector
 		ceil.dynamic_vbo_offset = -1;
 
 		boundingbox.Clear();
+
+		ambientSectorId = 0;
 	}
 
 	const bool			IsCeilParalaxed() const {
@@ -412,6 +429,8 @@ struct Build3DSector
 	const bool			IsFloorParalaxed() const {
 		return floorstat & 1;
 	}
+
+	int	ambientSectorId;
 
 	// polymer data
 	double*				 verts;
@@ -523,14 +542,16 @@ struct Build3DSprite
 	Build3DPlane       plane;
 	class CacheModel *cacheModel;
 
-	Math::XMFLOAT4X4   modelViewProjectionMatrix;
-	Math::XMFLOAT4X4   modelMatrix;
-	Math::XMFLOAT4X4   modelViewInverse;
-	Math::XMFLOAT4X4   ViewMatrix;
+	float4x4			modelViewProjectionMatrix;
+	float4x4		    modelMatrix;
+	float4x4			modelViewInverse;
+	float4x4		    ViewMatrix;
 	uint32_t        hash;
 	bool			isHorizsprite;
+	bool			isWallSprite;
 	int				paletteNum;
 	bool			isVisible;
+	byte			ambientColor[4];
 };
 
 //

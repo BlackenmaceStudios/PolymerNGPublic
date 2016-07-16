@@ -53,6 +53,9 @@ namespace DX
 
 	int g_videoCardMemory;
 
+	ID3D11DepthStencilState* m_depthStencilState;
+	ID3D11DepthStencilState* m_depthStencilStateNoWrite;
+
 	// Direct3D rendering objects. Required for 3D.
 	ID3D11RenderTargetView	*m_d3dRenderTargetView;
 	ID3D11DepthStencilView	*m_d3dDepthStencilView;
@@ -328,10 +331,15 @@ namespace DX
 		depthStencilDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
 		depthStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
 
-		ID3D11DepthStencilState* m_depthStencilState;
-
 		// Create the depth stencil state.
 		result = DX::g_d3d11Device->CreateDepthStencilState(&depthStencilDesc, &m_depthStencilState);
+		if (FAILED(result))
+		{
+			return false;
+		}
+
+		depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+		result = DX::g_d3d11Device->CreateDepthStencilState(&depthStencilDesc, &m_depthStencilStateNoWrite);
 		if (FAILED(result))
 		{
 			return false;
@@ -387,6 +395,18 @@ ID3D11DepthStencilView * viewportDepthStencilView;
 void RHIAppSwitchBackToDeviceRenderBuffers()
 {
 	DX::g_d3D11Context->OMSetRenderTargets(1, targets, viewportDepthStencilView);
+}
+
+void RHIAppToggleDepthWrite(bool enableDepthWrite)
+{
+	if (enableDepthWrite)
+	{
+		DX::g_d3D11Context->OMSetDepthStencilState(DX::m_depthStencilState, 1);
+	}
+	else
+	{
+		DX::g_d3D11Context->OMSetDepthStencilState(DX::m_depthStencilStateNoWrite, 1);
+	}
 }
 
 void RHIAppToggleDepthTest(bool enableDepthTest)

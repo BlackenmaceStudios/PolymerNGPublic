@@ -30,7 +30,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "pch.h"
 #include "build.h"
 #include "compat.h"
-#include "editor.h"
+#include "../Editor/editor.h"
 #include "cache1d.h"
 
 #include "names2.h"
@@ -50,16 +50,17 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 =============================================================================
 */
-void Error (char *error, ...)
-{
-	va_list argptr;
-
-	va_start (argptr,error);
-	vprintf (error,argptr);
-	va_end (argptr);
-	printf ("\n");
-	exit (1);
-}
+void Error(char *error, ...);
+//void Error (char *error, ...)
+//{
+//	va_list argptr;
+//
+//	va_start (argptr,error);
+//	vprintf (error,argptr);
+//	va_end (argptr);
+//	printf ("\n");
+//	exit (1);
+//}
 
 
 
@@ -71,57 +72,14 @@ void Error (char *error, ...)
 =============================================================================
 */
 
-char    token[MAXTOKEN];
-char    *scriptbuffer,*script_p,*scriptend_p;
-int     grabbed;
-int     scriptline;
-BOOL    endofscript;
-BOOL    tokenready;                     // only TRUE if UnGetToken was just called
+extern char    token[MAXTOKEN];
+extern char    *scriptbuffer,*script_p,*scriptend_p;
+extern int     grabbed;
+extern int     scriptline;
+extern BOOL    endofscript;
+extern BOOL    tokenready;                     // only TRUE if UnGetToken was just called
 
-/*
-==============
-=
-= LoadScriptFile
-=
-==============
-*/
-
-BOOL LoadScriptFile (char *filename)
-{
-	long size, readsize;
-	int fp;
-
-
-	if((fp=kopen4load(filename,0)) == -1)
-	{
-		// If there's no script file, forget it.
-		return FALSE;
-	}
-
-    size = kfilelength(fp);    
-
-    scriptbuffer = (char *)malloc(size);
-
-	ASSERT(scriptbuffer != NULL);
-
-	readsize = kread(fp, scriptbuffer, size);
-
-    kclose(fp);
-
-	ASSERT(readsize == size);
-
-
-	// Convert filebuffer to all upper case
-	//strupr(scriptbuffer);
-
-	script_p = scriptbuffer;
-	scriptend_p = script_p + size;
-	scriptline = 1;
-	endofscript = FALSE;
-	tokenready = FALSE;
-	return TRUE;
-}
-
+BOOL LoadScriptFile(char *filename);
 
 /*
 ==============
@@ -140,10 +98,7 @@ GetToken (FALSE);
 ==============
 */
 
-void UnGetToken (void)
-{
-	tokenready = TRUE;
-}
+void UnGetToken(void);
 
 
 /*
@@ -154,82 +109,82 @@ void UnGetToken (void)
 ==============
 */
 
-void GetToken (BOOL crossline)
-{
-	char    *token_p;
-
-	if (tokenready)                         // is a token already waiting?
-	{
-		tokenready = FALSE;
-		return;
-	}
-
-	if (script_p >= scriptend_p)
-	{
-		if (!crossline)
-			Error ("Line %i is incomplete\n",scriptline);
-		endofscript = TRUE;
-		return;
-	}
-
+//void GetToken (BOOL crossline)
+//{
+//	char    *token_p;
 //
-// skip space
+//	if (tokenready)                         // is a token already waiting?
+//	{
+//		tokenready = FALSE;
+//		return;
+//	}
 //
-skipspace:
-	while (*script_p <= 32)
-	{
-		if (script_p >= scriptend_p)
-		{
-			if (!crossline)
-				Error ("Line %i is incomplete\n",scriptline);
-			endofscript = TRUE;
-			return;
-		}
-		if (*script_p++ == '\n')
-		{
-			if (!crossline)
-				Error ("Line %i is incomplete\n",scriptline);
-			scriptline++;
-		}
-	}
-
-	if (script_p >= scriptend_p)
-	{
-		if (!crossline)
-			Error ("Line %i is incomplete\n",scriptline);
-		endofscript = TRUE;
-		return;
-	}
-
-	if (*script_p == '#')   // # is comment field
-	{
-		if (!crossline)
-			Error ("Line %i is incomplete\n",scriptline);
-		while (*script_p++ != '\n')
-			if (script_p >= scriptend_p)
-			{
-				endofscript = TRUE;
-				return;
-			}
-		goto skipspace;
-	}
-
+//	if (script_p >= scriptend_p)
+//	{
+//		if (!crossline)
+//			Error ("Line %i is incomplete\n",scriptline);
+//		endofscript = TRUE;
+//		return;
+//	}
 //
-// copy token
+////
+//// skip space
+////
+//skipspace:
+//	while (*script_p <= 32)
+//	{
+//		if (script_p >= scriptend_p)
+//		{
+//			if (!crossline)
+//				Error ("Line %i is incomplete\n",scriptline);
+//			endofscript = TRUE;
+//			return;
+//		}
+//		if (*script_p++ == '\n')
+//		{
+//			if (!crossline)
+//				Error ("Line %i is incomplete\n",scriptline);
+//			scriptline++;
+//		}
+//	}
 //
-	token_p = token;
-
-	while ( *script_p > 32 && *script_p != '#')
-	{
-		*token_p++ = *script_p++;
-		if (script_p == scriptend_p)
-			break;
-		ASSERT (token_p != &token[MAXTOKEN]);
-//			Error ("Token too large on line %i\n",scriptline);
-	}
-
-	*token_p = 0;
-}
+//	if (script_p >= scriptend_p)
+//	{
+//		if (!crossline)
+//			Error ("Line %i is incomplete\n",scriptline);
+//		endofscript = TRUE;
+//		return;
+//	}
+//
+//	if (*script_p == '#')   // # is comment field
+//	{
+//		if (!crossline)
+//			Error ("Line %i is incomplete\n",scriptline);
+//		while (*script_p++ != '\n')
+//			if (script_p >= scriptend_p)
+//			{
+//				endofscript = TRUE;
+//				return;
+//			}
+//		goto skipspace;
+//	}
+//
+////
+//// copy token
+////
+//	token_p = token;
+//
+//	while ( *script_p > 32 && *script_p != '#')
+//	{
+//		*token_p++ = *script_p++;
+//		if (script_p == scriptend_p)
+//			break;
+//		ASSERT (token_p != &token[MAXTOKEN]);
+////			Error ("Token too large on line %i\n",scriptline);
+//	}
+//
+//	*token_p = 0;
+//}
 
 
 /*
@@ -242,30 +197,8 @@ skipspace:
 ==============
 */
 
-BOOL TokenAvailable (void)
-{
-	char    *search_p;
+BOOL TokenAvailable(void);
 
-	search_p = script_p;
-
-	if (search_p >= scriptend_p)
-		return FALSE;
-
-	while ( *search_p <= 32)
-	{
-		if (*search_p == '\n')
-			return FALSE;
-		search_p++;
-		if (search_p == scriptend_p)
-			return FALSE;
-
-	}
-
-	if (*search_p == '#')
-		return FALSE;
-
-	return TRUE;
-}
 
 void DefaultExtension (char *path, char *extension)
 {
@@ -398,54 +331,54 @@ extern int nextvoxid;
 //			    1804 1 shotgun.kvx 
 //				etc....
 
-void LoadKVXFromScript( char *filename )
-{
-	long lNumber=0,lTile=0;	// lNumber is the voxel no. and lTile is the editart tile being
-							// replaced.
-	char *sName;			// KVS file being loaded in.
-
-	int grabbed=0;			// Number of lines parsed
-
-	sName = (char *)malloc(256);	// Up to 256 bytes for path
-	ASSERT(sName != NULL);
-
-	// zero out the array memory with -1's for pics not being voxelized
-	memset(aVoxelArray,-1,sizeof(aVoxelArray));
-
-	// Load the file
-	if (!LoadScriptFile(filename)) return;
-
-	do {
-		GetToken (TRUE);	// Crossing a line boundary on the end of line to first token
-							// of a newp line is permitted (and expected)
-		if (endofscript)
-			break;
-
-		lTile = atol(token);
-
-		GetToken(FALSE);
-		lNumber = atol(token);
-
-		GetToken(FALSE);
-		strcpy(sName,token);			// Copy the whole token as a file name and path
-
-		// Load the voxel file into memory
-		if (!qloadkvx(lNumber,sName)) {
-			// Store the sprite and voxel numbers for later use
-			aVoxelArray[lTile] = lNumber;	// Voxel num
-		}
-
-		if (lNumber >= nextvoxid)	// JBF: so voxels in the def file append to the list
-			nextvoxid = lNumber + 1;
-	
-		grabbed++;
-		ASSERT(grabbed < MAXSPRITES);
-
-	} while (script_p < scriptend_p);
-
-	free(scriptbuffer); 
-	script_p = NULL;
-}
+//void LoadKVXFromScript( char *filename )
+//{
+//	long lNumber=0,lTile=0;	// lNumber is the voxel no. and lTile is the editart tile being
+//							// replaced.
+//	char *sName;			// KVS file being loaded in.
+//
+//	int grabbed=0;			// Number of lines parsed
+//
+//	sName = (char *)malloc(256);	// Up to 256 bytes for path
+//	ASSERT(sName != NULL);
+//
+//	// zero out the array memory with -1's for pics not being voxelized
+//	memset(aVoxelArray,-1,sizeof(aVoxelArray));
+//
+//	// Load the file
+//	if (!LoadScriptFile(filename)) return;
+//
+//	do {
+//		GetToken (TRUE);	// Crossing a line boundary on the end of line to first token
+//							// of a newp line is permitted (and expected)
+//		if (endofscript)
+//			break;
+//
+//		lTile = atol(token);
+//
+//		GetToken(FALSE);
+//		lNumber = atol(token);
+//
+//		GetToken(FALSE);
+//		strcpy(sName,token);			// Copy the whole token as a file name and path
+//
+//		// Load the voxel file into memory
+//		if (!qloadkvx(lNumber,sName)) {
+//			// Store the sprite and voxel numbers for later use
+//			aVoxelArray[lTile] = lNumber;	// Voxel num
+//		}
+//
+//		if (lNumber >= nextvoxid)	// JBF: so voxels in the def file append to the list
+//			nextvoxid = lNumber + 1;
+//	
+//		grabbed++;
+//		ASSERT(grabbed < MAXSPRITES);
+//
+//	} while (script_p < scriptend_p);
+//
+//	free(scriptbuffer); 
+//	script_p = NULL;
+//}
 
 
 /// MISC ////////////////////////////////////////////////////////////////////

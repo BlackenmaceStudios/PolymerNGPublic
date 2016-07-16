@@ -47,8 +47,8 @@ int32_t usemodels = 1;
 int32_t usehightile = 1;
 int32_t vsync = 0;
 
-const Build3DPlane		*renderPlanesGlobalPool[60000];
-const Build3DPlane		*renderPlanesGlobalPool2[60000];
+const Build3DPlane		*renderPlanesGlobalPool[MAX_CONCURRENT_DRAWBOARDS][60000];
+const Build3DPlane		*renderPlanesGlobalPool2[MAX_CONCURRENT_DRAWBOARDS][60000];
 
 #include <math.h> //<-important!
 #include <float.h>
@@ -899,12 +899,13 @@ bool Build3DBoard::updatewall(int16_t wallnum)
 
 	if (w->mask.buffer)
 	{
-		if ((::wall[wallnum].cstat & 32) && (::wall[wallnum].nextsector >= 0))
+		//if ((::wall[wallnum].cstat & 32) && (::wall[wallnum].nextsector >= 0))
+		if ((wall[wallnum].cstat & 48) == 16)
 		{
 			w->mask.sectorNum = sectorofwall(wallnum);
 			if (w->mask.vbo_offset == -1)
 			{
-				w->mask.tileNum = wal->picnum; // wrong?
+				w->mask.tileNum = wal->overpicnum; // wrong?
 				w->mask.vbo_offset = model->AddVertexesToBuffer(4, w->mask.buffer, w->mask.sectorNum);
 				//newBoardPlanes.push_back(&w->mask);
 				unsigned short indexes[6] = { 0, 1, 2, 3, 0, 2 };
@@ -915,6 +916,7 @@ bool Build3DBoard::updatewall(int16_t wallnum)
 				computeplane(&w->mask);
 				model->UpdateBuffer(w->mask.vbo_offset, 4, w->mask.buffer, w->mask.sectorNum, true);
 				planelist.push_back(&w->mask);
+				w->mask.isMaskWall = true;
 			}
 			else
 			{
@@ -1604,7 +1606,7 @@ int32_t Build3D::printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
 		command.taskId = BUILDRENDER_TASK_ROTATESPRITE;
 		taskRotateSprite.isFontImage = true;
 		taskRotateSprite.is2D = true;
-		taskRotateSprite.spriteColor = Math::Vector4(p.r, p.g, p.b, 255);
+		taskRotateSprite.spriteColor = float4(p.r, p.g, p.b, 255);
 		taskRotateSprite.renderMaterialHandle = fontMaterial;
 		taskRotateSprite.useOrtho = true;
 		taskRotateSprite.forceHQShader = true;
@@ -1640,29 +1642,29 @@ int32_t Build3D::printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
 		
 		{
 			BuildVertex vert;
-			vert.textureCoords0 = Math::Vector3(t.x, t.y, 1.0f);
-			vert.vertex = Math::Vector4(xpos, ypos, z, 1.0f);
+			vert.textureCoords0 = float3(t.x, t.y, 1.0f);
+			vert.vertex = float4(xpos, ypos, z, 1.0f);
 			taskRotateSprite.vertexes[0] = vert; 
 		}
 
 		{
 			BuildVertex vert;
-			vert.textureCoords0 = Math::Vector3(t.x + tc.x, t.y, 1.0f);
-			vert.vertex = Math::Vector4(xpos + (8 >> fontsize), ypos, z, 1.0f);
+			vert.textureCoords0 = float3(t.x + tc.x, t.y, 1.0f);
+			vert.vertex = float4(xpos + (8 >> fontsize), ypos, z, 1.0f);
 			taskRotateSprite.vertexes[1] = vert; 
 		}
 
 		{
 			BuildVertex vert;
-			vert.textureCoords0 = Math::Vector3(t.x + tc.x, t.y + tc.y, 1.0f);
-			vert.vertex = Math::Vector4(xpos + (8 >> fontsize), ypos + (fontsize ? 6 : 8), z, 1.0f);
+			vert.textureCoords0 = float3(t.x + tc.x, t.y + tc.y, 1.0f);
+			vert.vertex = float4(xpos + (8 >> fontsize), ypos + (fontsize ? 6 : 8), z, 1.0f);
 			taskRotateSprite.vertexes[2] = vert; 
 		}
 
 		{
 			BuildVertex vert;
-			vert.textureCoords0 = Math::Vector3(t.x, t.y + tc.y, 1.0f);
-			vert.vertex = Math::Vector4(xpos, ypos + (fontsize ? 6 : 8), z, 1.0f);
+			vert.textureCoords0 = float3(t.x, t.y + tc.y, 1.0f);
+			vert.vertex = float4(xpos, ypos + (fontsize ? 6 : 8), z, 1.0f);
 			taskRotateSprite.vertexes[3] = vert; 
 		}
 
@@ -1909,7 +1911,7 @@ void Build3D::drawpoly(BuildRenderThreadTaskRotateSprite	&taskRotateSprite, vec2
 		//	hictinting_apply(pc, MAXPALOOKUPS - 1);
 	}
 
-	taskRotateSprite.spriteColor = Math::Vector4(pc[0], pc[1], pc[2], pc[3]);
+	taskRotateSprite.spriteColor = float4(pc[0], pc[1], pc[2], pc[3]);
 
 	//Hack for walls&masked walls which use textures that are not a power of 2
 #if 0	
@@ -2057,7 +2059,7 @@ do                                                                              
 
 		{
 			//			taskRotateSprite.vertexes.reserve(npoints);
-			assert(!(npoints != 4));
+//			assert(!(npoints != 4));
 			for (int i = 0; i < npoints; i++)
 			{
 				float const r = 1.f / dd[i];
@@ -2067,8 +2069,8 @@ do                                                                              
 				float y = (ghoriz - py[i]) * r * grhalfxdown10;
 				float z = r * (1.f / 1024.f);
 
-				vert.textureCoords0 = Math::Vector3(uu[i] * r * scale.x, vv[i] * r * scale.y, 1.0f);
-				vert.vertex = Math::Vector4(x, y, z, 1.0f);
+				vert.textureCoords0 = float3(uu[i] * r * scale.x, vv[i] * r * scale.y, 1.0f);
+				vert.vertex = float4(x, y, z, 1.0f);
 				taskRotateSprite.vertexes[i] = vert; // .push_back(vert);
 			}
 		}

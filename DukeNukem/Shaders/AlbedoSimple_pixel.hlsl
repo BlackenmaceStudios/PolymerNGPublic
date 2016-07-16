@@ -6,8 +6,9 @@ cbuffer PS_CONSTANT_BUFFER : register(b0)
 	float4 shadeOffsetVisibility;
 	float4 fogDensistyScaleEnd;
 	float4 fogColor;
-	float4  normal;
-	float4  tangent;
+	float4 normal;
+	float4 tangent;
+	float4 ambient;
 };
 
 Texture2D diffuseTexture : register(t0);
@@ -27,6 +28,11 @@ Texture2D specMapTexture : register(t4);
 SamplerState specMapSampler : register(s4);
 #endif
 
+#ifdef GLOWMAP
+Texture2D glowMapTexture : register(t5);
+SamplerState glowMapSampler : register(s5);
+#endif
+
 float CalculateFogFactor(float4 position)
 {
 	float fragDepth = position.z / position.w; 
@@ -43,12 +49,16 @@ float CalculateFogFactor(float4 position)
 
 struct AlbedoPixelOut
 {
+#ifndef FAKE_TRANSPARENT
 	float depth : SV_DEPTH;
+#endif
 	float4 diffuseColor			: SV_Target0;
 	float4 surfaceNormal		: SV_Target1;
 	float4 normalMap			: SV_Target2;
 	float4 tangent				: SV_Target3;
 	float4 specularGlowProperty : SV_Target4;
+	float4 ambient				: SV_Target5;
+	float4 glowColorBuffer		: SV_Target6;
 };
 
 AlbedoPixelOut main(VertexShaderOutput input)
@@ -98,28 +108,50 @@ AlbedoPixelOut main(VertexShaderOutput input)
 	float3 result = colorBuffer.xyz;
 #endif
 	
+#ifdef FAKE_TRANSPARENT
+	albedoPixelOut.diffuseColor = float4(result.x, result.y, result.z, 0.5);
+#else
 	albedoPixelOut.diffuseColor = float4(result.x, result.y, result.z, alpha);
-#ifdef SPRITE
-	albedoPixelOut.specularGlowProperty.b = 1.0f;
-#else
-	albedoPixelOut.surfaceNormal.xyz = normal;
-#endif
-	albedoPixelOut.surfaceNormal.a = alpha; // input.position.z / input.position.w;
-	albedoPixelOut.depth = input.vDepthVS.z / input.vDepthVS.w;
-	
-#ifdef ALBEDO_USE_NORMALMAP
-	float4 normalMap = normalMapTexture.Sample(normalMapSampler, st);
-	albedoPixelOut.normalMap = float4(normalMap.w, normalMap.y, normalMap.z, 1.0f);
-#else
-	albedoPixelOut.normalMap = float4(127.0f / 255.0f, 127.0f / 255.0f, 1.0f, alpha);
-#endif
-	albedoPixelOut.tangent = float4(tangent.xyz, 1.0f);
+	#ifdef GLOW
+		#ifdef GLOWMAP
+			albedoPixelOut.glowColorBuffer.xyz = glowMapTexture.Sample(glowMapSampler, st).xyz;
+			// Only disable lighting if the glowmap has a pixel that would actually glow.
+			if (albedoPixelOut.glowColorBuffer.x > 0 && albedoPixelOut.glowColorBuffer.y > 0 && albedoPixelOut.glowColorBuffer.z > 0)
+			{
+				albedoPixelOut.specularGlowProperty.y = 1.0f; // This is only temporary!
+			}
+			albedoPixelOut.glowColorBuffer.a = alpha;
+		#else
+			albedoPixelOut.specularGlowProperty.y = 1.0f; // This is only temporary!
+			albedoPixelOut.glowColorBuffer = albedoPixelOut.diffuseColor;
+		#endif
+	#endif
 
-#ifdef ALBEDO_USE_NORMALMAP
-	float specular = specMapTexture.Sample(specMapSampler, st).x;
-	albedoPixelOut.specularGlowProperty.r = specular;
+	#ifdef SPRITE
+		albedoPixelOut.specularGlowProperty.b = 1.0f;
+	#else
+		albedoPixelOut.surfaceNormal.xyz = normal;
+	#endif
+		albedoPixelOut.surfaceNormal.a = alpha; // input.position.z / input.position.w;
+		albedoPixelOut.depth = input.vDepthVS.z / input.vDepthVS.w;
+	
+	#ifdef ALBEDO_USE_NORMALMAP
+		float4 normalMap = normalMapTexture.Sample(normalMapSampler, st);
+		albedoPixelOut.normalMap = float4(normalMap.w, normalMap.y, normalMap.z, 1.0f);
+	#else
+		albedoPixelOut.normalMap = float4(127.0f / 255.0f, 127.0f / 255.0f, 1.0f, alpha);
+	#endif
+		albedoPixelOut.tangent = float4(tangent.xyz, 1.0f);
+
+	#ifdef ALBEDO_USE_NORMALMAP
+		float specular = specMapTexture.Sample(specMapSampler, st).x;
+		albedoPixelOut.specularGlowProperty.r = specular;
+	#endif
+		albedoPixelOut.specularGlowProperty.a = alpha;
+
+		albedoPixelOut.ambient = ambient / 255;
+		albedoPixelOut.ambient.a = alpha;
 #endif
-	albedoPixelOut.specularGlowProperty.a = alpha;
 
 	return albedoPixelOut;
 }

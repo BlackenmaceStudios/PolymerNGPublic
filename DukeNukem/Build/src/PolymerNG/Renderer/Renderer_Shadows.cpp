@@ -15,6 +15,9 @@ void Renderer::InitShadowMaps()
 {
 	dualParabloidShadowMapProgram = PolymerNGRenderProgram::LoadRenderProgram("ShadowDP", false);
 	cubemapShadowMapProgram = PolymerNGRenderProgram::LoadRenderProgram("ShadowCUBE", false);
+	cubemapShadowAlphaMapProgram = PolymerNGRenderProgram::LoadRenderProgram("ShadowCUBEWithAlpha", false);
+	spotlightShadowMapProgram = PolymerNGRenderProgram::LoadRenderProgram("ShadowSPOT", false);
+	spotlightShadowAlphaMapProgram = PolymerNGRenderProgram::LoadRenderProgram("ShadowSPOTWithAlpha", false);
 
 	drawShadowPointLightConstantBuffer = rhi.AllocateRHIConstantBuffer(sizeof(VS_SHADOW_POINT_CONSTANT_BUFFER), &drawShadowPointLightBuffer);
 
@@ -28,7 +31,7 @@ void Renderer::InitShadowMaps()
 
 	for (int i = 0; i < NUM_QUEUED_SHADOW_MAPS; i++)
 	{
-		BuildImage *depthRenderBuffer, *colorRenderBuffer;
+		BuildImage *depthRenderBuffer, *depthRenderBuffer2D;
 
 		{
 			BuildImageOpts opts;
@@ -41,6 +44,19 @@ void Renderer::InitShadowMaps()
 
 			depthRenderBuffer = new BuildImage(opts);
 			depthRenderBuffer->UpdateImagePost(NULL);
+		}
+
+		{
+			BuildImageOpts opts;
+			opts.width = SHADOW_MAP_SIZE;
+			opts.height = SHADOW_MAP_SIZE;
+			opts.format = IMAGE_FORMAT_DEPTH;
+			opts.imageType = IMAGETYPE_2D;
+			opts.isHighQualityImage = true;
+			opts.isRenderTargetImage = false;
+
+			depthRenderBuffer2D = new BuildImage(opts);
+			depthRenderBuffer2D->UpdateImagePost(NULL);
 		}
 
 //		{
@@ -57,6 +73,7 @@ void Renderer::InitShadowMaps()
 //		}
 
 		shadowMaps[i].shadowMapCubeMap = new PolymerNGRenderTarget(NULL, depthRenderBuffer, NULL);
+		shadowMaps[i].spotLightMap = new PolymerNGRenderTarget(NULL, depthRenderBuffer2D, NULL);
 	}
 }
 
@@ -70,45 +87,96 @@ ShadowMap *Renderer::RenderShadowsForLight(PolymerNGLightLocal *light, int shado
 	int shadowOccluderFrame = renderer.GetCurrentFrameNum();
 	ShadowMap *shadowMap = &this->shadowMaps[shadowId];
 
-	if (light->GetOpts()->lightType == POLYMERNG_LIGHTTYPE_POINT)
+	int numShadowMapPasses = 6;
+
+	if (light->GetOpts()->lightType == POLYMERNG_LIGHTTYPE_SPOT)
 	{
-		BuildRHIShader *shader = cubemapShadowMapProgram->GetRHIShader();
-		rhi.SetShader(shader);
-
-		for (int i = 0; i < 6; i++)
-		{
-			shadowMap->shadowMapCubeMap->Bind(i);
-
-			const PolymerNGShadowPass *lightShadowPass = light->GetShadowPass(i);
-
-			//float3 lightPosition(opts.position[1], -opts.position[2] / 16.0f, -opts.position[0]);
-			float4 lightposition(light->GetOpts()->position[1], -light->GetOpts()->position[2] / 16.0f, -light->GetOpts()->position[0], 0.0f);
-
-			drawShadowPointLightBuffer.mWorldView = lightShadowPass->shadowViewProjectionMatrix;
-			drawShadowPointLightBuffer.light_position_and_range = lightposition;
-			drawShadowPointLightBuffer.light_position_and_range.w = light->GetOpts()->radius;
-			drawShadowPointLightConstantBuffer->UpdateBuffer(&drawShadowPointLightBuffer, sizeof(VS_SHADOW_POINT_CONSTANT_BUFFER), 0);
-			rhi.SetConstantBuffer(0, drawShadowPointLightConstantBuffer, SHADER_BIND_VERTEXSHADER);
-
-			for (int d = 0; d < light->GetShadowPass(i)->shadowOccluders[shadowOccluderFrame].size(); d++)
-			{
-				const Build3DPlane *plane = lightShadowPass->shadowOccluders[shadowOccluderFrame][d].plane;
-				if (plane->ibo_offset != -1)
-				{
-					rhi.DrawIndexedQuad(shader, light->GetRHIMesh(), 0, plane->ibo_offset, plane->indicescount);
-				}
-				else
-				{
-					rhi.DrawUnoptimizedQuad(shader, light->GetRHIMesh(), plane->vbo_offset, plane->vertcount);
-				}
-			}
-		}
+		numShadowMapPasses = 1;
+	}
+	else if (light->GetOpts()->lightType == POLYMERNG_LIGHTTYPE_POINT)
+	{
+		numShadowMapPasses = 6;
 	}
 	else
 	{
 		initprintf("Renderer::RenderShadowsForLight: Shadow Mapping for %d not implemented yet!", light->GetOpts()->lightType);
+		return NULL;
 	}
-	
+
+	for (int i = 0; i < numShadowMapPasses; i++)
+	{
+		if (light->GetOpts()->lightType == POLYMERNG_LIGHTTYPE_SPOT)
+		{
+			shadowMap->spotLightMap->Bind(0, true);
+		}
+		else if (light->GetOpts()->lightType == POLYMERNG_LIGHTTYPE_POINT)
+		{
+			shadowMap->shadowMapCubeMap->Bind(i);
+		}
+
+		const PolymerNGShadowPass *lightShadowPass = light->GetShadowPass(i);
+
+		//float3 lightPosition(opts.position[1], -opts.position[2] / 16.0f, -opts.position[0]);
+		float4 lightposition(light->GetOpts()->position[1], -light->GetOpts()->position[2] / 16.0f, -light->GetOpts()->position[0], 0.0f);
+
+		drawShadowPointLightBuffer.mWorldView = lightShadowPass->shadowViewProjectionMatrix;
+		drawShadowPointLightBuffer.light_position_and_range = lightposition;
+		drawShadowPointLightBuffer.light_position_and_range.w = light->GetOpts()->radius;
+		drawShadowPointLightConstantBuffer->UpdateBuffer(&drawShadowPointLightBuffer, sizeof(VS_SHADOW_POINT_CONSTANT_BUFFER), 0);
+		rhi.SetConstantBuffer(0, drawShadowPointLightConstantBuffer, SHADER_BIND_VERTEXSHADER);
+
+		for (int d = 0; d < light->GetShadowPass(i)->shadowOccluders[shadowOccluderFrame].size(); d++)
+		{
+			const Build3DPlane *plane = lightShadowPass->shadowOccluders[shadowOccluderFrame][d].plane;
+			PolymerNGMaterial *material = static_cast<PolymerNGMaterial *>(plane->renderMaterialHandle);
+
+			BuildRHIShader *shader = NULL; 
+			if (light->GetOpts()->lightType == POLYMERNG_LIGHTTYPE_SPOT)
+			{
+				if (plane->isMaskWall)
+				{
+					shader = spotlightShadowAlphaMapProgram->GetRHIShader();
+				}
+				else
+				{
+					shader = spotlightShadowMapProgram->GetRHIShader();
+				}
+			}
+			else if (light->GetOpts()->lightType == POLYMERNG_LIGHTTYPE_POINT)
+			{
+				if (plane->isMaskWall)
+				{
+					shader = cubemapShadowAlphaMapProgram->GetRHIShader();
+				}
+				else
+				{
+					shader = cubemapShadowMapProgram->GetRHIShader();
+				}
+
+			}
+
+			if (plane->isMaskWall)
+			{
+				rhi.SetFaceCulling(CULL_FACE_NONE);
+				rhi.SetImageForContext(0, material->GetDiffuseTexture()->GetRHITexture());
+			}
+			else
+			{
+				rhi.SetFaceCulling(CULL_FACE_FRONT);
+			}
+
+			if (plane->ibo_offset != -1)
+			{
+				rhi.DrawIndexedQuad(shader, light->GetRHIMesh(), 0, plane->ibo_offset, plane->indicescount);
+			}
+			else
+			{
+				rhi.DrawUnoptimizedQuad(shader, light->GetRHIMesh(), plane->vbo_offset, plane->vertcount);
+			}
+
+
+		}
+	}
 
 	return shadowMap;
 }

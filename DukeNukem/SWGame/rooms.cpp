@@ -1077,7 +1077,7 @@ FindCeilingView ( short match, LONGp x, LONGp y, LONG z, SHORTp sectnum )
                 save.zval[save.zcount] = sector[sp->sectnum].floorz;
                 save.pic[save.zcount] = sector[sp->sectnum].floorpicnum;
                 save.slope[save.zcount] = sector[sp->sectnum].floorheinum;
-                sector[sp->sectnum].floorz = newz;
+             // sector[sp->sectnum].floorz = newz;
                 
                 // don't change FAF_MIRROR_PIC - ConnectArea
                 if ( sector[sp->sectnum].floorpicnum != FAF_MIRROR_PIC )
@@ -1161,7 +1161,7 @@ FindFloorView ( short match, LONGp x, LONGp y, LONG z, SHORTp sectnum )
                 save.zval[save.zcount] = sector[sp->sectnum].ceilingz;
                 save.pic[save.zcount] = sector[sp->sectnum].ceilingpicnum;
                 save.slope[save.zcount] = sector[sp->sectnum].ceilingheinum;
-                sector[sp->sectnum].ceilingz = newz;
+            //    sector[sp->sectnum].ceilingz = newz;
                 
                 // don't change FAF_MIRROR_PIC - ConnectArea
                 if ( sector[sp->sectnum].ceilingpicnum != FAF_MIRROR_PIC )

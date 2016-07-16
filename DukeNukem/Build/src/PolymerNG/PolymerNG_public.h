@@ -36,8 +36,8 @@ struct PolymerNGLightOpts
 	float   color[4];
 
 	int sector;
-	int range;
-	int radius;
+	float range;
+	float radius;
 	int faderaiud;
 	int angle;
 	int horiz;
@@ -46,9 +46,13 @@ struct PolymerNGLightOpts
 	int priority;
 	int tilenum;
 	int faderadius;
-	int brightness;
+	float brightness;
 
 	bool castShadows;
+
+	void *userData;
+
+	bool(*LightTick)(class PolymerNGLight *light, PolymerNGLightOpts *opts);
 };
 
 //
@@ -68,8 +72,11 @@ class PolymerNGPublic
 {
 public:
 	virtual PolymerNGLight *AddLightToCurrentBoard(PolymerNGLightOpts lightOpts) = 0;
+	virtual void RemoveLightFromCurrentBoard(PolymerNGLight *) = 0;
 
 	virtual void MoveLightsInSector(int sectorNum, float deltax, float deltay) = 0;
+
+	virtual void SetAmbientLightForSector(int sectorNum, int ambientLightNum) = 0;
 };
 
 extern PolymerNGPublic *polymerNGPublic;

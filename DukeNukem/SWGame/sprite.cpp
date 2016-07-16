@@ -49,6 +49,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "slidor.h"
 #include "player.h"
 
+#include "../Build/src/PolymerNG/PolymerNG_Public.h"
 
 BOOL FAF_Sector ( short sectnum );
 BOOL MoveSkip4, MoveSkip2, MoveSkip8;
@@ -2073,6 +2074,34 @@ SpriteSetup ( VOID )
                                     KillSprite ( SpriteNum );
                                     break;
                                 }
+							case LIGHT_AMBIENT:
+								{
+									polymerNGPublic->SetAmbientLightForSector(sp->sectnum, sp->lotag);
+								}
+								break;
+							case LIGHT_POINTLIGHT:
+								{
+									PolymerNGLightOpts opts;
+									opts.lightType = POLYMERNG_LIGHTTYPE_POINT;
+									opts.angle = sp->ang;
+									opts.horiz = sp->extra;
+									opts.faderadius = sp->shade;
+									opts.radius = sp->lotag;
+									opts.position[0] = sp->x;
+									opts.position[1] = sp->y;
+									opts.position[2] = sp->z;
+									opts.color[0] = abs(sp->xvel);
+									opts.color[1] = abs(sp->yvel);
+									opts.color[2] = abs(sp->zvel);
+									opts.sector = sp->sectnum;
+									opts.brightness = sp->shade;
+									if (opts.brightness <= 0)
+										opts.brightness = 3;
+
+									opts.castShadows = (sp->pal != 0);
+									polymerNGPublic->AddLightToCurrentBoard(opts);
+									break;
+								}
                                 
                             case SECT_FLOOR_PAN:
                                 {

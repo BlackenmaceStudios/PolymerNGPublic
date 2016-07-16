@@ -25,12 +25,22 @@ public:
 		return specularImage;
 	}
 
+	BuildImage *GetGlowMap()
+	{
+		return glowMap;
+	}
+
 	size_t GetMaterialNameHash()
 	{
 		return name_hash;
 	}
+
+	int GetTileNum()
+	{
+		return tileNum;
+	}
 private:
-	PolymerNGMaterial();
+	PolymerNGMaterial(int tileNum);
 
 	void	SetNameAndHash(const char *name, size_t name_hash) { this->name = name; this->name_hash = name_hash; }
 
@@ -49,21 +59,27 @@ private:
 		specularImage = image;
 	}
 
+	void	SetGlowMap(BuildImage *image)
+	{
+		glowMap = image;
+	}
 private:
+	int					tileNum;
 	std::string			name;
 	size_t				name_hash;
 
 	BuildImage			*diffuseImage;
 	BuildImage			*specularImage;
 	BuildImage			*normalMap;
-	
+	BuildImage			*glowMap;
 };
 
-__forceinline PolymerNGMaterial::PolymerNGMaterial()
+__forceinline PolymerNGMaterial::PolymerNGMaterial(int tileNum)
 {
 	diffuseImage = NULL;
 	specularImage = NULL;
 	normalMap = NULL;
+	this->tileNum = tileNum;
 }
 
 //

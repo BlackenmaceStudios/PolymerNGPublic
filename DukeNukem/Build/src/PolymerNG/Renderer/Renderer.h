@@ -39,6 +39,8 @@ protected:
 #include "Renderer_Pass_Lighting.h"
 #include "Renderer_Pass_PostProcess.h"
 #include "Renderer_Pass_ClassicFS.h"
+#include "Renderer_Pass_DOF.h"
+#include "Renderer_Pass_AntiAlias.h"
 
 #include "Renderer_Shadows.h"
 
@@ -81,20 +83,35 @@ public:
 
 	PolymerNGRenderTarget  *GetWorldRenderTarget() { return drawWorldPass.GetDrawWorldRenderTarget(); }
 	PolymerNGRenderTarget  *GetHDRLightingRenderTarget() { return drawLightingPass.GetHDRLightingBuffer(); }
+	PolymerNGRenderTarget  *GetPostProcessRenderTarget() { return drawPostProcessPass.GetPostProcessRenderTarget(); }
+	PolymerNGRenderTarget  *GetDOFRenderTarget() { return dofPass.GetDOFRenderTarget(); }
 
 	PolymerNGRenderProgram *ui_texture_basic;
 	PolymerNGRenderProgram *ui_texture_hq_basic;
 	PolymerNGRenderProgram *albedoSimpleProgram;
+	PolymerNGRenderProgram *albedoSimpleTransparentProgram;
+	PolymerNGRenderProgram *albedoSimpleGlowProgram;
 	PolymerNGRenderProgram *albedoHQProgram;
+	PolymerNGRenderProgram *albedoHQTransparentProgram;
+	PolymerNGRenderProgram *albedoHQGlowProgram;
 	PolymerNGRenderProgram *albedoHQNoNormalMapProgram;
+	PolymerNGRenderProgram *albedoHQNoNormalMapGlowProgram;
 	PolymerNGRenderProgram *spriteSimpleProgram;
+	PolymerNGRenderProgram *spriteSimpleGlowProgram;
+	PolymerNGRenderProgram *spriteSimpleGlowMapProgram;
 	PolymerNGRenderProgram *spriteHQProgram;
+	PolymerNGRenderProgram *spriteHQGlowProgram;
 	PolymerNGRenderProgram *spriteSimpleHorizProgram;
 
-	PolymerNGRenderProgram *deferredLightingProgram;
-	PolymerNGRenderProgram *deferredLightingNoShadowsProgram;
+	PolymerNGRenderProgram *deferredLightingPointLightProgram;
+	PolymerNGRenderProgram *deferredLightingPointLightNoShadowsProgram;
+	PolymerNGRenderProgram *deferredLightingSpotLightProgram;
+	PolymerNGRenderProgram *deferredLightingSpotLightNoShadowsProgram;
 	PolymerNGRenderProgram *postProcessProgram;
 	PolymerNGRenderProgram *classicFSProgram;
+	PolymerNGRenderProgram *fxaaProgram;
+
+	PolymerNGRenderProgram *bokehDOFProgram;
 
 // Shadow code Begin
 public:
@@ -108,6 +125,9 @@ private:
 
 	PolymerNGRenderProgram *dualParabloidShadowMapProgram;
 	PolymerNGRenderProgram *cubemapShadowMapProgram;
+	PolymerNGRenderProgram *cubemapShadowAlphaMapProgram;
+	PolymerNGRenderProgram *spotlightShadowMapProgram;
+	PolymerNGRenderProgram *spotlightShadowAlphaMapProgram;
 	VS_SHADOW_POINT_CONSTANT_BUFFER drawShadowPointLightBuffer;
 	BuildRHIConstantBuffer		*drawShadowPointLightConstantBuffer;
 private:
@@ -117,6 +137,7 @@ private:
 	int num2DRenderCommands;
 	BuildRenderCommand *_2dcommands[MAX_RENDER_COMMANDS];
 
+	RendererDrawPassAA drawAAPass;
 	RendererDrawPassDrawUI drawUIPass;
 	RendererDrawPassDrawWorld drawWorldPass;
 	RendererDrawPassDrawSprite drawSpritePass;
@@ -124,8 +145,9 @@ private:
 	RendererDrawPassLighting drawLightingPass;
 	RendererDrawPassPostProcess drawPostProcessPass;
 	RendererDrawPassDrawClassicScreenFS classicFSPass;
+	RendererDrawPassDOF dofPass;
 	BuildRHIGPUPerformanceCounter *gpuPerfCounter;
-
+	
 	int			currentFrame;
 
 	BuildRenderCommand *currentRenderCommand;

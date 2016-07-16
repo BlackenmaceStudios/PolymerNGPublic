@@ -110,6 +110,12 @@ void ObjFileParser::parseFile()
     {
         switch (*m_DataIt)
         {
+		case '\n':
+			++m_DataIt;
+			break;
+		case '\r':
+			++m_DataIt;
+			break;
         case 'v': // Parse a vertex texture coordinate
             {
                 ++m_DataIt;

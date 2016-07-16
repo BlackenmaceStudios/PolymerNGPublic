@@ -167,7 +167,9 @@ int main(int argc, char **argv)
 		{
 			if (is_power_of_2(imageinfo.Width) && is_power_of_2(imageinfo.Height))
 			{
-				if (imageinfo.Format == IL_RGBA)
+				// I hate DevIL, I can't figure how to know if there is a alpha channel or not when the PNG was compressed with using
+				// there awful PNG index system. Oh well, just force indexed palettes to have a alpha for the time being. :/.
+				if (imageinfo.Format == IL_RGBA || imageinfo.Format == IL_COLOUR_INDEX)
 				{
 					compressionFormat = IL_DXT5;
 					payload.info.format = TEXTURE_CACHE_DXT5;
@@ -260,7 +262,7 @@ int main(int argc, char **argv)
 	// Now write out all the payloads, while recording were each payload is in the file.
 	for (int i = 0; i < files.size(); i++)
 	{
-		printf("Compressing Payload (%d/%d) - %d bytes\n", i, files.size(), payloads[i].info.decompressedPayloadLength);
+		printf("Compressing Payload (%d/%d)", i, files.size());
 
 		defstream.avail_in = payloads[i].info.decompressedPayloadLength; // size of input, string + terminator
 		defstream.next_in = (Bytef *)payloads[i].compressedDataBlob; // input char array
@@ -274,6 +276,7 @@ int main(int argc, char **argv)
 		payloads[i].info.startPosition = ftell(cacheFile);
 		payloads[i].info.compressedPayloadLength = defstream.total_out;
 		fwrite(payloads[i].zlibDataBlob, defstream.total_out, 1, cacheFile);		
+		printf(" %d bytes zlib compressed to %d bytes\n", payloads[i].info.decompressedPayloadLength, payloads[i].info.compressedPayloadLength);
 	}
 
 	// Re-write the header with the payload info.

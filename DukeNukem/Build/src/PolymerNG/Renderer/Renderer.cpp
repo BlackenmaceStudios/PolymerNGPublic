@@ -36,15 +36,33 @@ void Renderer::Init()
 	ui_texture_basic = PolymerNGRenderProgram::LoadRenderProgram("guishader", true);
 	ui_texture_hq_basic = PolymerNGRenderProgram::LoadRenderProgram("guishaderHighQuality", true);
 	albedoSimpleProgram = PolymerNGRenderProgram::LoadRenderProgram("AlbedoSimple", false);
+	albedoSimpleTransparentProgram = PolymerNGRenderProgram::LoadRenderProgram("AlbedoSimpleTransparent", false);
+	albedoSimpleGlowProgram = PolymerNGRenderProgram::LoadRenderProgram("AlbedoSimpleGlow", false);
 	albedoHQProgram = PolymerNGRenderProgram::LoadRenderProgram("AlbedoHighQuality", false);
+	albedoHQGlowProgram = PolymerNGRenderProgram::LoadRenderProgram("AlbedoHighQualityGlow", false);
+	albedoHQTransparentProgram = PolymerNGRenderProgram::LoadRenderProgram("AlbedoHighQualityTransparent", false);
+	albedoHQNoNormalMapGlowProgram = PolymerNGRenderProgram::LoadRenderProgram("AlbedoHighQualityNoNormalMapGlow", false);
 	albedoHQNoNormalMapProgram = PolymerNGRenderProgram::LoadRenderProgram("AlbedoHighQualityNoNormalMap", false);
 	spriteSimpleProgram = PolymerNGRenderProgram::LoadRenderProgram("SpriteSimple", false);
+	spriteSimpleGlowProgram = PolymerNGRenderProgram::LoadRenderProgram("SpriteSimpleGlow", false);
+	spriteSimpleGlowMapProgram = PolymerNGRenderProgram::LoadRenderProgram("SpriteSimpleGlowMap", false); 
 	spriteHQProgram = PolymerNGRenderProgram::LoadRenderProgram("SpriteHighQuality", false);
+	spriteHQGlowProgram = PolymerNGRenderProgram::LoadRenderProgram("SpriteHighQualityGlow", false);
 	spriteSimpleHorizProgram = PolymerNGRenderProgram::LoadRenderProgram("SpriteSimpleHoriz", false);
-	deferredLightingProgram = PolymerNGRenderProgram::LoadRenderProgram("DeferredLighting", false);
-	deferredLightingNoShadowsProgram = PolymerNGRenderProgram::LoadRenderProgram("DeferredLightingNoShadow", false);
 	postProcessProgram = PolymerNGRenderProgram::LoadRenderProgram("PostProcess", false);
 	classicFSProgram = PolymerNGRenderProgram::LoadRenderProgram("ClassicScreenFS", false);
+	bokehDOFProgram = PolymerNGRenderProgram::LoadRenderProgram("BokehDOF", false);
+
+	// Point light render programs
+	deferredLightingPointLightProgram = PolymerNGRenderProgram::LoadRenderProgram("DeferredLightingPointLight", false);
+	deferredLightingPointLightNoShadowsProgram = PolymerNGRenderProgram::LoadRenderProgram("DeferredLightingPointLightNoShadow", false);
+
+	// Spot light render program
+	deferredLightingSpotLightProgram = PolymerNGRenderProgram::LoadRenderProgram("DeferredLightingSpotLight", false);
+	deferredLightingSpotLightNoShadowsProgram = PolymerNGRenderProgram::LoadRenderProgram("DeferredLightingSpotLightNoShadow", false);
+
+	// Load in the AA programs.
+	fxaaProgram = PolymerNGRenderProgram::LoadRenderProgram("FXAA", false);
 
 	// Initilizes the different draw passes.
 	drawUIPass.Init();
@@ -54,6 +72,8 @@ void Renderer::Init()
 	drawLightingPass.Init();
 	drawPostProcessPass.Init();
 	classicFSPass.Init();
+	dofPass.Init();
+	drawAAPass.Init();
 
 	// Initilize the shadows
 	InitShadowMaps();
@@ -90,8 +110,11 @@ bool Renderer::HasWork()
 
 void Renderer::RenderFrame()
 {
+	bool shouldClear = true;
 	polymerNG.UploadPendingImages();
 
+	std::vector<BuildRenderCommand> lightDrawCommands;
+	BuildRenderCommand *drawWorldCommand = NULL;
 	if (gpuPerfCounter)
 	{
 		//gpuPerfCounter->Begin();
@@ -99,7 +122,7 @@ void Renderer::RenderFrame()
 
 	// Ensure all images loaded(we need a precache system, this is temporary).
 	for (int i = 0; i < currentNumRenderCommand; i++)
-	{
+	{		
 		BuildRenderCommand &command = currentRenderCommand[i];
 
 		if (command.taskId == BUILDRENDER_TASK_DRAWCLASSICSCREEN)
@@ -164,28 +187,51 @@ void Renderer::RenderFrame()
 			//drawVisSectors.Draw(command);
 
 			// Normal albedo pass.
-			rhi.SetDepthEnable(false);
-			drawClassicSkyPass.Draw(command);
-			rhi.SetDepthEnable(true);
+			if (shouldClear)
+			{
+				rhi.SetDepthEnable(false);
+				drawClassicSkyPass.Draw(command);
+				rhi.SetDepthEnable(true);
+			}
+			else
+			{
+				rhi.SetDepthEnable(true);
+			}
 
-			drawWorldPass.BindDrawWorldRenderTarget(true);
+			drawWorldPass.BindDrawWorldRenderTarget(true, shouldClear);
 			rhi.ToggleDeferredRenderContext(true);
 			drawWorldPass.Draw(command);
+			drawWorldCommand = &command;
 			rhi.ToggleDeferredRenderContext(false);
+
+			
 		}
 		else if (command.taskId == BUILDRENDER_TASK_DRAWSPRITES)
 		{
 			drawSpritePass.Draw(command);
-			drawWorldPass.BindDrawWorldRenderTarget(false);
+			if (drawWorldCommand)
+			{
+				drawWorldPass.DrawTrans(*drawWorldCommand);
+				drawWorldCommand = NULL;
+			}
+			drawWorldPass.BindDrawWorldRenderTarget(false, false);
 		}
 		else if (command.taskId == BUILDRENDER_TASK_DRAWLIGHTS)
 		{
-			drawLightingPass.Draw(command);
-
-			drawPostProcessPass.Draw(command);
+			lightDrawCommands.push_back(command);
+			shouldClear = false;
 		}
 	}
+
+	for (int i = 0; i < lightDrawCommands.size(); i++)
+	{
+		drawLightingPass.shouldClear = (i == 0);
+		drawLightingPass.Draw(lightDrawCommands[i]);
+	}
 	
+	drawPostProcessPass.Draw(currentRenderCommand[currentNumRenderCommand - 1]);
+	dofPass.Draw(currentRenderCommand[currentNumRenderCommand - 1]);
+	drawAAPass.Draw(currentRenderCommand[currentNumRenderCommand - 1]);
 	
 
 	if (gpuPerfCounter)

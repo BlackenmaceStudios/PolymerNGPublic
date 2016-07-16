@@ -1,12 +1,14 @@
 #pragma once
 
+bool IsTransparentTile(int idx);
+
 struct VS_DRAWWORLD_BUFFER
 {
-	Math::XMFLOAT4X4  mWorldViewProj;
-	Math::XMFLOAT4X4  mWorldView;
-	Math::XMFLOAT4X4 inverseViewMatrix;
+	float4x4  mWorldViewProj;
+	float4x4  mWorldView;
+	float4x4 inverseViewMatrix;
 	float viewPosition[4];
-	Math::XMFLOAT4X4  mProjectionMatrix;
+	float4x4  mProjectionMatrix;
 };
 
 struct PS_CONSTANT_BUFFER
@@ -16,6 +18,7 @@ struct PS_CONSTANT_BUFFER
 	float fogColor[4];
 	float normal[4];
 	float tangent[4];
+	float ambient[4];
 };
 
 class RendererDrawPassDrawWorld : public RendererDrawPassBase
@@ -26,9 +29,10 @@ public:
 
 	// Draws the Build Render Command
 	virtual void				Draw( const BuildRenderCommand &command);
+	virtual void				DrawTrans(const BuildRenderCommand &command);
 
 	// Allows the main render class to start binding the buffers.
-	void						BindDrawWorldRenderTarget(bool enable);
+	void						BindDrawWorldRenderTarget(bool enable, bool shouldClear);
 
 	BuildImage					*GetWorldDepthImage() {
 		return depthRenderBuffer_copied;
@@ -37,7 +41,7 @@ public:
 	// Returns the render target used in drawing the world.
 	PolymerNGRenderTarget		*GetDrawWorldRenderTarget() { return renderTarget; }
 private:
-	void						DrawPlane(BuildRHIMesh *rhiMesh, const BaseModel *model, const Build3DPlane *plane);
+	void						DrawPlane(BuildRHIMesh *rhiMesh, const BaseModel *model, const Build3DPlane *plane, bool isTransparent);
 
 	BuildRHIConstantBuffer		*drawWorldPixelConstantBuffer[2];
 	BuildRHIConstantBuffer		*drawWorldConstantBuffer;
@@ -47,4 +51,7 @@ private:
 	BuildImage					*depthRenderBuffer_copied;
 
 	PolymerNGRenderTarget		*renderTarget;
+private:
+	std::vector<const Build3DPlane *> transparentPlaneList;
+	std::vector<const Build3DPlane *> glowPlaneList;
 };

@@ -310,6 +310,8 @@ VOID SpikeAlign ( short SpriteNum )
 {
     USERp u = User[SpriteNum];
     SPRITEp sp = u->SpriteP;
+
+	return; // jmarshall: HACK FOR CRASH!!
     
     // either work on single sector or all tagged in SOBJ
     if ( ( CHAR ) SP_TAG7 ( sp ) < 0 )

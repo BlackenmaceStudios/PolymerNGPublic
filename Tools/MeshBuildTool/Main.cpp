@@ -51,7 +51,7 @@ bool ListFiles(string path, string mask, vector<string>& files) {
 				}
 				else
 				{
-					if (strstr(ffd.cFileName, ".md3") || strstr(ffd.cFileName, ".md2") || strstr(ffd.cFileName, ".fbx") || strstr(ffd.cFileName, ".3ds") || strstr(ffd.cFileName, ".ase") || strstr(ffd.cFileName, ".blender"))
+					if (strstr(ffd.cFileName, ".md3") || strstr(ffd.cFileName, ".md2") || strstr(ffd.cFileName, ".fbx") || strstr(ffd.cFileName, ".3ds") || strstr(ffd.cFileName, ".ase") || strstr(ffd.cFileName, ".blender") || strstr(ffd.cFileName, ".obj"))
 					{
 						files.push_back(path + "\\" + ffd.cFileName);
 					}

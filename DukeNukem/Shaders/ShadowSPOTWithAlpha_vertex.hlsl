@@ -1,0 +1,1 @@
+#include "ShadowSPOT_vertex.hlsl"

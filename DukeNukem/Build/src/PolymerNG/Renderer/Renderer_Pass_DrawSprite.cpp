@@ -107,10 +107,18 @@ void RendererDrawPassDrawSprite::Draw(const BuildRenderCommand &command)
 		PolymerNGMaterial *material = static_cast<PolymerNGMaterial *>(sprite->plane.renderMaterialHandle);
 		drawSpriteBuffer.mWorldViewProj = sprite->modelViewProjectionMatrix;
 		drawSpriteBuffer.modelMatrixInverse = sprite->modelViewInverse;
-		drawSpriteBuffer.viewPosition[0] = -command.taskRenderSprites.position.GetX();
-		drawSpriteBuffer.viewPosition[1] = -command.taskRenderSprites.position.GetY();
-		drawSpriteBuffer.viewPosition[2] = -command.taskRenderSprites.position.GetZ();
-		drawSpriteBuffer.viewPosition[3] = 1.0f; // command.taskRenderWorld.position.GetW();
+		drawSpriteBuffer.viewPosition[0] = -command.taskRenderSprites.position.x;
+		drawSpriteBuffer.viewPosition[1] = -command.taskRenderSprites.position.y;
+		drawSpriteBuffer.viewPosition[2] = -command.taskRenderSprites.position.z;
+
+		if (sprite->isWallSprite || sprite->isHorizsprite)
+		{
+			drawSpriteBuffer.viewPosition[3] = 0.0001f;
+		}
+		else
+		{
+			drawSpriteBuffer.viewPosition[3] = 0.0f;
+		}
 
 		float4x4 spriteModelMatrix;
 		memcpy(&spriteModelMatrix, &sprite->modelMatrix, sizeof(float) * 16);
@@ -125,12 +133,19 @@ void RendererDrawPassDrawSprite::Draw(const BuildRenderCommand &command)
 			{
 				CacheModelSurface *surface = sprite->cacheModel->GetCacheSurface(d);
 
-				if (surface->material == NULL || surface->material->GetDiffuseTexture() == NULL || sprite->cacheModel->GetBaseModel() == NULL)
+				if (surface->material == NULL || sprite->cacheModel->GetBaseModel() == NULL)
 					continue;
 				
-				rhi.SetImageForContext(0, surface->material->GetDiffuseTexture()->GetRHITexture());
+				if (surface->material->GetDiffuseTexture() == NULL)
+				{
+					rhi.SetImageForContext(0, imageManager.GetBlackImage()->GetRHITexture());
+				}
+				else
+				{
+					rhi.SetImageForContext(0, surface->material->GetDiffuseTexture()->GetRHITexture());
+				}
 
-				BuildRHIShader *shader = renderer.albedoHQProgram->GetRHIShader();
+				BuildRHIShader *shader = renderer.albedoHQNoNormalMapProgram->GetRHIShader();
 
 				rhi.DrawIndexedQuad(shader, sprite->cacheModel->GetBaseModel()->rhiVertexBufferStatic, 0, surface->startIndex, surface->numIndexes);
 			}
@@ -142,6 +157,9 @@ void RendererDrawPassDrawSprite::Draw(const BuildRenderCommand &command)
 			psDrawSpriteBuffer.fogDensistyScaleEnd[0] = sprite->plane.fogDensity;
 			psDrawSpriteBuffer.fogDensistyScaleEnd[1] = sprite->plane.fogStart;
 			psDrawSpriteBuffer.fogDensistyScaleEnd[2] = sprite->plane.fogEnd;
+			psDrawSpriteBuffer.ambient[0] = sprite->ambientColor[0];
+			psDrawSpriteBuffer.ambient[1] = sprite->ambientColor[1];
+			psDrawSpriteBuffer.ambient[2] = sprite->ambientColor[2];
 			drawSpritePixelConstantBuffer->UpdateBuffer(&psDrawSpriteBuffer, sizeof(PS_CONSTANT_BUFFER), 0);
 			rhi.SetConstantBuffer(0, drawSpritePixelConstantBuffer, SHADER_BIND_PIXELSHADER);
 			if (material->GetDiffuseTexture() == NULL || material->GetDiffuseTexture()->GetRHITexture() == NULL)
@@ -152,9 +170,34 @@ void RendererDrawPassDrawSprite::Draw(const BuildRenderCommand &command)
 			rhi.SetImageForContext(1, imageManager.GetPaletteManager()->GetPaletteImage()->GetRHITexture());
 			rhi.SetImageForContext(2, imageManager.GetPaletteManager()->GetPaletteLookupImage(sprite->paletteNum)->GetRHITexture());
 
-			BuildRHIShader *shader = renderer.spriteSimpleProgram->GetRHIShader();
+			BuildRHIShader *shader = NULL;
 			if (material->GetDiffuseTexture()->GetOpts().isHighQualityImage)
-				shader = renderer.spriteHQProgram->GetRHIShader();
+			{
+				if (G_IsGlowSprite(sprite->plane.tileNum))
+				{
+					shader = renderer.spriteHQGlowProgram->GetRHIShader();
+				}
+				else
+				{
+					shader = renderer.spriteHQProgram->GetRHIShader();
+				}
+			}
+			else
+			{
+				if (material->GetGlowMap() != NULL)
+				{
+					shader = renderer.spriteSimpleGlowMapProgram->GetRHIShader();
+					rhi.SetImageForContext(5, material->GetGlowMap()->GetRHITexture());
+				}
+				else if (G_IsGlowSprite(sprite->plane.tileNum))
+				{
+					shader = renderer.spriteSimpleGlowProgram->GetRHIShader();
+				}
+				else
+				{
+					shader = renderer.spriteSimpleProgram->GetRHIShader();
+				}
+			}
 
 			// Calculate the normals for the sprite
 			memcpy(&spriteVertexesGPU[0], &spriteVertexes[0], sizeof(Build3DVertex) * 8);

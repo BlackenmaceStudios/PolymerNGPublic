@@ -30,8 +30,8 @@ VertexShaderOutput main(VertexShaderInput input)
 	VertexShaderOutput output;
 
 	float4 vertex = mul(mWorldViewProjection, float4(input.position.xyz, 1.0));
+	vertex.w += viewposition.w;
 	output.position = vertex;
-	output.position.w += 0.001;
 	output.texcoord0 = input.texcoord0;
 	output.texcoord1 = input.position; // mul(mView, float4(input.position.xyz, 1.0));
 	output.texcoord2 = mul(transpose(mWorldViewInverse), float4(input.normal.xyz, 1.0));

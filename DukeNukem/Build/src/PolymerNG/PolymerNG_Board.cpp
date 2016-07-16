@@ -176,7 +176,7 @@ void PolymerNGBoard::InitBoard()
 	imageManager.EndLevelLoad();
 }
 
-void PolymerNGBoard::CreateProjectionMatrix(int32_t fov, Math::Matrix4 &projectionMatrix, int width, int height)
+void PolymerNGBoard::CreateProjectionMatrix(int32_t fov, float4x4 &projectionMatrix, int width, int height)
 {
 	float           aspect;
 	float fang = (float)fov * atanf((float)viewingrange / 65536.0f) / (PI / 4);
@@ -184,11 +184,11 @@ void PolymerNGBoard::CreateProjectionMatrix(int32_t fov, Math::Matrix4 &projecti
 	aspect = (float)(width + 1) / (float)(height + 1);
 		
 	float matrix[16];
-	Math::glhPerspectivef2(matrix, fang / (2048.0f / 360.0f), aspect, 0.01f, 300.0f);
-	projectionMatrix.SetX(Math::Vector4(matrix[0], matrix[1], matrix[2], matrix[3]));
-	projectionMatrix.SetY(Math::Vector4(matrix[4], matrix[5], matrix[6], matrix[7]));
-	projectionMatrix.SetZ(Math::Vector4(matrix[8], matrix[9], matrix[10], matrix[11]));
-	projectionMatrix.SetW(Math::Vector4(matrix[12], matrix[13], matrix[14], matrix[15]));
+	glhPerspectivef2(matrix, fang / (2048.0f / 360.0f), aspect, 0.01f, 300.0f);
+	projectionMatrix.r0 = float4(matrix[0], matrix[1], matrix[2], matrix[3]);
+	projectionMatrix.r1 = float4(matrix[4], matrix[5], matrix[6], matrix[7]);
+	projectionMatrix.r2 = float4(matrix[8], matrix[9], matrix[10], matrix[11]);
+	projectionMatrix.r3 = float4(matrix[12], matrix[13], matrix[14], matrix[15]);
 }
 
 /*
@@ -199,9 +199,9 @@ PolymerNG::DrawRooms
 void PolymerNGBoard::DrawRooms(int32_t daposx, int32_t daposy, int32_t daposz, int16_t daang, int32_t dahoriz, int16_t dacursectnum)
 {
 	float           skyhoriz, ang, tiltang;
-	Math::Vector3 position;
 	float			horizang;
-	Math::Matrix4 viewMatrix, rotationMatrix;
+	float4x4 viewMatrix, rotationMatrix;
+	static int currentDrawRoomsIdx = 0;
 
 	// fogcalc needs this
 	//gvisibility = ((float)globalvisibility)*FOGSCALE;
@@ -215,33 +215,31 @@ void PolymerNGBoard::DrawRooms(int32_t daposx, int32_t daposy, int32_t daposz, i
 	if (skyhoriz < -180.0f)
 		skyhoriz += 360.0f;
 
-	position.SetX((float)daposy);
-	position.SetY(-(float)(daposz) / 16.0f);
-	position.SetZ(-(float)daposx);
+	float3	position((float)daposy, -(float)(daposz) / 16.0f, -(float)daposx);
 
 	// if it's not a skybox, make the sky parallax
 	// DEFAULT_ARTSKY_ANGDIV is computed from eyeballed values
 	// need to recompute it if we ever change the max horiz amplitude
 	//skyhoriz *= curskyangmul;
 
-	rotationMatrix.Identity();
+	rotationMatrix = float4x4Identity();
 
-	rotationMatrix.Rotatef(tiltang, 0.0f, 0.0f, -1.0f);
-	rotationMatrix.Rotatef(skyhoriz, 1.0f, 0.0f, 0.0f);
-	rotationMatrix.Rotatef(ang, 0.0f, 1.0f, 0.0f);
+	_math_matrix_rotate(rotationMatrix, tiltang, 0.0f, 0.0f, -1.0f);
+	_math_matrix_rotate(rotationMatrix, skyhoriz, 1.0f, 0.0f, 0.0f);
+	_math_matrix_rotate(rotationMatrix, ang, 0.0f, 1.0f, 0.0f);
 
 	viewMatrix = rotationMatrix;
 
-	Math::Matrix4 skyModelView = viewMatrix;
+	float4x4 skyModelView = viewMatrix;
 
-	Math::Matrix4 scaleMatrix = viewMatrix.MakeScale(Math::Vector3(1.0f / 1000.0f, 1.0f / 1000.0f, 1.0f / 1000.0f));
+	float4x4 scaleMatrix = float4x4Scale(1.0f / 1000.0f, 1.0f / 1000.0f, 1.0f / 1000.0f);
 	viewMatrix = viewMatrix * scaleMatrix;
 
-	Math::Matrix4 translationMatrix = viewMatrix.MakeTranslation(-position.GetX(), -position.GetY(), -position.GetZ());
+	float4x4 translationMatrix = float4x4Translation(-position.x, -position.y, -position.z);
 	viewMatrix = viewMatrix * translationMatrix;
 
-	Math::Matrix4 projectionMatrix;
-	Math::Matrix4 occlusionProjectionMatrix;
+	float4x4 projectionMatrix;
+	float4x4 occlusionProjectionMatrix;
 	CreateProjectionMatrix(426, projectionMatrix, windowx2, windowy2);
 	CreateProjectionMatrix(800, occlusionProjectionMatrix, VISPASS_WIDTH, VISPASS_HEIGHT);
 	//projectionMatrix.SetX(Math::Vector4(fydimen, 0.0f   , 1.0f, 0.0f));
@@ -249,11 +247,11 @@ void PolymerNGBoard::DrawRooms(int32_t daposx, int32_t daposy, int32_t daposz, i
 	//projectionMatrix.SetZ(Math::Vector4(0.0f   , 0.0f   , 1.0f, fydimen));
 	//projectionMatrix.SetW(Math::Vector4(0.0f   , 0.0f   , -1.0f, 0.0f));
 
-	Math::Matrix4 modelViewProjection = projectionMatrix * viewMatrix;
+	float4x4 modelViewProjection = projectionMatrix * viewMatrix;
 
-	Math::Matrix4 skyModelViewProjection = projectionMatrix * skyModelView;
+	float4x4 skyModelViewProjection = projectionMatrix * skyModelView;
 
-	Math::Matrix4 occlusionViewProjection = occlusionProjectionMatrix * viewMatrix;
+	float4x4 occlusionViewProjection = occlusionProjectionMatrix * viewMatrix;
 
 	int16_t cursectnum = dacursectnum;
 	updatesectorbreadth(daposx, daposy, &cursectnum);
@@ -273,6 +271,8 @@ void PolymerNGBoard::DrawRooms(int32_t daposx, int32_t daposy, int32_t daposz, i
 		
 	}
 
+
+
 	{
 		BuildRenderCommand command;
 		command.taskId = BUILDRENDER_TASK_RENDERWORLD;
@@ -280,39 +280,56 @@ void PolymerNGBoard::DrawRooms(int32_t daposx, int32_t daposy, int32_t daposz, i
 		command.taskRenderWorld.position = position;
 		command.taskRenderWorld.skyMaterialHandle = boardSkyMaterial;
 		command.taskRenderWorld.gameSmpFrame = smpframe;
-		command.taskRenderWorld.renderplanes = command.taskRenderWorld.renderplanesFrames[smpframe];
+		command.taskRenderWorld.renderplanes = command.taskRenderWorld.renderplanesFrames[currentDrawRoomsIdx][smpframe];
 		FindVisibleSectors(command.taskRenderWorld, modelViewProjection, viewMatrix, projectionMatrix, cursectnum);
 
-		Math::Matrix4 inverseView = viewMatrix;
-		inverseView.Inverse();
+		float4x4 inverseView = viewMatrix;
+		inverseView.invert();
 
-		inverseView.GetFloat4x4(&command.taskRenderWorld.inverseViewMatrix);
-		projectionMatrix.GetFloat4x4(&command.taskRenderWorld.projectionMatrix);
-		modelViewProjection.GetFloat4x4(&command.taskRenderWorld.viewProjMatrix);
-		viewMatrix.GetFloat4x4(&command.taskRenderWorld.viewMatrix);
-		skyModelViewProjection.GetFloat4x4(&command.taskRenderWorld.skyProjMatrix);
-		occlusionViewProjection.GetFloat4x4(&command.taskRenderWorld.occlusionViewProjMatrix);
+		command.taskRenderWorld.inverseViewMatrix = inverseView;
+		command.taskRenderWorld.projectionMatrix = projectionMatrix;
+		command.taskRenderWorld.viewProjMatrix = modelViewProjection;
+		command.taskRenderWorld.viewMatrix = viewMatrix;
+		command.taskRenderWorld.skyProjMatrix = skyModelViewProjection;
+		command.taskRenderWorld.occlusionViewProjMatrix = occlusionViewProjection;
 
 		renderer.AddRenderCommand(command);
 	}
 
+	currentDrawRoomsIdx++;
+	if (currentDrawRoomsIdx > 3)
+		currentDrawRoomsIdx = 0;
+
 	// Now render all the sprites.
-	DrawSprites(viewMatrix, projectionMatrix, horizang, daang, position);
+	{
+		BuildRenderCommand command;
+		command.taskId = BUILDRENDER_TASK_DRAWSPRITES;
+		DrawSprites(command, viewMatrix, projectionMatrix, horizang, daang, position);
+		renderer.AddRenderCommand(command);
+		Bmemcpy(tsprite, localtsprite, sizeof(spritetype) * spritesortcnt);
+	}
+
 
 	// Now draw all the lights.
 	{
-		Math::Matrix4 inverseModelViewProjection = projectionMatrix;
-		inverseModelViewProjection.Inverse();
+		float4x4 inverseModelViewProjection = projectionMatrix;
+		inverseModelViewProjection.invert();
 
-		Math::Matrix4 inverseModelViewInverse = viewMatrix;
-		inverseModelViewInverse.Inverse();
+		float4x4 inverseModelViewInverse = viewMatrix;
+		inverseModelViewInverse.invert();
+
+		float4x4 inverseModelViewProjectionMatrix = modelViewProjection;
+		inverseModelViewProjectionMatrix.invert();
 
 		BuildRenderCommand command;
 		command.taskId = BUILDRENDER_TASK_DRAWLIGHTS;
-		inverseModelViewProjection.GetFloat4x4(&command.taskDrawLights.inverseModelViewMatrix);
-		inverseModelViewInverse.GetFloat4x4(&command.taskDrawLights.inverseViewMatrix);
-		viewMatrix.GetFloat4x4(&command.taskDrawLights.viewMatrix);
-		FindVisibleLightsForScene(&command.taskDrawLights.visibleLights[0], command.taskDrawLights.numLights);
+		command.taskDrawLights.inverseModelViewProjectionMatrix = inverseModelViewProjectionMatrix;
+		command.taskDrawLights.inverseModelViewMatrix = inverseModelViewProjection;
+		command.taskDrawLights.inverseViewMatrix = inverseModelViewInverse;
+		command.taskDrawLights.viewMatrix = viewMatrix;
+
+		float4x4 viewMatrix_((float *)&viewMatrix);
+		FindVisibleLightsForScene(&command.taskDrawLights.visibleLights[0], command.taskDrawLights.numLights, viewMatrix_);
 		renderer.AddRenderCommand(command);
 	}
 }
@@ -322,7 +339,7 @@ void PolymerNGBoard::DrawRooms(int32_t daposx, int32_t daposy, int32_t daposz, i
 PolymerNG::ComputeSpritePlane
 =============
 */
-bool PolymerNGBoard::ComputeSpritePlane(Math::Matrix4 &viewMatrix, Math::Matrix4 &projectionMatrix, float horizang, int16_t daang, Build3DSprite *sprite, tspritetype *tspr)
+bool PolymerNGBoard::ComputeSpritePlane(float4x4 &viewMatrix, float4x4 &projectionMatrix, float horizang, int16_t daang, Build3DSprite *sprite, tspritetype *tspr)
 {
 	int32_t         curpicnum, xsize, ysize, i, j;
 	int32_t         tilexoff, tileyoff, xoff, yoff, centeryoff = 0;
@@ -413,9 +430,9 @@ bool PolymerNGBoard::ComputeSpritePlane(Math::Matrix4 &viewMatrix, Math::Matrix4
 			yoff = -yoff;
 	}
 
-	Math::Matrix4 modelMatrix;
+	float4x4 modelMatrix;
 
-	modelMatrix.Identity();
+	modelMatrix = float4x4Identity();
 	sprite->isHorizsprite = false;
 
 	switch (tspr->cstat & SPR_ALIGN_MASK)
@@ -423,28 +440,28 @@ bool PolymerNGBoard::ComputeSpritePlane(Math::Matrix4 &viewMatrix, Math::Matrix4
 	case 0:
 		ang = (float)((viewangle)& 2047) / (2048.0f / 360.0f);
 
-		modelMatrix = modelMatrix * Math::Matrix4::MakeTranslation(spos[0], spos[1], spos[2]);
-		modelMatrix.Rotatef(-ang, 0.0f, 1.0f, 0.0f);
-		modelMatrix.Rotatef(-horizang, 1.0f, 0.0f, 0.0f);
-		modelMatrix = modelMatrix * Math::Matrix4::MakeTranslation((float)(-xoff), (float)(yoff), 0.0f);
-		modelMatrix = modelMatrix * Math::Matrix4::MakeScale(Math::Vector3((float)(xsize), (float)(ysize), 1.0f));
+		modelMatrix = modelMatrix * float4x4Translation(spos[0], spos[1], spos[2]);
+		_math_matrix_rotate(modelMatrix,-ang, 0.0f, 1.0f, 0.0f);
+		_math_matrix_rotate(modelMatrix,-horizang, 1.0f, 0.0f, 0.0f);
+		modelMatrix = modelMatrix * float4x4Translation((float)(-xoff), (float)(yoff), 0.0f);
+		modelMatrix = modelMatrix * float4x4Scale((float)(xsize), (float)(ysize), 1.0f);
 		break;
 	case SPR_WALL:
 		ang = (float)((tspr->ang + 1024) & 2047) / (2048.0f / 360.0f);
 
-		modelMatrix = modelMatrix * Math::Matrix4::MakeTranslation(spos[0], spos[1], spos[2]);
-		modelMatrix.Rotatef(-ang, 0.0f, 1.0f, 0.0f);
-		modelMatrix = modelMatrix * Math::Matrix4::MakeTranslation((float)(-xoff), (float)(yoff - centeryoff), 0.0f);
-		modelMatrix = modelMatrix * Math::Matrix4::MakeScale(Math::Vector3((float)(xsize), (float)(ysize), 1.0f));
-		
+		modelMatrix = modelMatrix * float4x4Translation(spos[0], spos[1], spos[2]);
+		_math_matrix_rotate(modelMatrix,-ang, 0.0f, 1.0f, 0.0f);
+		modelMatrix = modelMatrix * float4x4Translation((float)(-xoff), (float)(yoff - centeryoff), 0.0f);
+		modelMatrix = modelMatrix * float4x4Scale((float)(xsize), (float)(ysize), 1.0f);
+		sprite->isWallSprite = true;
 		break;
 	case SPR_FLOOR:
 		ang = (float)((tspr->ang + 1024) & 2047) / (2048.0f / 360.0f);
 
-		modelMatrix = modelMatrix * Math::Matrix4::MakeTranslation(spos[0], spos[1], spos[2]);
-		modelMatrix.Rotatef(-ang, 0.0f, 1.0f, 0.0f);
-		modelMatrix = modelMatrix * Math::Matrix4::MakeTranslation((float)(-xoff), 1.0f, (float)(yoff));
-		modelMatrix = modelMatrix * Math::Matrix4::MakeScale(Math::Vector3((float)(xsize), 1.0f, (float)(ysize)));
+		modelMatrix = modelMatrix * float4x4Translation(spos[0], spos[1], spos[2]);
+		_math_matrix_rotate(modelMatrix, -ang, 0.0f, 1.0f, 0.0f);
+		modelMatrix = modelMatrix * float4x4Translation((float)(-xoff), 1.0f, (float)(yoff));
+		modelMatrix = modelMatrix * float4x4Scale((float)(xsize), 1.0f, (float)(ysize));
 
 		sprite->isHorizsprite = true;
 		break;
@@ -455,17 +472,18 @@ bool PolymerNGBoard::ComputeSpritePlane(Math::Matrix4 &viewMatrix, Math::Matrix4
 	//Build3D::CalculateFogForPlane(sprite->plane.tileNum, sprite->plane.shadeNum, sprite->plane.visibility, sprite->plane.paletteNum, &sprite->plane);
 
 #if !POLYMERNG_NOSYNC_SPRITES
-	Math::Matrix4 mvp = projectionMatrix * (viewMatrix * modelMatrix);
+	float4x4 mvp = projectionMatrix * (viewMatrix * modelMatrix);
 #else
-	Math::Matrix4 mvp = projectionMatrix * (viewMatrix);
+	float4x4 mvp = projectionMatrix * (viewMatrix);
 #endif
-	mvp.GetFloat4x4(&sprite->modelViewProjectionMatrix);
-	modelMatrix.GetFloat4x4(&sprite->modelMatrix);
-	viewMatrix.GetFloat4x4(&sprite->ViewMatrix);
+	sprite->modelViewProjectionMatrix = mvp;
+	sprite->modelMatrix = modelMatrix;
+	sprite->ViewMatrix = viewMatrix;
 
-	Math::Matrix4 modelViewInverseMatrix = viewMatrix;
-	modelViewInverseMatrix.Inverse();
-	modelViewInverseMatrix.GetFloat4x4(&sprite->modelViewInverse);
+
+	float4x4 modelViewInverseMatrix = viewMatrix;
+	modelViewInverseMatrix.invert();
+	sprite->modelViewInverse = modelViewInverseMatrix;
 
 	return true;
 }
@@ -473,7 +491,7 @@ bool PolymerNGBoard::ComputeSpritePlane(Math::Matrix4 &viewMatrix, Math::Matrix4
 //
 // PolymerNGBoard::ComputeModelSpriteRender
 //
-bool PolymerNGBoard::ComputeModelSpriteRender(Math::Matrix4 &viewMatrix, Math::Matrix4 &projectionMatrix, float horizang, int16_t daang, Build3DSprite *sprite, tspritetype *tspr)
+bool PolymerNGBoard::ComputeModelSpriteRender(float4x4 &viewMatrix, float4x4 &projectionMatrix, float horizang, int16_t daang, Build3DSprite *sprite, tspritetype *tspr)
 {
 	float           *v0, *v1;
 	char            targetpal, usinghighpal, foundpalskin;
@@ -521,8 +539,8 @@ bool PolymerNGBoard::ComputeModelSpriteRender(Math::Matrix4 &viewMatrix, Math::M
 
 	float mscale = max(modelCacheSystem.GetModelOverridesForId(tspr->picnum)->scale, 1);
 
-	Math::Matrix4 modelMatrix;
-	modelMatrix.Identity();
+	float4x4 modelMatrix;
+	modelMatrix = float4x4Identity();
 	scale = (1.0 / 4.0);
 	scale *= 0.7f;
 	scale *= mscale;
@@ -542,43 +560,43 @@ bool PolymerNGBoard::ComputeModelSpriteRender(Math::Matrix4 &viewMatrix, Math::M
 		sinminusradplayerang = sin(-radplayerang);
 		hudzoom = 65536.0 / spriteext[tspr->owner].offset.z;
 
-		modelMatrix = modelMatrix * Math::Matrix4::MakeTranslation(spos[0], spos[1], spos[2]); //bglTranslatef(spos[0], spos[1], spos[2]);
-		modelMatrix.Rotatef(horizang, -cosminusradplayerang, 0.0f, sinminusradplayerang);
-		modelMatrix.Rotatef(spriteext[tspr->owner].roll / (2048.0f / 360.0f), sinminusradplayerang, 0.0f, cosminusradplayerang);
-		modelMatrix.Rotatef(-playerang, 0.0f, 1.0f, 0.0f);
+		modelMatrix = modelMatrix * float4x4Translation(spos[0], spos[1], spos[2]); //bglTranslatef(spos[0], spos[1], spos[2]);
+		_math_matrix_rotate(modelMatrix, horizang, -cosminusradplayerang, 0.0f, sinminusradplayerang);
+		_math_matrix_rotate(modelMatrix, spriteext[tspr->owner].roll / (2048.0f / 360.0f), sinminusradplayerang, 0.0f, cosminusradplayerang);
+		_math_matrix_rotate(modelMatrix, -playerang, 0.0f, 1.0f, 0.0f);
 
-		modelMatrix.Rotatef(-playerang, 0.0f, 1.0f, 0.0f);
-		modelMatrix = modelMatrix * modelMatrix.MakeScale(Math::Vector3(hudzoom, 1.0f, 1.0f));
-		modelMatrix.Rotatef(playerang, 0.0f, 1.0f, 0.0f);
-		modelMatrix = modelMatrix * Math::Matrix4::MakeTranslation(spos2[0], spos2[1], spos2[2]); //bglTranslatef(spos[0], spos[1], spos[2]); bglTranslatef(spos2[0], spos2[1], spos2[2]);
-		modelMatrix.Rotatef(-ang, 0.0f, 1.0f, 0.0f);
+		_math_matrix_rotate(modelMatrix, -playerang, 0.0f, 1.0f, 0.0f);
+		modelMatrix = modelMatrix * float4x4Scale(hudzoom, 1.0f, 1.0f);
+		_math_matrix_rotate(modelMatrix, playerang, 0.0f, 1.0f, 0.0f);
+		modelMatrix = modelMatrix * float4x4Translation(spos2[0], spos2[1], spos2[2]); //bglTranslatef(spos[0], spos[1], spos[2]); bglTranslatef(spos2[0], spos2[1], spos2[2]);
+		_math_matrix_rotate(modelMatrix, -ang, 0.0f, 1.0f, 0.0f);
 	}
 	else {
-		modelMatrix = modelMatrix * Math::Matrix4::MakeTranslation(spos[0], spos[1], spos[2]); //bglTranslatef(spos[0], spos[1], spos[2]); bglTranslatef(spos[0], spos[1], spos[2]);
-		modelMatrix.Rotatef(-ang, 0.0f, 1.0f, 0.0f); // jm
+		modelMatrix = modelMatrix * float4x4Translation(spos[0], spos[1], spos[2]); //bglTranslatef(spos[0], spos[1], spos[2]); bglTranslatef(spos[0], spos[1], spos[2]);
+		_math_matrix_rotate(modelMatrix, -ang, 0.0f, 1.0f, 0.0f); // jm
 	}
 	if (((tspr->cstat >> 4) & 3) == 2)
 	{
-		modelMatrix = modelMatrix * Math::Matrix4::MakeTranslation(0.0f, 0.0, -(float)(tilesiz[tspr->picnum].y * tspr->yrepeat) / 8.0f);
-		modelMatrix.Rotatef(90.0f, 0.0f, 0.0f, 1.0f);
+		modelMatrix = modelMatrix * float4x4Translation(0.0f, 0.0, -(float)(tilesiz[tspr->picnum].y * tspr->yrepeat) / 8.0f);
+		_math_matrix_rotate(modelMatrix, 90.0f, 0.0f, 0.0f, 1.0f);
 	}
 	else
-		modelMatrix.Rotatef(-90.0f, 1.0f, 0.0f, 0.0f);
+		_math_matrix_rotate(modelMatrix, -90.0f, 1.0f, 0.0f, 0.0f);
 
 	if ((tspr->cstat & 128) && (((tspr->cstat >> 4) & 3) != 2))
-		modelMatrix = modelMatrix * Math::Matrix4::MakeTranslation(0.0f, 0.0, -(float)(tilesiz[tspr->picnum].y * tspr->yrepeat) / 8.0f);
+		modelMatrix = modelMatrix * float4x4Translation(0.0f, 0.0, -(float)(tilesiz[tspr->picnum].y * tspr->yrepeat) / 8.0f);
 
 	// yoffset differs from zadd in that it does not follow cstat&8 y-flipping
-	modelMatrix = modelMatrix * Math::Matrix4::MakeTranslation(0.0f, 0.0, 0 * 64 * scale * tspr->yrepeat); // jm
+	modelMatrix = modelMatrix * float4x4Translation(0.0f, 0.0, 0 * 64 * scale * tspr->yrepeat); // jm
 
 	if (tspr->cstat & 8)
 	{
-		modelMatrix = modelMatrix * Math::Matrix4::MakeTranslation(0.0f, 0.0, (float)(tilesiz[tspr->picnum].y * tspr->yrepeat) / 4.0f);
-		modelMatrix = modelMatrix * modelMatrix.MakeScale2(Math::Vector3(1.0f, 1.0f, -1.0f));
+		modelMatrix = modelMatrix * float4x4Translation(0.0f, 0.0, (float)(tilesiz[tspr->picnum].y * tspr->yrepeat) / 4.0f);
+		modelMatrix = modelMatrix * float4x4Scale(1.0f, 1.0f, -1.0f);
 	}
 
 	if (tspr->cstat & 4)
-		modelMatrix = modelMatrix * modelMatrix.MakeScale2(Math::Vector3(1.0f, -1.0f, 1.0f));
+		modelMatrix = modelMatrix * float4x4Scale(1.0f, -1.0f, 1.0f);
 
 	//if (!(tspr->cstat & 4) != !(tspr->cstat & 8)) {
 	//	// Only inverting one coordinate will reverse the winding order of
@@ -587,8 +605,8 @@ bool PolymerNGBoard::ComputeModelSpriteRender(Math::Matrix4 &viewMatrix, Math::M
 	//}
 
 	// jmarshall
-	modelMatrix = modelMatrix * modelMatrix.MakeScale(Math::Vector3(scale * tspr->xrepeat, scale * tspr->xrepeat, scale * tspr->yrepeat));
-	modelMatrix = modelMatrix * Math::Matrix4::MakeTranslation(0.0f, 0.0, 0 * 64);
+	modelMatrix = modelMatrix * float4x4Scale(scale * tspr->xrepeat, scale * tspr->xrepeat, scale * tspr->yrepeat);
+	modelMatrix = modelMatrix * float4x4Translation(0.0f, 0.0, 0 * 64);
 	// jmarshall end
 
 	// scripted model rotation
@@ -605,12 +623,12 @@ bool PolymerNGBoard::ComputeModelSpriteRender(Math::Matrix4 &viewMatrix, Math::M
 	//	offsets[1] = -spriteext[tspr->owner].offset.y / (scale * tspr->xrepeat);
 	//	offsets[2] = (float)(spriteext[tspr->owner].offset.z) / 16.0f / (scale * tspr->yrepeat);
 	//
-	//	modelMatrix = modelMatrix * Math::Matrix4::MakeTranslation(-offsets[0], -offsets[1], -offsets[2]);
+	//	modelMatrix = modelMatrix * float4x4::MakeTranslation(-offsets[0], -offsets[1], -offsets[2]);
 	//
 	//	modelMatrix.Rotatef(pitchang, 0.0f, 1.0f, 0.0f);
 	//	modelMatrix.Rotatef(rollang, -1.0f, 0.0f, 0.0f);
 	//
-	//	modelMatrix = modelMatrix * Math::Matrix4::MakeTranslation(offsets[0], offsets[1], offsets[2]);
+	//	modelMatrix = modelMatrix * float4x4::MakeTranslation(offsets[0], offsets[1], offsets[2]);
 	//}
 	// jmarshall end
 
@@ -695,12 +713,54 @@ bool PolymerNGBoard::ComputeModelSpriteRender(Math::Matrix4 &viewMatrix, Math::M
 	sprite->plane.shadeNum = tspr->shade;
 	//Build3D::CalculateFogForPlane(sprite->plane.tileNum, sprite->plane.shadeNum, sprite->plane.visibility, sprite->plane.paletteNum, &sprite->plane);
 
-	Math::Matrix4 modelViewMatrix = (viewMatrix * modelMatrix);
-	Math::Matrix4 mvp = projectionMatrix * modelViewMatrix;
-	mvp.GetFloat4x4(&sprite->modelViewProjectionMatrix);
-	modelMatrix.GetFloat4x4(&sprite->modelMatrix);
+	float4x4 modelViewMatrix = (viewMatrix * modelMatrix);
+	float4x4 mvp = projectionMatrix * modelViewMatrix;
+	sprite->modelViewProjectionMatrix = mvp;
+	sprite->modelMatrix = modelMatrix;
 
 	return true;
+}
+
+/*
+=============
+PolymerNG::RemoveLightFromCurrentBoard
+=============
+*/
+void PolymerNGBoard::RemoveLightFromCurrentBoard(PolymerNGLightLocal *light)
+{
+	for (int i = 0; i < mapLights.size(); i++)
+	{
+		if (mapLights[i] == light)
+		{
+			mapLights.erase(mapLights.begin() + i);
+			return;
+		}
+	}
+
+	initprintf("PolymerNGBoard::RemoveLightFromCurrentBoard: Failed to remove light\n");
+}
+
+/*
+=============
+PolymerNG::GetAmbientSectorColor
+=============
+*/
+void PolymerNGBoard::GetAmbientSectorColor(int ambientColorId, byte *ambientColorArray)
+{
+	switch (ambientColorId)
+	{
+		case 1:
+			ambientColorArray[0] = 6;
+			ambientColorArray[1] = 6;
+			ambientColorArray[2] = 40;
+			break;
+
+		case 2:
+			ambientColorArray[0] = 5;
+			ambientColorArray[1] = 5;
+			ambientColorArray[2] = 5;
+			break;
+	}
 }
 
 /*
@@ -708,10 +768,8 @@ bool PolymerNGBoard::ComputeModelSpriteRender(Math::Matrix4 &viewMatrix, Math::M
 PolymerNG::DrawSprites
 =============
 */
-void PolymerNGBoard::DrawSprites(Math::Matrix4 &viewMatrix, Math::Matrix4 &projectionMatrix, float horizang, int16_t daang, Math::Vector3 &position)
+void PolymerNGBoard::DrawSprites(BuildRenderCommand &command, float4x4 &viewMatrix, float4x4 &projectionMatrix, float horizang, int16_t daang, float3 &position)
 {
-	BuildRenderCommand command;
-	command.taskId = BUILDRENDER_TASK_DRAWSPRITES;
 	command.taskRenderSprites.numSprites = localspritesortcnt;
 	command.taskRenderSprites.prsprites = &prsprites[renderer.GetCurrentFrameNum()][0];
 	command.taskRenderSprites.position = position;
@@ -746,10 +804,9 @@ void PolymerNGBoard::DrawSprites(Math::Matrix4 &viewMatrix, Math::Matrix4 &proje
 		{
 			sprite->isVisible = ComputeSpritePlane(viewMatrix, projectionMatrix, horizang, daang, sprite, tspr);
 		}
+		
+		GetAmbientSectorColor(board->GetSector(tspr->sectnum)->ambientSectorId, sprite->ambientColor);
 	}
-
-	renderer.AddRenderCommand(command);
-	Bmemcpy(tsprite, localtsprite, sizeof(spritetype) * spritesortcnt);
 }
 
 /*
@@ -779,6 +836,16 @@ PolymerNG::AddLightToCurrentBoard
 */
 PolymerNGLight *PolymerNG::AddLightToCurrentBoard(PolymerNGLightOpts lightOpts)
 {
-	PolymerNGLightLocal *light = new PolymerNGLightLocal(lightOpts, polymerNGPrivate.currentBoard->GetBoard());
+	PolymerNGLightLocal *light = new PolymerNGLightLocal(lightOpts, polymerNGPrivate.currentBoard);
 	return polymerNGPrivate.currentBoard->AddLightToMap(light);
+}
+
+/*
+=============
+PolymerNG::RemoveLightFromCurrentBoard
+=============
+*/
+void PolymerNG::RemoveLightFromCurrentBoard(PolymerNGLight *light)
+{
+	polymerNGPrivate.currentBoard->RemoveLightFromCurrentBoard((PolymerNGLightLocal *)light);
 }

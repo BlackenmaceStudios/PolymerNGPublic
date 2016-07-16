@@ -5,7 +5,11 @@
 
 #include "TextureCacheFormat.h"
 
+#ifdef SWGAME
+#define TEXTURECACHE_FILENAME "Assets\\SWData\\game_textures.payloads"
+#else
 #define TEXTURECACHE_FILENAME "Assets\\DukeData\\game_textures.payloads"
+#endif
 
 class BuildFile;
 

@@ -52,8 +52,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 static char SM32_havesound = 0;
 
 static char SoundToggle = 1;
-int32_t NumVoices = 32;
-int32_t MixRate = 44100;
+extern int32_t NumVoices;
+extern int32_t MixRate;
 
 int32_t g_numEnvSoundsPlaying;
 

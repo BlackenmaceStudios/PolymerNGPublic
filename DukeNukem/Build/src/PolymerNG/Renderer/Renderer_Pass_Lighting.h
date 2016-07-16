@@ -15,8 +15,8 @@ struct ShadowMapInfo
 
 struct PS_DRAWLIGHTING_BUFFER
 {
-	Math::XMFLOAT4X4 invModelViewProjectionMatrix;
-	Math::XMFLOAT4X4 viewMatrix;
+	float4x4 invModelViewProjectionMatrix;
+	float4x4 viewMatrix;
 	float lightposition_and_range[4];
 	float lightrangcolor[4];
 	float cameraposition[4];
@@ -24,7 +24,9 @@ struct PS_DRAWLIGHTING_BUFFER
 	float4x4 lightViewMatrix;
 	float4x4 lightProjectionMatrix;
 	float4 lightbrightnessandunknown;
-	Math::XMFLOAT4X4 inverseViewMatrix;
+	float4x4 inverseViewMatrix;
+	float4 spotDir;
+	float4 spotRadius;
 };
 
 class RendererDrawPassLighting : public RendererDrawPassBase
@@ -37,6 +39,8 @@ public:
 	virtual void				Draw(const BuildRenderCommand &command);
 
 	PolymerNGRenderTarget		*GetHDRLightingBuffer() { return renderTarget; }
+
+	bool shouldClear;
 private:
 	PS_DRAWLIGHTING_BUFFER		drawLightingBuffer;
 	BuildRHIConstantBuffer		*drawLightingConstantBuffer;

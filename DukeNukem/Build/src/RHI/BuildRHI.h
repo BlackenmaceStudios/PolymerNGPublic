@@ -306,6 +306,9 @@ public:
 	// Toggles write to depth buffer.
 	static void SetDepthEnable(bool depthEnable);
 
+	// Toggles write to depth buffer while enabling reads.
+	static void SetDepthWriteEnable(bool depthWriteEnable);
+
 	// Allocates a render target
 	static BuildRHIRenderTarget *AllocateRHIRenderTarget(BuildRHITexture *diffuseTexture, BuildRHITexture *depthTexture, BuildRHITexture *stencilTexture);
 

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="DebugSW|Win32">
@@ -103,18 +103,6 @@
     <ClInclude Include="Build\src\IntelBuildCPUT\CPUTCamera.h" />
     <ClInclude Include="Build\src\IntelBuildCPUT\CPUTFrustum.h" />
     <ClInclude Include="Build\src\IntelBuildCPUT\CPUTMath.h" />
-    <ClInclude Include="Build\src\Math\BoundingPlane.h" />
-    <ClInclude Include="Build\src\Math\BoundingSphere.h" />
-    <ClInclude Include="Build\src\Math\Common.h" />
-    <ClInclude Include="Build\src\Math\Frustum.h" />
-    <ClInclude Include="Build\src\Math\Matrix3.h" />
-    <ClInclude Include="Build\src\Math\Matrix4.h" />
-    <ClInclude Include="Build\src\Math\Mesa3DMath.h" />
-    <ClInclude Include="Build\src\Math\Quaternion.h" />
-    <ClInclude Include="Build\src\Math\Random.h" />
-    <ClInclude Include="Build\src\Math\Scalar.h" />
-    <ClInclude Include="Build\src\Math\Transform.h" />
-    <ClInclude Include="Build\src\Math\Vector.h" />
     <ClInclude Include="Build\src\PolymerNG\Models\CacheModel.h" />
     <ClInclude Include="Build\src\PolymerNG\Models\ModelCacheFormat.h" />
     <ClInclude Include="Build\src\PolymerNG\Models\ModelCacheSystem.h" />
@@ -126,14 +114,15 @@
     <ClInclude Include="build\src\PolymerNG\PolymerNG_local.h" />
     <ClInclude Include="Build\src\PolymerNG\PolymerNG_Material.h" />
     <ClInclude Include="Build\src\PolymerNG\PolymerNG_public.h" />
-    <ClInclude Include="build\src\PolymerNG\PolymerNG_RenderParam.h" />
     <ClInclude Include="build\src\PolymerNG\PolymerNG_RenderProgram.h" />
     <ClInclude Include="build\src\PolymerNG\PolymerNG_Board.h" />
     <ClInclude Include="Build\src\PolymerNG\PolymerNG_RenderTarget.h" />
     <ClInclude Include="Build\src\PolymerNG\PolymerNG_Visibility.h" />
     <ClInclude Include="build\src\PolymerNG\Renderer\Renderer.h" />
+    <ClInclude Include="Build\src\PolymerNG\Renderer\Renderer_Pass_AntiAlias.h" />
     <ClInclude Include="Build\src\PolymerNG\Renderer\Renderer_Pass_ClassicFS.h" />
     <ClInclude Include="Build\src\PolymerNG\Renderer\Renderer_Pass_ClassicSky.h" />
+    <ClInclude Include="Build\src\PolymerNG\Renderer\Renderer_Pass_DOF.h" />
     <ClInclude Include="Build\src\PolymerNG\Renderer\Renderer_Pass_DrawSprite.h" />
     <ClInclude Include="build\src\PolymerNG\Renderer\Renderer_Pass_DrawUI.h" />
     <ClInclude Include="Build\src\PolymerNG\Renderer\Renderer_Pass_DrawWorld.h" />
@@ -218,13 +207,14 @@
     <ClCompile Include="Build\src\PolymerNG\PolymerNG_ImageManager.cpp" />
     <ClCompile Include="Build\src\PolymerNG\PolymerNG_Light.cpp" />
     <ClCompile Include="Build\src\PolymerNG\PolymerNG_Material.cpp" />
-    <ClCompile Include="build\src\PolymerNG\PolymerNG_RenderParam.cpp" />
     <ClCompile Include="build\src\PolymerNG\PolymerNG_RenderProgram.cpp" />
     <ClCompile Include="Build\src\PolymerNG\PolymerNG_RenderTarget.cpp" />
     <ClCompile Include="Build\src\PolymerNG\PolymerNG_Visibility.cpp" />
     <ClCompile Include="build\src\PolymerNG\Renderer\Renderer.cpp" />
+    <ClCompile Include="Build\src\PolymerNG\Renderer\Renderer_Pass_AntiAlias.cpp" />
     <ClCompile Include="Build\src\PolymerNG\Renderer\Renderer_Pass_ClassicFS.cpp" />
     <ClCompile Include="Build\src\PolymerNG\Renderer\Renderer_Pass_ClassicSky.cpp" />
+    <ClCompile Include="Build\src\PolymerNG\Renderer\Renderer_Pass_DOF.cpp" />
     <ClCompile Include="Build\src\PolymerNG\Renderer\Renderer_Pass_DrawSprite.cpp" />
     <ClCompile Include="build\src\PolymerNG\Renderer\Renderer_Pass_DrawUI.cpp" />
     <ClCompile Include="Build\src\PolymerNG\Renderer\Renderer_Pass_DrawWorld.cpp" />
@@ -347,9 +337,6 @@
     <ClCompile Include="Third-Party\zlib\trees.c" />
     <ClCompile Include="Third-Party\zlib\uncompr.c" />
     <ClCompile Include="Third-Party\zlib\zutil.c" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Build\src\Math\Functions.inl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{633B0FEC-7CCA-4ADA-A6F0-BDE67E8F8EDF}</ProjectGuid>
@@ -511,7 +498,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>SWGAME;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <CompileAsWinRT>false</CompileAsWinRT>
@@ -593,7 +580,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>SWGAME;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <CompileAsWinRT>false</CompileAsWinRT>

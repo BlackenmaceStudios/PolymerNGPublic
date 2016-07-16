@@ -5,8 +5,8 @@
 
 struct PS_POSTPROCESS_BUFFER
 {
-	Math::XMFLOAT4X4 invModelViewProjectionMatrix;
-	Math::XMFLOAT4X4 viewMatrix;
+	float4x4 invModelViewProjectionMatrix;
+	float4x4 viewMatrix;
 };
 
 class RendererDrawPassPostProcess : public RendererDrawPassBase
@@ -17,7 +17,10 @@ public:
 
 	// Draws the Build Render Command
 	virtual void				Draw(const BuildRenderCommand &command);
+
+	PolymerNGRenderTarget		*GetPostProcessRenderTarget() { return renderTarget; }
 private:
 	PS_POSTPROCESS_BUFFER		drawPostProcessBuffer;
 	BuildRHIConstantBuffer		*drawPostProcessConstantBuffer;
+	PolymerNGRenderTarget		*renderTarget;
 };

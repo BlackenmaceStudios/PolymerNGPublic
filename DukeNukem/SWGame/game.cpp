@@ -170,7 +170,7 @@ int DispMono = TRUE;
 int Fog = FALSE;
 int FogColor;
 int PreCaching = TRUE;
-int GodMode = FALSE;
+int GodMode = TRUE;
 int BotMode = FALSE;
 short Skill = 2;
 short BetaVersion = 900;
@@ -3110,6 +3110,34 @@ Control ( VOID )
     TerminateGame();
 }
 
+bool G_IsGlowSprite(int idx)
+{
+	if (idx >= 3072 && idx <= 3170)
+		return true;
+
+	if (idx >= 3212 && idx <= 3225)
+		return true;
+
+	switch (idx)
+	{
+		// TV
+		case 610:
+		case 611:
+		case 612:
+
+		// Lights
+		case 2712:
+		case 2687:
+		case 2688:
+		case 2728:
+
+		// signs
+		case 5075:
+		case 5078:
+			return true;
+	}
+	return false;
+}
 
 void
 _Assert ( char *expr, char *strFile, unsigned uLine )

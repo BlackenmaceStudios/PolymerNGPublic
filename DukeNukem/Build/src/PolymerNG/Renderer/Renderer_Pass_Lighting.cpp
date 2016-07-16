@@ -54,7 +54,7 @@ void RendererDrawPassLighting::Draw(const BuildRenderCommand &command)
 	rhi.SetFaceCulling(CULL_FACE_NONE);
 	rhi.SetBlendState(BLENDSTATE_ADDITIVE);
 
-	renderTarget->Bind(0, true);
+	renderTarget->Bind(0, shouldClear);
 
 	for (int i = 0, d  = 0; i < command.taskDrawLights.numLights; i++)
 	{
@@ -67,11 +67,27 @@ void RendererDrawPassLighting::Draw(const BuildRenderCommand &command)
 		
 		if (command.taskDrawLights.visibleLights[i]->GetOpts()->castShadows)
 		{
-			rhi.SetShader(renderer.deferredLightingProgram->GetRHIShader());
+			switch (command.taskDrawLights.visibleLights[i]->GetOpts()->lightType)
+			{
+				case POLYMERNG_LIGHTTYPE_POINT:
+					rhi.SetShader(renderer.deferredLightingPointLightProgram->GetRHIShader());
+					break;
+				case POLYMERNG_LIGHTTYPE_SPOT:
+					rhi.SetShader(renderer.deferredLightingSpotLightProgram->GetRHIShader());
+					break;
+			}
 		}
 		else
 		{
-			rhi.SetShader(renderer.deferredLightingNoShadowsProgram->GetRHIShader());
+			switch (command.taskDrawLights.visibleLights[i]->GetOpts()->lightType)
+			{
+			case POLYMERNG_LIGHTTYPE_POINT:
+				rhi.SetShader(renderer.deferredLightingPointLightNoShadowsProgram->GetRHIShader());
+				break;
+			case POLYMERNG_LIGHTTYPE_SPOT:
+				rhi.SetShader(renderer.deferredLightingSpotLightNoShadowsProgram->GetRHIShader());
+				break;
+			}
 		}
 
 		rhi.SetImageForContext(0, drawWorldRenderTarget->GetDiffuseImage(0)->GetRHITexture());
@@ -83,8 +99,20 @@ void RendererDrawPassLighting::Draw(const BuildRenderCommand &command)
 
 		if (command.taskDrawLights.visibleLights[i]->GetOpts()->castShadows)
 		{
-			rhi.SetImageForContext(6, shadowMap->shadowMapCubeMap->GetDepthImage()->GetRHITexture(), true);
+			switch (command.taskDrawLights.visibleLights[i]->GetOpts()->lightType)
+			{
+				case POLYMERNG_LIGHTTYPE_POINT:
+					rhi.SetImageForContext(6, shadowMap->shadowMapCubeMap->GetDepthImage()->GetRHITexture(), true);
+					break;
+				case POLYMERNG_LIGHTTYPE_SPOT:
+					rhi.SetImageForContext(6, shadowMap->spotLightMap->GetDepthImage()->GetRHITexture(), true);
+					break;
+			}
+			
 		}
+
+		drawLightingBuffer.spotDir = float4(command.taskDrawLights.visibleLights[i]->GetShadowPass(0)->spotdir, 1.0);
+		drawLightingBuffer.spotRadius = float4(command.taskDrawLights.visibleLights[i]->GetShadowPass(0)->spotRadius, 1.0);
 
 		drawLightingBuffer.viewMatrix = command.taskDrawLights.viewMatrix;
 		drawLightingBuffer.invModelViewProjectionMatrix = command.taskDrawLights.inverseModelViewMatrix;

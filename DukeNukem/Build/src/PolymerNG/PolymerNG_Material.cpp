@@ -31,7 +31,7 @@ PolymerNGMaterial * PolymerNGMaterialManager::LoadMaterial(const char *fileName)
 			return loadedMaterials[i];
 	}
 
-	PolymerNGMaterial *material = new PolymerNGMaterial();
+	PolymerNGMaterial *material = new PolymerNGMaterial(-1);
 
 	BuildImage *diffuseImage = imageManager.LoadTexture(fileName);
 	material->SetDiffuseTexture(diffuseImage);
@@ -66,7 +66,7 @@ PolymerNGMaterial * PolymerNGMaterialManager::LoadMaterialFromImage(const char *
 			return loadedMaterials[i];
 	}
 
-	PolymerNGMaterial *material = new PolymerNGMaterial();
+	PolymerNGMaterial *material = new PolymerNGMaterial(-1);
 	material->SetDiffuseTexture(image);
 
 	material->SetNameAndHash(materialname, materialHash);
@@ -101,7 +101,7 @@ PolymerNGMaterial *PolymerNGMaterialManager::LoadMaterialForTile(int tileNum)
 			return loadedMaterials[i];
 	}
 
-	PolymerNGMaterial *material = new PolymerNGMaterial();
+	PolymerNGMaterial *material = new PolymerNGMaterial(tileNum);
 
 	BuildImage *diffuseImage = imageManager.LoadFromTileId(tileNum, PAYLOAD_IMAGE_DIFFUSE);
 	material->SetDiffuseTexture(diffuseImage);
@@ -111,6 +111,9 @@ PolymerNGMaterial *PolymerNGMaterialManager::LoadMaterialForTile(int tileNum)
 
 	BuildImage *specularImage = imageManager.LoadFromTileId(tileNum, PAYLOAD_IMAGE_SPECULAR);
 	material->SetSpecularMap(specularImage);
+
+	BuildImage *glowImage = imageManager.LoadFromTileId(tileNum, PAYLOAD_IMAGE_GLOW);
+	material->SetGlowMap(glowImage);
 
 	material->SetNameAndHash(materialname, materialHash);
 

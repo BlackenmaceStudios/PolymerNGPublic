@@ -1884,10 +1884,10 @@ VOID DrawCrosshair ( PLAYERp pp )
     extern long CrosshairX, CrosshairY;
     extern BOOL DemoMode, CameraTestMode;
     
-    if ( !gs.Crosshair )
-    {
+  //  if ( !gs.Crosshair )
+  //  {
         return;
-    }
+    //}
     
     if ( DemoMode || CameraTestMode )
     {

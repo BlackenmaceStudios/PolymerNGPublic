@@ -75,6 +75,67 @@ void RHIAppToggleDepthTest(bool enableDepthTest)
 		context->RSSetViewports(1, &deviceViewport);
 	}
 }
+ID3D11Device3 *g_deviceD3D = NULL;
+
+void RHIAppToggleDepthWrite(bool enableDepthWrite)
+{
+	static ID3D11DepthStencilState* m_depthStencilState = NULL;
+	static ID3D11DepthStencilState* m_depthStencilStateNoWrite = NULL;
+
+	// This is stupid
+	if (m_depthStencilStateNoWrite == NULL || m_depthStencilState == NULL)
+	{
+		HRESULT result;
+		D3D11_DEPTH_STENCIL_DESC depthStencilDesc;
+
+		// Initialize the description of the stencil state.
+		ZeroMemory(&depthStencilDesc, sizeof(depthStencilDesc));
+
+		// Set up the description of the stencil state.
+		depthStencilDesc.DepthEnable = true;
+		depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+		depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
+
+		depthStencilDesc.StencilEnable = true;
+		depthStencilDesc.StencilReadMask = 0xFF;
+		depthStencilDesc.StencilWriteMask = 0xFF;
+
+		// Stencil operations if pixel is front-facing.
+		depthStencilDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+		depthStencilDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
+		depthStencilDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+		depthStencilDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+		// Stencil operations if pixel is back-facing.
+		depthStencilDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+		depthStencilDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
+		depthStencilDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+		depthStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+		// Create the depth stencil state.
+		result = g_deviceD3D->CreateDepthStencilState(&depthStencilDesc, &m_depthStencilState);
+		if (FAILED(result))
+		{
+			return ;
+		}
+
+		depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+		result = g_deviceD3D->CreateDepthStencilState(&depthStencilDesc, &m_depthStencilStateNoWrite);
+		if (FAILED(result))
+		{
+			return ;
+		}
+	}
+
+	if (enableDepthWrite)
+	{
+		context->OMSetDepthStencilState(m_depthStencilState, 1);
+	}
+	else
+	{
+		context->OMSetDepthStencilState(m_depthStencilStateNoWrite, 1);
+	}
+}
 
 void RHIAppSwitchBackToDeviceRenderBuffers()
 {
@@ -97,6 +158,7 @@ bool DukeNukemMain::Render()
 		GraphicsContext fakeContext; // Not used.
 
 		context = m_deviceResources->GetD3DDeviceContext();
+		g_deviceD3D = m_deviceResources->GetD3DDevice();
 
 		// Reset the viewport to target the whole screen.
 		auto viewport = m_deviceResources->GetScreenViewport();

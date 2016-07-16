@@ -424,6 +424,14 @@ WallSetup ( VOID )
     }
 }
 
+bool IsTransparentTile(int idx)
+{
+	if (idx >= 780 && idx <= 794)
+	{
+		return true;
+	}
+	return false;
+}
 
 VOID
 SectorLiquidSet ( short i )

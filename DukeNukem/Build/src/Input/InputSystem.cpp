@@ -12,9 +12,6 @@
 XBuildInputSystemPrivate xBuildInputSystemPrivate;
 XBuildInputSystem *xBuildInputSystem = &xBuildInputSystemPrivate;
 
-extern float globalWindowWidth;
-extern float globalWindowHeight;
-
 void XBuildInputSystemPrivate::Init()
 {
 	//m_keyboard = std::make_unique<DirectX::Keyboard>();
@@ -30,7 +27,6 @@ void XBuildInputSystemPrivate::Init()
 	}
 
 	SDL_JoystickEventState(SDL_ENABLE);
-	//SDL_SetRelativeMouseMode(SDL_TRUE);
 
 	buildkeytranslationtable();
 
@@ -61,30 +57,6 @@ extern "C" void readmousexy(int32_t *x, int32_t *y)
 
 	static int32_t lastMouseX = 0;
 	static int32_t lastMouseY = 0;
-	static int32_t currentMouseX = 0;
-	static int32_t currentMouseY = 0;
-
-	// Get the mouse position.
-	SDL_GetMouseState(&currentMouseX, &currentMouseY);
-	if (currentMouseX - lastMouseX != 0 || currentMouseY - lastMouseY != 0)
-	{
-		//int32_t mousePositionX = currentMouseX - lastMouseX;
-		//int32_t mousePositionY = currentMouseY - lastMouseY;
-		//
-		//float movementDirX = 0;
-		//float movementDirY = 0;
-		//
-		//movementDirX = (((currentMouseX - 0) / (globalWindowWidth - 0)) - 0.5f) * 2.0f;
-		//movementDirY = (((currentMouseY - 0) / (globalWindowHeight - 0)) - 0.5f) * 2.0f;
-		//
-		//
-		//lastMouseX = currentMouseX;
-		//lastMouseY = currentMouseY;
-		//
-		//*x = movementDirX * 50;
-		//*y = (movementDirY * 50);
-		//return;
-	}
 
 	if (xBuildInputSystemPrivate.gamePad == nullptr)
 	{
@@ -100,11 +72,6 @@ extern "C" void readmousexy(int32_t *x, int32_t *y)
 		*x = controllerState.thumbSticks.rightX * 100;
 		*y = (-controllerState.thumbSticks.rightY * 100) * 2.0f;
 		return;
-	}
-	else
-	{
-		*x = 0;
-		*y = 0;
 	}
 #if 0
 	int32_t mousePositionX = xBuildInputSystemPrivate.m_mouse->GetState().x - lastMouseX;
@@ -122,12 +89,6 @@ extern "C" void readmousexy(int32_t *x, int32_t *y)
 
 extern "C" void readmousebstatus(int32_t *b)
 {
-	if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT))
-	{
-		b[0] = 1;
-		return;
-	}
-
 	if (xBuildInputSystemPrivate.gamePad == nullptr)
 		return;
 

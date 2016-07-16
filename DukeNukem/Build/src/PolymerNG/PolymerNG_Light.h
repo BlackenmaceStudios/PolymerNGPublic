@@ -8,6 +8,11 @@
 //
 struct PolymerNGShadowOccluder
 {
+	PolymerNGShadowOccluder()
+	{
+		plane = NULL;
+	}
+
 	const Build3DPlane *plane;
 };
 
@@ -20,6 +25,8 @@ struct PolymerNGShadowPass
 	float4x4 shadowViewMatrix;
 	float4x4 shadowProjectionMatrix;
 	float frustum[5 * 4];
+	float3 spotdir;
+	float3 spotRadius;
 	std::vector<PolymerNGShadowOccluder> shadowOccluders[2];
 };
 
@@ -37,9 +44,9 @@ struct PolymerNGLightVisbility
 class PolymerNGLightLocal : public PolymerNGLight
 {
 public:
-	PolymerNGLightLocal(PolymerNGLightOpts opts, Build3DBoard *board);
+	PolymerNGLightLocal(PolymerNGLightOpts opts, PolymerNGBoard *board);
 
-	void		PrepareShadows();
+	void		PrepareShadows(float4x4 modelViewMatrix);
 
 	virtual PolymerNGLightOpts *GetOpts() { return &opts; }
 	virtual const PolymerNGLightOpts *GetOriginalOpts() { return &opts_original; }
@@ -59,9 +66,11 @@ public:
 private:
 	void  CreateFrustumFromModelViewMatrix(float *modelViewProjectionMatrix, float* frustum);
 	bool  IsPlaneInFrustum(Build3DPlane *plane, float* frustum);
+	bool  IsPlaneInLight(Build3DPlane* plane);
 
 	PolymerNGLightOpts opts;
 	PolymerNGLightOpts opts_original;
+	PolymerNGBoard *polymerNGboard;
 	Build3DBoard *board;
 
 	PolymerNGLightVisbility lightVisibility;

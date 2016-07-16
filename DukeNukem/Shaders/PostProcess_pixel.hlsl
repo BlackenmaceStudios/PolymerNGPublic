@@ -21,6 +21,56 @@ SamplerState positionTextureSampler : register(s2);
 Texture2D depthTexture : register(t3);
 SamplerState depthTextureSampler : register(s3);
 
+Texture2D ambientTexture : register(t4);
+SamplerState ambientTextureSampler : register(s4);
+
+Texture2D glowTexture : register(t5);
+SamplerState glowTextureSampler : register(s5);
+
+//
+// GetColorBufferResolution
+//
+float2 GetColorBufferResolution()
+{
+	float width, height, levels;
+	diffuseTexture.GetDimensions(0, width, height, levels);
+	return float2(width, height);
+}
+
+float3 GaussianBlur(Texture2D tex, SamplerState samplerState, float2 centreUV, float2 pixelOffset) {
+	float3 colOut = float3(0.0, 0.0, 0.0);
+
+	const int stepCount = 9;
+	float gWeights[stepCount];
+	gWeights[0] = 0.10855;
+	gWeights[1] = 0.13135;
+	gWeights[2] = 0.10406;
+	gWeights[3] = 0.07216;
+	gWeights[4] = 0.04380;
+	gWeights[5] = 0.02328;
+	gWeights[6] = 0.01083;
+	gWeights[7] = 0.00441;
+	gWeights[8] = 0.00157;
+	float gOffsets[stepCount];
+	gOffsets[0] = 0.66293;
+	gOffsets[1] = 2.47904;
+	gOffsets[2] = 4.46232;
+	gOffsets[3] = 6.44568;
+	gOffsets[4] = 8.42917;
+	gOffsets[5] = 10.41281;
+	gOffsets[6] = 12.39664;
+	gOffsets[7] = 14.38070;
+	gOffsets[8] = 16.36501;
+
+	for (int i = 0; i < stepCount; i++) {
+		float2 texCoordOffset = gOffsets[i] * pixelOffset;
+		float3 col = tex.Sample(samplerState, centreUV + texCoordOffset).xyz + glowTexture.Sample(glowTextureSampler, centreUV - texCoordOffset).xyz;
+		colOut += gWeights[i] * col;
+	}
+	return colOut;
+}
+
+
 #define USE_SLOW_POSITION_METHOD
 float4 main(VertexShaderOutput input) : SV_TARGET
 {
@@ -31,34 +81,23 @@ float4 main(VertexShaderOutput input) : SV_TARGET
 	if (color.a == 0)
 		discard;
 
+	// Grab the color from the diffuse render target. If alpha == 0(sky) then discard.
+	float4 ambient = ambientTexture.Sample(ambientTextureSampler, st);
 	float3 hdrLighting = lightTexture.Sample(lightTextureSampler, st).xyz;
+	float3 finalColor = color.xyz * (ambient.xyz + hdrLighting.xyz);
 
-	float weight[5];
+	float2 step = 1.0 / GetColorBufferResolution();
+	float3 glowresult = GaussianBlur(glowTexture, glowTextureSampler, float2(st.x, st.y), float2(step.x*1.5, 0));
 
-	weight[0] = 0.227027;
-	weight[1] = 0.1945946;
-	weight[2] = 0.1216216;
-	weight[3] = 0.054054;
-	weight[4] = 0.016216;
-
-	float width, height, levels;
-	lightTexture.GetDimensions(0, width, height, levels);
-
-	float2 tex_offset = 1.0 / float2(width, height); // gets size of single texel
-	for (int i = 1; i < 5; ++i)
-	{
-		hdrLighting += lightTexture.Sample(lightTextureSampler, st + float2(tex_offset.x * i, 0.0)).rgb * weight[i];
-		hdrLighting += lightTexture.Sample(lightTextureSampler, st - float2(tex_offset.x * i, 0.0)).rgb * weight[i];
-	}
-
-	for (int i = 1; i < 5; ++i)
-	{
-		hdrLighting += lightTexture.Sample(lightTextureSampler, st + float2(0.0, tex_offset.y * i)).rgb * weight[i];
-		hdrLighting += lightTexture.Sample(lightTextureSampler, st + float2(0.0, tex_offset.y * i)).rgb * weight[i];
-	}
+	finalColor = finalColor + glowresult.xyz;
 
 
-	float3 finalColor = color.xyz * ((hdrLighting.xyz) + float3(0.1, 0.1, 0.1));
+	//const float gamma = 1.2;
+	//const float exposure = 1;
+	//float3 tonedresult = float3(1.0, 1.0, 1.0) - exp(-finalColor * exposure);
+	//// also gamma correct while we're at it       
+	//tonedresult = pow(tonedresult, float3(1.0 / gamma, 1.0 / gamma, 1.0 / gamma));
+
 
 	return float4(finalColor.x, finalColor.y, finalColor.z, 1);
 }

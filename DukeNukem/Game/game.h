@@ -429,6 +429,7 @@ enum {
     SE_36_PROJ_SHOOTER = 36,
     SE_49_POINT_LIGHT = 49,
     SE_50_SPOT_LIGHT = 50,
+	SE_100_AMBIENT_LIGHT = 100,
     SE_130 = 130,
     SE_131 = 131,
 };

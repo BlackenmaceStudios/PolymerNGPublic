@@ -226,4 +226,6 @@ STAG_ENTRY ( AMBIENT,                    1002,    0 )
 STAG_ENTRY ( ECHOSPOT,                   1005,    0 )
 STAG_ENTRY ( DRIP_GENERATOR,             1006,    0 )
 
+STAG_ENTRY ( LIGHT_POINTLIGHT,			 2000,    0 )
+STAG_ENTRY ( LIGHT_AMBIENT,				 2001,	  0 )
 #undef STAG_ENTRY

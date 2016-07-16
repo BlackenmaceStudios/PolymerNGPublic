@@ -28,10 +28,16 @@ void RendererDrawPassDrawUI::Draw(const BuildRenderCommand &command)
 //	
 	BuildRHIUIVertex vertexes[4];
 
+	float screenRatio = globalWindowWidth / globalWindowHeight;
+
+	// This is stupid!!!!
+	if(globalWindowWidth > 1920 || globalWindowHeight > 1080)
+		screenRatio = screenRatio - 0.3;
+
 	// For some reason when this was inlined in the shader [3,4] and [4, 3] were swapped, inorder for this to work this has to be the same.
 	float projectionMatrixBuild[16] = {
 		1.0f, 0.0f, 0.0f, 0.0f,
-		0.0f, globalWindowWidth / globalWindowHeight, 0.0f, 0.0f,
+		0.0f, screenRatio, 0.0f, 0.0f,
 		0.0f, 0.0f, 1.0001f, 1.0f,
 		0.0f, 0.0f, -0.0001f, 0.0f
 	};
@@ -46,15 +52,15 @@ void RendererDrawPassDrawUI::Draw(const BuildRenderCommand &command)
 
 	for (int i = 0; i < 4; i++)
 	{
-		vertexes[i].X = command.taskRotateSprite.vertexes[i].vertex.GetX();
-		vertexes[i].Y = command.taskRotateSprite.vertexes[i].vertex.GetY();
-		vertexes[i].Z = command.taskRotateSprite.vertexes[i].vertex.GetZ();
-		vertexes[i].W = command.taskRotateSprite.vertexes[i].vertex.GetW();
+		vertexes[i].X = command.taskRotateSprite.vertexes[i].vertex.x;
+		vertexes[i].Y = command.taskRotateSprite.vertexes[i].vertex.y;
+		vertexes[i].Z = command.taskRotateSprite.vertexes[i].vertex.z;
+		vertexes[i].W = command.taskRotateSprite.vertexes[i].vertex.w;
 
-		vertexes[i].U = command.taskRotateSprite.vertexes[i].textureCoords0.GetX();
-		vertexes[i].V = command.taskRotateSprite.vertexes[i].textureCoords0.GetY();
-		vertexes[i].U1 = command.taskRotateSprite.vertexes[i].vertex.GetZ();
-		vertexes[i].U2 = command.taskRotateSprite.vertexes[i].vertex.GetW();
+		vertexes[i].U = command.taskRotateSprite.vertexes[i].textureCoords0.x;
+		vertexes[i].V = command.taskRotateSprite.vertexes[i].textureCoords0.y;
+		vertexes[i].U1 = command.taskRotateSprite.vertexes[i].vertex.z;
+		vertexes[i].U2 = command.taskRotateSprite.vertexes[i].vertex.w;
 	}
 
 	// Build doesn't submit the quad order properly, this is a hack to order it correctly.
@@ -93,9 +99,9 @@ void RendererDrawPassDrawUI::Draw(const BuildRenderCommand &command)
 	rhi.SetImageForContext(0, material->GetDiffuseTexture()->GetRHITexture());
 	rhi.SetImageForContext(1, imageManager.GetPaletteManager()->GetPaletteImage()->GetRHITexture());
 
-	drawUIBuffer.modulationColor[0] = command.taskRotateSprite.spriteColor.GetX();
-	drawUIBuffer.modulationColor[1] = command.taskRotateSprite.spriteColor.GetY();
-	drawUIBuffer.modulationColor[2] = command.taskRotateSprite.spriteColor.GetZ();
+	drawUIBuffer.modulationColor[0] = command.taskRotateSprite.spriteColor.x;
+	drawUIBuffer.modulationColor[1] = command.taskRotateSprite.spriteColor.y;
+	drawUIBuffer.modulationColor[2] = command.taskRotateSprite.spriteColor.z;
 	
 	if (!command.taskRotateSprite.useOrtho)
 	{

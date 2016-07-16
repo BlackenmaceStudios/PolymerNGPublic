@@ -12532,10 +12532,32 @@ void copytilepiece(int32_t tilenume1, int32_t sx1, int32_t sy1, int32_t xsiz, in
 }
 
 //
+// ReplaceFileExtension
+//
+void ReplaceFileExtension(char *filename, char *extension)
+{
+	filename[strlen(filename) - 3] = extension[0];
+	filename[strlen(filename) - 2] = extension[1];
+	filename[strlen(filename) - 1] = extension[2];
+}
+
+//
 // qloadkvx
 //
-int32_t qloadkvx(int32_t voxindex, const char *filename)
+int32_t qloadkvx(int32_t voxindex, const char *filename, int32_t tileNum)
 {
+	if (tileNum != -1)
+	{
+		char filename_fixed[2056];
+
+		sprintf(filename_fixed, "highres/voxels/%s", filename);
+		ReplaceFileExtension(filename_fixed, "obj");
+		if (!modelCacheSystem.SetModelTile(filename_fixed, tileNum))
+			return -1;
+
+		return 0;
+	}
+
     const int32_t fil = kopen4load(filename,0);
     if (fil == -1)
         return -1;
