@@ -43,7 +43,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "net.h"
 //#include "symutil.h"
 
-BOOL PredictionOn = TRUE;
+BOOL PredictionOn = FALSE;
 BOOL Prediction = FALSE;
 PLAYER PredictPlayer;
 USER PredictUser;

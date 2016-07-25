@@ -400,6 +400,7 @@ DisplayFragNumbers ( PLAYERp pp )
     frag_bar = ( ( pnum ) / 4 );
     // move y down according to frag bar number
     ys = ys + ( tilesiz[FRAG_BAR].y - 2 ) * frag_bar;
+	ys += 9;
     // move x over according to the number of players
     xs = xoffs[MOD4 ( pnum )];
     sprintf ( buffer, "%03d", pp->Kills );
@@ -426,11 +427,22 @@ DisplayFragNames ( PLAYERp pp )
     frag_bar = ( ( pnum ) / 4 );
     // move y down according to frag bar number
     ys = ys + ( tilesiz[FRAG_BAR].y - 2 ) * frag_bar;
+	ys += 9; // jmarshall hack
     // move x over according to the number of players
     xs = xoffs[MOD4 ( pnum )];
     // erase old kill count
     pSpawnFullScreenSprite ( my_pp, FRAG_ERASE_NAME, PRI_MID + 1, xs - 1, ys );
-    DisplayFragString ( pp, xs, ys, pp->PlayerName );
+
+	if (strlen(pp->PlayerName) <= 0)
+	{
+		char name[256];
+		sprintf(name, "PLAYER%d", pnum);
+		DisplayFragString(pp, xs, ys, name);
+	}
+	else
+	{
+		DisplayFragString(pp, xs, ys, pp->PlayerName);
+	}
 }
 
 short GlobInfoStringTime = TEXT_INFO_TIME;

@@ -438,7 +438,7 @@ GetSyncInfoFromPacket ( char *packbuf, long packbufleng, long *j, long otherconn
     
     // Suspect that its trying to traverse the connect list
     // for a player that does not exist.  This tries to take care of that
-    TRAVERSE_CONNECT ( i )
+	for (i = 0; i < numplayers; i++)
     {
         if ( otherconnectindex == i )
         {
@@ -465,7 +465,7 @@ GetSyncInfoFromPacket ( char *packbuf, long packbufleng, long *j, long otherconn
     
     // update syncstat
     // if any of the syncstat vars is non-0 then there is a problem
-    TRAVERSE_CONNECT ( i )
+	for (i = 0; i < numplayers; i++)
     {
         if ( Player[i].syncvalhead == syncvaltottail )
         {
@@ -478,7 +478,7 @@ GetSyncInfoFromPacket ( char *packbuf, long packbufleng, long *j, long otherconn
     
     while ( TRUE )
     {
-        for ( i = connectpoint2[connecthead]; i >= 0; i = connectpoint2[i] )
+        for(i = 0; i < numplayers; i++)
         {
             for ( sb = 0; sb < NumSyncBytes; sb++ )
             {
@@ -490,7 +490,7 @@ GetSyncInfoFromPacket ( char *packbuf, long packbufleng, long *j, long otherconn
         }
         
         syncvaltottail++;
-        TRAVERSE_CONNECT ( i )
+		for (i = 0; i < numplayers; i++)
         {
             if ( Player[i].syncvalhead == syncvaltottail )
             {

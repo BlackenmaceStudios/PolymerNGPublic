@@ -65,6 +65,12 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "track.h"
 #include "interp.h"
 
+#include "../Network/BitMsg.h"
+#include "../Network/NetworkSystem.h"
+
+extern bool isServer;
+extern bool isClient;
+
 
 #define SO_DRIVE_SOUND 2
 #define SO_IDLE_SOUND 1
@@ -7999,15 +8005,14 @@ MoveSkipSavePos ( VOID )
     SPRITEp sp;
     USERp u;
     short i, nexti;
-    short pnum;
     PLAYERp pp;
     MoveSkip8 = ( MoveSkip8 + 1 ) & 7;
     MoveSkip4 = ( MoveSkip4 + 1 ) & 3;
     MoveSkip2 ^= 1;
     // Save off player
-    TRAVERSE_CONNECT ( pnum )
+    for(int i = 0; i < numplayers; i++)
     {
-        pp = Player + pnum;
+        pp = Player + i;
         pp->oposx = pp->posx;
         pp->oposy = pp->posy;
         pp->oposz = pp->posz;
@@ -8377,10 +8382,14 @@ domovethings ( VOID )
     extern BOOL ReloadPrompt;
     extern long FinishTimer;
     // grab values stored in the fifo and put them in the players vars
-    TRAVERSE_CONNECT ( i )
+    for(i = 0; i < numplayers; i++)
     {
         pp = Player + i;
-        pp->input = pp->inputfifo[movefifoplc & ( MOVEFIFOSIZ - 1 )];
+
+		if (i == 0)
+		{
+			pp->input = pp->inputfifo[movefifoplc & (MOVEFIFOSIZ - 1)];
+		}
     }
     movefifoplc++;
     
@@ -8476,9 +8485,9 @@ domovethings ( VOID )
         PauseMultiPlay();
     }
     
-    TRAVERSE_CONNECT ( pnum )
+	for (int i = 0; i < numplayers; i++)
     {
-        pp = Player + pnum;
+        pp = Player + i;
         DoPlayerMenuKeys ( pp );
     }
     
@@ -8516,13 +8525,14 @@ domovethings ( VOID )
     FAKETIMERHANDLER();
     SpriteControl();
     FAKETIMERHANDLER();
-    TRAVERSE_CONNECT ( pnum )
+    for(int i = 0; i < numplayers; i++)
     {
         extern short screenpeek;
         extern BOOL PlayerTrackingMode;
         void pSpriteControl ( PLAYERp pp );
         extern PLAYERp GlobPlayerP;
         extern BOOL ScrollMode2D;
+		int pnum = i;
         pp = Player + pnum;
         GlobPlayerP = pp;
         
@@ -8733,10 +8743,10 @@ PlayerSpawnPosition ( PLAYERp pp )
         case MULTI_GAME_AI_BOTS:
         
             // start from random position after death
-            if ( TEST ( pp->Flags, PF_DEAD ) )
-            {
-                pos_num = SearchSpawnPosition ( pp );
-            }
+            //if ( TEST ( pp->Flags, PF_DEAD ) )
+            //{
+            pos_num = SearchSpawnPosition ( pp );
+            //}
             
             spawn_sprite = headspritestat[STAT_MULTI_START + pos_num];
             break;
@@ -8836,11 +8846,8 @@ InitMultiPlayerInfo ( VOID )
     
     memset ( SpawnPositionUsed, 0, sizeof ( SpawnPositionUsed ) );
     // Initialize multi player positions here
-    //for (pp = Player; pp < Player + numplayers; pp++)
-    TRAVERSE_CONNECT ( pnum )
-    {
-        pp = Player + pnum;
-        
+    for (pp = Player; pp < Player + numplayers; pp++)
+    {       
         switch ( gNet.MultiGameType )
         {
             case MULTI_GAME_NONE:
@@ -8861,6 +8868,32 @@ InitMultiPlayerInfo ( VOID )
                 break;
         }
     }
+
+	if (isServer)
+	{
+		char tempBuffer[40554];
+		BitMsg msg;
+		msg.SetData((byte *)&tempBuffer[0], sizeof(tempBuffer));
+		msg.Write<byte>(PACKET_TYPE_SPAWNPLAYERS);
+		msg.Write<int>(numplayers);
+		for (pp = Player; pp < Player + numplayers; pp++)
+		{
+			msg.Write<int>(pp->posx); 
+			msg.Write<int>(pp->posy);
+			msg.Write<int>(pp->posz);
+			msg.Write<int>(pp->pang);
+			msg.Write<int>(pp->cursectnum);
+		}
+		networkSystem->SendPacket(msg.GetBuffer(), msg.GetWrittenLength());
+	}
+	else if(isClient)
+	{
+		// wait until we get PACKET_TYPE_SPAWNPLAYERS
+		while (myconnectindex == 0)
+		{
+			getpackets();
+		}
+	}
 }
 
 // If player stepped in something gooey, track it all over the place.

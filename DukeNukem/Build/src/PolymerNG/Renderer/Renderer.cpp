@@ -27,39 +27,42 @@ Renderer::Renderer()
 	num2DRenderCommands = 0;
 	currentRenderCommand = NULL;
 	currentNumRenderCommand = 0;
-
+	vlsShadowLightMap = NULL;
+	vlsLight = NULL;
 }
 
 void Renderer::Init()
 {
 	// Load in all of our shaders.
-	ui_texture_basic = PolymerNGRenderProgram::LoadRenderProgram("guishader", true);
-	ui_texture_hq_basic = PolymerNGRenderProgram::LoadRenderProgram("guishaderHighQuality", true);
-	albedoSimpleProgram = PolymerNGRenderProgram::LoadRenderProgram("AlbedoSimple", false);
-	albedoSimpleTransparentProgram = PolymerNGRenderProgram::LoadRenderProgram("AlbedoSimpleTransparent", false);
-	albedoSimpleGlowProgram = PolymerNGRenderProgram::LoadRenderProgram("AlbedoSimpleGlow", false);
-	albedoHQProgram = PolymerNGRenderProgram::LoadRenderProgram("AlbedoHighQuality", false);
-	albedoHQGlowProgram = PolymerNGRenderProgram::LoadRenderProgram("AlbedoHighQualityGlow", false);
-	albedoHQTransparentProgram = PolymerNGRenderProgram::LoadRenderProgram("AlbedoHighQualityTransparent", false);
-	albedoHQNoNormalMapGlowProgram = PolymerNGRenderProgram::LoadRenderProgram("AlbedoHighQualityNoNormalMapGlow", false);
-	albedoHQNoNormalMapProgram = PolymerNGRenderProgram::LoadRenderProgram("AlbedoHighQualityNoNormalMap", false);
-	spriteSimpleProgram = PolymerNGRenderProgram::LoadRenderProgram("SpriteSimple", false);
-	spriteSimpleGlowProgram = PolymerNGRenderProgram::LoadRenderProgram("SpriteSimpleGlow", false);
-	spriteSimpleGlowMapProgram = PolymerNGRenderProgram::LoadRenderProgram("SpriteSimpleGlowMap", false); 
-	spriteHQProgram = PolymerNGRenderProgram::LoadRenderProgram("SpriteHighQuality", false);
-	spriteHQGlowProgram = PolymerNGRenderProgram::LoadRenderProgram("SpriteHighQualityGlow", false);
-	spriteSimpleHorizProgram = PolymerNGRenderProgram::LoadRenderProgram("SpriteSimpleHoriz", false);
-	postProcessProgram = PolymerNGRenderProgram::LoadRenderProgram("PostProcess", false);
-	classicFSProgram = PolymerNGRenderProgram::LoadRenderProgram("ClassicScreenFS", false);
-	bokehDOFProgram = PolymerNGRenderProgram::LoadRenderProgram("BokehDOF", false);
+	ui_texture_basic						= PolymerNGRenderProgram::LoadRenderProgram("guishader", true);
+	ui_texture_hq_basic						= PolymerNGRenderProgram::LoadRenderProgram("guishaderHighQuality", true);
+	albedoSimpleProgram						= PolymerNGRenderProgram::LoadRenderProgram("AlbedoSimple", false);
+	albedoSimpleTransparentProgram			= PolymerNGRenderProgram::LoadRenderProgram("AlbedoSimpleTransparent", false);
+	albedoSimpleGlowProgram					= PolymerNGRenderProgram::LoadRenderProgram("AlbedoSimpleGlow", false);
+	AlbedoSimpleGlowMapProgram				= PolymerNGRenderProgram::LoadRenderProgram("AlbedoSimpleGlowMap", false);
+	albedoHQProgram							= PolymerNGRenderProgram::LoadRenderProgram("AlbedoHighQuality", false);
+	albedoHQGlowProgram						= PolymerNGRenderProgram::LoadRenderProgram("AlbedoHighQualityGlow", false);
+	albedoHQTransparentProgram				= PolymerNGRenderProgram::LoadRenderProgram("AlbedoHighQualityTransparent", false);
+	albedoHQNoNormalMapGlowProgram			= PolymerNGRenderProgram::LoadRenderProgram("AlbedoHighQualityNoNormalMapGlow", false);
+	albedoHQNoNormalMapProgram				= PolymerNGRenderProgram::LoadRenderProgram("AlbedoHighQualityNoNormalMap", false);
+	spriteSimpleProgram						= PolymerNGRenderProgram::LoadRenderProgram("SpriteSimple", false);
+	spriteSimpleGlowProgram					= PolymerNGRenderProgram::LoadRenderProgram("SpriteSimpleGlow", false);
+	spriteSimpleGlowMapProgram				= PolymerNGRenderProgram::LoadRenderProgram("SpriteSimpleGlowMap", false); 
+	spriteHQProgram							= PolymerNGRenderProgram::LoadRenderProgram("SpriteHighQuality", false);
+	spriteHQGlowProgram						= PolymerNGRenderProgram::LoadRenderProgram("SpriteHighQualityGlow", false);
+	spriteSimpleHorizProgram				= PolymerNGRenderProgram::LoadRenderProgram("SpriteSimpleHoriz", false);
+	postProcessProgram						= PolymerNGRenderProgram::LoadRenderProgram("PostProcess", false);
+	classicFSProgram						= PolymerNGRenderProgram::LoadRenderProgram("ClassicScreenFS", false);
+	bokehDOFProgram							= PolymerNGRenderProgram::LoadRenderProgram("BokehDOF", false);
+	volumetricLightScatterProgram			= PolymerNGRenderProgram::LoadRenderProgram("VolumetricLightScatter", false);
 
 	// Point light render programs
-	deferredLightingPointLightProgram = PolymerNGRenderProgram::LoadRenderProgram("DeferredLightingPointLight", false);
-	deferredLightingPointLightNoShadowsProgram = PolymerNGRenderProgram::LoadRenderProgram("DeferredLightingPointLightNoShadow", false);
+	deferredLightingPointLightProgram			= PolymerNGRenderProgram::LoadRenderProgram("DeferredLightingPointLight", false);
+	deferredLightingPointLightNoShadowsProgram	= PolymerNGRenderProgram::LoadRenderProgram("DeferredLightingPointLightNoShadow", false);
 
 	// Spot light render program
-	deferredLightingSpotLightProgram = PolymerNGRenderProgram::LoadRenderProgram("DeferredLightingSpotLight", false);
-	deferredLightingSpotLightNoShadowsProgram = PolymerNGRenderProgram::LoadRenderProgram("DeferredLightingSpotLightNoShadow", false);
+	deferredLightingSpotLightProgram			= PolymerNGRenderProgram::LoadRenderProgram("DeferredLightingSpotLight", false);
+	deferredLightingSpotLightNoShadowsProgram	= PolymerNGRenderProgram::LoadRenderProgram("DeferredLightingSpotLightNoShadow", false);
 
 	// Load in the AA programs.
 	fxaaProgram = PolymerNGRenderProgram::LoadRenderProgram("FXAA", false);
@@ -74,6 +77,7 @@ void Renderer::Init()
 	classicFSPass.Init();
 	dofPass.Init();
 	drawAAPass.Init();
+	vlsPass.Init();
 
 	// Initilize the shadows
 	InitShadowMaps();
@@ -86,7 +90,7 @@ void Renderer::SetShaderForPSO(BuildRHIPipelineStateObject *pso, PolymerNGRender
 
 }
 
-void Renderer::SubmitFrame()
+void Renderer::SubmitFrame(SceneNextPageParms nextpageParams)
 {
 	currentGameSubmitTime = GetCurrentTimeInMilliseconds();
 
@@ -95,6 +99,7 @@ void Renderer::SubmitFrame()
 	while (HasWork())
 		Sleep(0);
 
+	currentNextPageParam = nextpageParams;
 	currentRenderCommand = commands[currentFrame];
 	currentFrame = !currentFrame;
 	currentNumRenderCommand = numRenderCommands[!currentFrame];
@@ -138,7 +143,10 @@ void Renderer::RenderFrame()
 				return;
 			}
 
-			_2dcommands[num2DRenderCommands++] = &command;
+			if (!GetNextPageParms().shouldSkipUI)
+			{
+				_2dcommands[num2DRenderCommands++] = &command;
+			}
 		}
 		else if (command.taskId == BUILDRENDER_TASK_CREATEMODEL)
 		{
@@ -208,7 +216,11 @@ void Renderer::RenderFrame()
 		}
 		else if (command.taskId == BUILDRENDER_TASK_DRAWSPRITES)
 		{
-			drawSpritePass.Draw(command);
+			if (!GetNextPageParms().shouldSkipSprites)
+			{
+				drawSpritePass.Draw(command);
+			}
+
 			if (drawWorldCommand)
 			{
 				drawWorldPass.DrawTrans(*drawWorldCommand);
@@ -230,8 +242,11 @@ void Renderer::RenderFrame()
 	}
 	
 	drawPostProcessPass.Draw(currentRenderCommand[currentNumRenderCommand - 1]);
-	dofPass.Draw(currentRenderCommand[currentNumRenderCommand - 1]);
-	drawAAPass.Draw(currentRenderCommand[currentNumRenderCommand - 1]);
+	if (!renderer.GetNextPageParms().shouldSkipDOFAndAA)
+	{
+		dofPass.Draw(currentRenderCommand[currentNumRenderCommand - 1]);
+		drawAAPass.Draw(currentRenderCommand[currentNumRenderCommand - 1]);
+	}
 	
 
 	if (gpuPerfCounter)

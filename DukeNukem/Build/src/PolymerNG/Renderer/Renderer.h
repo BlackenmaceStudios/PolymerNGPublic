@@ -41,6 +41,7 @@ protected:
 #include "Renderer_Pass_ClassicFS.h"
 #include "Renderer_Pass_DOF.h"
 #include "Renderer_Pass_AntiAlias.h"
+#include "Renderer_Pass_VolumetricLightScatter.h"
 
 #include "Renderer_Shadows.h"
 
@@ -62,7 +63,7 @@ public:
 
 	void		SetShaderForPSO(BuildRHIPipelineStateObject *pso, PolymerNGRenderProgram *program);
 
-	void		SubmitFrame();
+	void		SubmitFrame(SceneNextPageParms nextpageParams);
 
 	void		RenderFrame();
 
@@ -81,6 +82,8 @@ public:
 
 	int			GetCurrentFrameNum() { return currentFrame; }
 
+	BuildImage *GetPreviousFrameImage() { return drawWorldPass.GetPreviousRenderFrame(); }
+
 	PolymerNGRenderTarget  *GetWorldRenderTarget() { return drawWorldPass.GetDrawWorldRenderTarget(); }
 	PolymerNGRenderTarget  *GetHDRLightingRenderTarget() { return drawLightingPass.GetHDRLightingBuffer(); }
 	PolymerNGRenderTarget  *GetPostProcessRenderTarget() { return drawPostProcessPass.GetPostProcessRenderTarget(); }
@@ -91,6 +94,7 @@ public:
 	PolymerNGRenderProgram *albedoSimpleProgram;
 	PolymerNGRenderProgram *albedoSimpleTransparentProgram;
 	PolymerNGRenderProgram *albedoSimpleGlowProgram;
+	PolymerNGRenderProgram *AlbedoSimpleGlowMapProgram;
 	PolymerNGRenderProgram *albedoHQProgram;
 	PolymerNGRenderProgram *albedoHQTransparentProgram;
 	PolymerNGRenderProgram *albedoHQGlowProgram;
@@ -110,6 +114,7 @@ public:
 	PolymerNGRenderProgram *postProcessProgram;
 	PolymerNGRenderProgram *classicFSProgram;
 	PolymerNGRenderProgram *fxaaProgram;
+	PolymerNGRenderProgram *volumetricLightScatterProgram;
 
 	PolymerNGRenderProgram *bokehDOFProgram;
 
@@ -119,7 +124,12 @@ public:
 
 	BuildImage *GetWorldDepthBuffer() { return drawWorldPass.GetWorldDepthImage(); }
 
+	SceneNextPageParms GetNextPageParms() { return currentNextPageParam; }
+
 	float4x4 pointLightShadowFaceMatrix[6];
+public:
+	ShadowMap *vlsShadowLightMap;
+	PolymerNGLightLocal *vlsLight;
 private:
 	void InitShadowMaps();
 
@@ -133,6 +143,7 @@ private:
 private:
 	int numRenderCommands[MAX_SMP_FRAMES];
 	BuildRenderCommand	commands[MAX_SMP_FRAMES][MAX_RENDER_COMMANDS];
+	SceneNextPageParms  currentNextPageParam;
 
 	int num2DRenderCommands;
 	BuildRenderCommand *_2dcommands[MAX_RENDER_COMMANDS];
@@ -146,6 +157,8 @@ private:
 	RendererDrawPassPostProcess drawPostProcessPass;
 	RendererDrawPassDrawClassicScreenFS classicFSPass;
 	RendererDrawPassDOF dofPass;
+	RendererDrawPassVolumetricLightScatter vlsPass;
+
 	BuildRHIGPUPerformanceCounter *gpuPerfCounter;
 	
 	int			currentFrame;

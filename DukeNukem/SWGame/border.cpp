@@ -216,13 +216,12 @@ SetFragBar ( PLAYERp pp )
     
     for ( i = 0, y = 0; i < num_frag_bars; i++ )
     {
-        pSpawnFullScreenSprite ( pp, FRAG_BAR, PRI_MID, 0, y );
+        pSpawnFullScreenSprite ( pp, FRAG_BAR, PRI_FRONT, 0, y+9 ); // jmarshall the +8 is a hack to get it on screen.
         y += tilesiz[FRAG_BAR].y - 2;
     }
     
     // write each persons kill info to everybody
-    // for (i = 0; i < numplayers; i++)
-    TRAVERSE_CONNECT ( i )
+    for (i = 0; i < numplayers; i++)
     {
         PlayerUpdateKills ( Player + i, 0 );
         DisplayFragNames ( Player + i );

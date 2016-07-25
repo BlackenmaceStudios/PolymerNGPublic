@@ -40,6 +40,8 @@ public:
 
 	// Returns the render target used in drawing the world.
 	PolymerNGRenderTarget		*GetDrawWorldRenderTarget() { return renderTarget; }
+
+	BuildImage					*GetPreviousRenderFrame() { return diffuseRenderBufferPrev; }
 private:
 	void						DrawPlane(BuildRHIMesh *rhiMesh, const BaseModel *model, const Build3DPlane *plane, bool isTransparent);
 
@@ -49,6 +51,8 @@ private:
 	PS_CONSTANT_BUFFER			drawWorldPixelBuffer;
 
 	BuildImage					*depthRenderBuffer_copied;
+
+	BuildImage					*diffuseRenderBufferPrev;
 
 	PolymerNGRenderTarget		*renderTarget;
 private:

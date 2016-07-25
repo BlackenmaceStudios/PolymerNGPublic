@@ -21,6 +21,9 @@ VertexShaderOutput main(VertexShaderInput input)
 	output.texcoord1 = input.position.xyz; // mul(mWorldView, float4(input.position.xyz, 1.0));
 	output.texcoord2 = mul(transpose(mWorldViewInverse), float4(input.normal.xyz, 1.0));
 	output.texcoord3 = viewpositionanddepthoffset.xyz - input.position.xyz;
+#ifdef FAKE_TRANSPARENT
+	output.eyeposition.xyz = viewpositionanddepthoffset.xyz;
+#endif
 
 	float4 vertex_world = mul(mWorldView, float4(input.position.xyz, 1.0));
 	float4 vertex_screen = mul(mProjection, float4(input.position.xyz, 1.0));

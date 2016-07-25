@@ -1744,6 +1744,74 @@ SpriteSetupPost ( VOID )
     }
 }
 
+// jmarshall - we only need to do some setup on the MP clients.
+VOID SpriteSetupMPClient(VOID)
+{
+	short SpriteNum = 0, NextSprite;
+
+	TRAVERSE_SPRITE_STAT(headspritestat[0], SpriteNum, NextSprite)
+	{
+		switch (sprite[SpriteNum].picnum)
+		{
+			case ST1:
+			{
+				SPRITEp sp = &sprite[SpriteNum];
+				SECT_USERp sectu;
+				short tag;
+				short bit;
+
+				// get rid of defaults
+				if (SP_TAG3(sp) == 32)
+				{
+					SP_TAG3(sp) = 0;
+				}
+
+				tag = sp->hitag;
+				RESET(sp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+				SET(sp->cstat, CSTAT_SPRITE_INVISIBLE);
+
+				// for bounding sector objects
+				if ((tag >= 500 && tag < 600) || tag == SECT_SO_CENTER)
+				{
+					// NOTE: These will get deleted by the sector object
+					// setup code
+					change_sprite_stat(SpriteNum, STAT_ST1);
+					break;
+				}
+
+				if (tag == LIGHT_AMBIENT)
+				{
+					polymerNGPublic->SetAmbientLightForSector(sp->sectnum, sp->lotag);
+				}
+			
+				if (tag == LIGHT_POINTLIGHT)
+				{
+					PolymerNGLightOpts opts;
+					opts.lightType = POLYMERNG_LIGHTTYPE_POINT;
+					opts.angle = sp->ang;
+					opts.horiz = sp->extra;
+					opts.enableVolumetricLight = (sp->shade == 1);
+					opts.radius = sp->lotag;
+					opts.position[0] = sp->x;
+					opts.position[1] = sp->y;
+					opts.position[2] = sp->z;
+					opts.color[0] = abs(sp->xvel);
+					opts.color[1] = abs(sp->yvel);
+					opts.color[2] = abs(sp->zvel);
+					opts.sector = sp->sectnum;
+					opts.brightness = sp->shade;
+					if (opts.brightness <= 0)
+						opts.brightness = 3;
+
+					opts.castShadows = (sp->pal != 0);
+					polymerNGPublic->AddLightToCurrentBoard(opts);
+					break;
+				}
+			}
+		}
+	}
+}
+// jmarshall end
 
 VOID
 SpriteSetup ( VOID )
@@ -2079,13 +2147,27 @@ SpriteSetup ( VOID )
 									polymerNGPublic->SetAmbientLightForSector(sp->sectnum, sp->lotag);
 								}
 								break;
+							case LIGHT_ZOFFSET:
+								{
+									int zoffset = sp->lotag;
+									for (i = headspritesect[sp->sectnum]; i != -1; i = nextspritesect[i])
+									{
+										if (sprite[i].hitag == LIGHT_POINTLIGHT)
+										{
+											sprite[i].z = sprite[i].z + zoffset;
+										}
+									}
+
+									KillSprite(SpriteNum);
+								}
+								break;
 							case LIGHT_POINTLIGHT:
 								{
 									PolymerNGLightOpts opts;
 									opts.lightType = POLYMERNG_LIGHTTYPE_POINT;
 									opts.angle = sp->ang;
 									opts.horiz = sp->extra;
-									opts.faderadius = sp->shade;
+									opts.enableVolumetricLight = (sp->shade == 1);
 									opts.radius = sp->lotag;
 									opts.position[0] = sp->x;
 									opts.position[1] = sp->y;
@@ -2099,6 +2181,7 @@ SpriteSetup ( VOID )
 										opts.brightness = 3;
 
 									opts.castShadows = (sp->pal != 0);
+									opts.spriteOwner = (tspritetype *)sp;
 									polymerNGPublic->AddLightToCurrentBoard(opts);
 									break;
 								}

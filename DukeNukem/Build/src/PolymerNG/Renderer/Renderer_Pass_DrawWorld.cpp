@@ -46,6 +46,18 @@ void RendererDrawPassDrawWorld::Init()
 		opts.isHighQualityImage = true;
 		opts.isRenderTargetImage = true;
 
+		diffuseRenderBufferPrev = new BuildImage(opts);
+		diffuseRenderBufferPrev->UpdateImagePost(NULL);
+	}
+
+	{
+		BuildImageOpts opts;
+		opts.width = globalWindowWidth;
+		opts.height = globalWindowHeight;
+		opts.format = IMAGE_FORMAT_RGBA8;
+		opts.isHighQualityImage = true;
+		opts.isRenderTargetImage = true;
+
 		ambientRenderBuffer = new BuildImage(opts);
 		ambientRenderBuffer->UpdateImagePost(NULL);
 	}
@@ -196,6 +208,8 @@ void RendererDrawPassDrawWorld::DrawPlane(BuildRHIMesh *rhiMesh, const BaseModel
 			}
 			else
 			{
+				rhi.SetImageForContext(3, material->GetNormalMap()->GetRHITexture());
+				rhi.SetImageForContext(6, renderer.GetPreviousFrameImage()->GetRHITexture());
 				shader = renderer.albedoSimpleTransparentProgram->GetRHIShader();
 			}
 
@@ -239,7 +253,12 @@ void RendererDrawPassDrawWorld::DrawPlane(BuildRHIMesh *rhiMesh, const BaseModel
 		}
 		else
 		{
-			if (G_IsGlowSprite(plane->tileNum))
+			if (material->GetGlowMap() && material->GetGlowMap()->GetRHITexture() != NULL)
+			{
+				shader = renderer.AlbedoSimpleGlowMapProgram->GetRHIShader();
+				rhi.SetImageForContext(5, material->GetGlowMap()->GetRHITexture());
+			}
+			else if (G_IsGlowSprite(plane->tileNum))
 			{
 				shader = renderer.albedoSimpleGlowProgram->GetRHIShader();
 			}
@@ -288,6 +307,7 @@ RendererDrawPassDrawWorld::DrawTrans
 */
 void RendererDrawPassDrawWorld::DrawTrans(const BuildRenderCommand &command)
 {
+	rhi.CopyDepthToAnotherImage(renderTarget->GetDiffuseImage(0)->GetRHITexture(), diffuseRenderBufferPrev->GetRHITexture());
 	rhi.SetFaceCulling(CULL_FACE_FRONT);
 
 	drawWorldBuffer.viewPosition[0] = -command.taskRenderWorld.position.x;

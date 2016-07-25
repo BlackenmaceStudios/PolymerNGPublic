@@ -46,8 +46,11 @@ struct PolymerNGLightOpts
 	int priority;
 	int tilenum;
 	int faderadius;
+	SPRITETYPE *spriteOwner;
+
 	float brightness;
 
+	bool enableVolumetricLight;
 	bool castShadows;
 
 	void *userData;

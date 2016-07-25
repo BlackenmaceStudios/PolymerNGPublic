@@ -13011,6 +13011,25 @@ DoNapalm ( SHORT Weapon )
         PlaySound ( DIGI_NAPPUFF, &sp->x, &sp->y, &sp->z, v3df_none );
         explosion = SpawnSprite ( STAT_MISSILE, NAP_EXP, s_NapExp, sp->sectnum,
                                   sp->x, sp->y, sp->z, sp->ang, 0 );
+
+		PolymerNGLightOpts opts;
+		opts.lightType = POLYMERNG_LIGHTTYPE_POINT;
+		opts.angle = sp->ang;
+		opts.horiz = 0;
+		opts.faderadius = 0;
+		opts.radius = 2;
+		opts.position[0] = sp->x;
+		opts.position[1] = sp->y;
+		opts.position[2] = sp->z;
+		opts.color[0] = 128;
+		opts.color[1] = 48;
+		opts.color[2] = 0;
+		opts.sector = sp->sectnum;
+		opts.brightness = 4;
+		opts.castShadows = 0;
+		opts.spriteOwner = (tspritetype *)sp;
+		polymerNGPublic->AddLightToCurrentBoard(opts);
+
         exp = &sprite[explosion];
         eu = User[explosion];
         exp->hitag = LUMINOUS; //Always full brightness

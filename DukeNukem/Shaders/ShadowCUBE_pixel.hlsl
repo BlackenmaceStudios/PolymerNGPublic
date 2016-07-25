@@ -16,7 +16,7 @@ PS_OUTPUT main(VertexShaderOutput pixelin)
 #ifdef USE_ALPHA_SAMPLE
 	// Grab the color from the diffuse render target, if not 1 discard.
 	float4 color = diffuseTexture.Sample(diffuseTextureSampler, pixelin.diffuseTexCoords);
-	if (color.a != 1)
+	if (color.a < 0.8)
 		discard;
 #endif
 

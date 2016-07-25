@@ -40,6 +40,9 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "text.h"
 #include "menus.h"
 
+#include "../Network/NetworkSystem.h"
+#include "../Network/BitMsg.h"
+#include "../Network/Snapshot.h"
 
 /*
 SYNC BUG NOTES:
@@ -63,15 +66,21 @@ SYNC BUG NOTES:
 
 //#undef MAXSYNCBYTES
 //#define MAXSYNCBYTES 16
-char tempbuf[576], packbuf[576];
+char tempbuf[234617 * 2];
+char *packbuf = NULL;
 long PlayClock;
 extern BOOL PauseKeySet;
 extern char CommPlayerName[32];
+
+bool net_recievedFirstPacket = false;
 
 gNET gNet;
 extern short PlayerQuitMenuLevel;
 
 #define TIMERUPDATESIZ 32
+
+extern bool isServer;
+extern bool isClient;
 
 //SW_PACKET fsync;
 
@@ -129,44 +138,44 @@ BOOL NetBroadcastMode = TRUE;
 BOOL NetModeOverride = FALSE;
 
 
-void netsendpacket ( int ind, char *buf, int len )
+void netsendpacket ( int ind, char *buf, int len, bool isReliable)
 {
     char bbuf[ sizeof ( packbuf ) + sizeof ( PACKET_PROXY ) ];
     PACKET_PROXYp prx = ( PACKET_PROXYp ) bbuf;
     int i;
     
     // send via master if in M/S mode and we are not the master, and the recipient is not the master and not ourselves
-    if ( !NetBroadcastMode && myconnectindex != connecthead && ind != myconnectindex && ind != connecthead )
-    {
-        if ( ( unsigned ) len > sizeof ( packbuf ) )
-        {
-            initprintf ( "netsendpacket(): packet length > %d!\n", sizeof ( packbuf ) );
-            len = sizeof ( packbuf );
-        }
-        
-        initprintf ( "netsendpacket() sends proxy to %d\nPlayerIndex=%d Contents:", connecthead, ind );
-        
-        for ( i = 0; i < len; i++ )
-        {
-            initprintf ( " %02x", buf[i] );
-        }
-        
-        initprintf ( "\n" );
-        prx->PacketType = PACKET_TYPE_PROXY;
-        prx->PlayerIndex = ( BYTE ) ind;
-        memcpy ( prx->Data, buf, len );
-        len += sizeof ( PACKET_PROXY );
-        sendpacket ( connecthead, ( unsigned char * ) bbuf, len );
-        return;
-    }
+    //if ( !NetBroadcastMode && myconnectindex != connecthead && ind != myconnectindex && ind != connecthead )
+    //{
+    //    if ( ( unsigned ) len > sizeof ( packbuf ) )
+    //    {
+    //        initprintf ( "netsendpacket(): packet length > %d!\n", sizeof ( packbuf ) );
+    //        len = sizeof ( packbuf );
+    //    }
+    //    
+    //    initprintf ( "netsendpacket() sends proxy to %d\nPlayerIndex=%d Contents:", connecthead, ind );
+    //    
+    //    //for ( i = 0; i < len; i++ )
+    //    //{
+    //    //    initprintf ( " %02x", buf[i] );
+    //    //}
+    //    
+    //    initprintf ( "\n" );
+    //    prx->PacketType = PACKET_TYPE_PROXY;
+    //    prx->PlayerIndex = ( BYTE ) ind;
+    //    memcpy ( prx->Data, buf, len );
+    //    len += sizeof ( PACKET_PROXY );
+    //    networkSystem->SendPacket ( (unsigned char * ) bbuf, len );
+    //    return;
+    //}
     
-    sendpacket ( ind, ( unsigned char * ) buf, len );
+	networkSystem->SendPacket(( unsigned char * ) buf, len, isReliable);
     initprintf ( "netsendpacket() sends normal to %d\nContents:", ind );
     
-    for ( i = 0; i < len; i++ )
-    {
-        initprintf ( " %02x", buf[i] );
-    }
+    //for ( i = 0; i < len; i++ )
+    //{
+    //    initprintf ( " %02x", buf[i] );
+    //}
     
     initprintf ( "\n" );
 }
@@ -174,50 +183,38 @@ void netsendpacket ( int ind, char *buf, int len )
 void netbroadcastpacket ( char *buf, int len )
 {
     int i;
-    char bbuf[ sizeof ( packbuf ) + sizeof ( PACKET_PROXY ) ];
-    PACKET_PROXYp prx = ( PACKET_PROXYp ) bbuf;
+   // char bbuf[ sizeof ( packbuf ) + sizeof ( PACKET_PROXY ) ];
+   // PACKET_PROXYp prx = ( PACKET_PROXYp ) bbuf;
     
     // broadcast via master if in M/S mode and we are not the master
-    if ( !NetBroadcastMode && myconnectindex != connecthead )
-    {
-        if ( ( unsigned ) len > sizeof ( packbuf ) )
-        {
-            initprintf ( "netbroadcastpacket(): packet length > %d!\n", sizeof ( packbuf ) );
-            len = sizeof ( packbuf );
-        }
-        
-        initprintf ( "netbroadcastpacket() sends proxy to %d\nPlayerIndex=255 Contents:", connecthead );
-        
-        for ( i = 0; i < len; i++ )
-        {
-            initprintf ( " %02x", buf[i] );
-        }
-        
-        initprintf ( "\n" );
-        prx->PacketType = PACKET_TYPE_PROXY;
-        prx->PlayerIndex = ( BYTE ) ( -1 );
-        memcpy ( prx->Data, buf, len );
-        len += sizeof ( PACKET_PROXY );
-        sendpacket ( connecthead, ( unsigned char * ) bbuf, len );
-        return;
-    }
+	if ((unsigned)len > sizeof(packbuf))
+	{
+		initprintf("netbroadcastpacket(): packet length > %d!\n", sizeof(packbuf));
+		len = sizeof(packbuf);
+	}
+
+	initprintf("netbroadcastpacket() sends proxy to %d\nPlayerIndex=255 Contents:", connecthead);
+
+	for (i = 0; i < len; i++)
+	{
+		initprintf(" %02x", buf[i]);
+	}
+
+	initprintf("\n");
+	//prx->PacketType = PACKET_TYPE_PROXY;
+	//prx->PlayerIndex = (BYTE)(-1);
+	//memcpy(prx->Data, buf, len);
+	//len += sizeof(PACKET_PROXY);
+	networkSystem->SendPacket((unsigned char *)buf, len);
     
-    for ( i = connecthead; i >= 0; i = connectpoint2[i] )
-    {
-        if ( i == myconnectindex ) { continue; }
-        
-        sendpacket ( i, ( unsigned char * ) buf, len );
-        initprintf ( "netsendpacket() sends normal to %d\n", i );
-    }
-    
-    initprintf ( "Contents:" );
-    
-    for ( i = 0; i < len; i++ )
-    {
-        initprintf ( " %02x", buf[i] );
-    }
-    
-    initprintf ( "\n" );
+   // initprintf ( "Contents:" );
+   // 
+   // for ( i = 0; i < len; i++ )
+   // {
+   //     initprintf ( " %02x", buf[i] );
+   // }
+   // 
+   // initprintf ( "\n" );
 }
 
 long netgetpacket ( long *ind, char *buf )
@@ -521,8 +518,12 @@ InitNetPlayerOptions ( VOID )
     strcpy ( pp->PlayerName, CommPlayerName );
     // myconnectindex palette
     pp->TeamColor = gs.NetColor;
-    pp->SpriteP->pal = PALETTE_PLAYER0 + pp->TeamColor;
-    User[pp->SpriteP - sprite]->spal = pp->SpriteP->pal;
+
+	if (pp->SpriteP) // jmarshall: fix this
+	{
+		pp->SpriteP->pal = PALETTE_PLAYER0 + pp->TeamColor;
+		User[pp->SpriteP - sprite]->spal = pp->SpriteP->pal;
+	}
     
     if ( CommEnabled )
     {
@@ -1045,10 +1046,13 @@ faketimerhandler ( void )
     // TENSW: this way we are guaranteed that the most advanced player is no more
     // than 200 frames ahead of the most laggy. We're more healthy if the queue
     // doesn't overflow, that's for sure.
-    if ( Player[myconnectindex].movefifoend - movefifoplc >= 100 )
-    {
-        return;
-    }
+	if (!isClient)
+	{
+		if (Player[myconnectindex].movefifoend - movefifoplc >= 100)
+		{
+			return;
+		}
+	}
     
     getinput ( &loc );
     AveragePacket.vel += loc.vel;
@@ -1058,14 +1062,17 @@ faketimerhandler ( void )
     SET ( AveragePacket.bits, loc.bits );
     pp = Player + myconnectindex;
     
-    if ( pp->movefifoend & ( MovesPerPacket - 1 ) )
-    {
-        memcpy ( &pp->inputfifo[pp->movefifoend & ( MOVEFIFOSIZ - 1 )],
-                 &pp->inputfifo[ ( pp->movefifoend - 1 ) & ( MOVEFIFOSIZ - 1 )],
-                 sizeof ( SW_PACKET ) );
-        pp->movefifoend++;
-        return;
-    }
+	if (!isClient)
+	{
+		if (pp->movefifoend & (MovesPerPacket - 1))
+		{
+			memcpy(&pp->inputfifo[pp->movefifoend & (MOVEFIFOSIZ - 1)],
+				&pp->inputfifo[(pp->movefifoend - 1) & (MOVEFIFOSIZ - 1)],
+				sizeof(SW_PACKET));
+			pp->movefifoend++;
+			return;
+		}
+	}
     
     loc.vel = AveragePacket.vel / MovesPerPacket;
     loc.svel = AveragePacket.svel / MovesPerPacket;
@@ -1074,6 +1081,17 @@ faketimerhandler ( void )
     loc.bits = AveragePacket.bits;
     memset ( &AveragePacket, 0, sizeof ( AveragePacket ) );
     pp->inputfifo[Player[myconnectindex].movefifoend & ( MOVEFIFOSIZ - 1 )] = loc;
+	// If we are the client, send up the movement data.
+	if (isClient)
+	{
+		static char temp[51221];
+		BitMsg msg;
+		msg.SetData((byte *)temp, sizeof(temp));
+		msg.Write<byte>(PACKET_TYPE_SENDPLAYERINPUT);
+		msg.Write<int>(myconnectindex);
+		msg.WriteData((byte *)&loc, sizeof(SW_PACKET));
+		networkSystem->SendPacket(msg.GetBuffer(), msg.GetLength(), true);
+	}
     pp->movefifoend++;
     #if 0
     
@@ -1149,74 +1167,96 @@ faketimerhandler ( void )
     
     if ( NetBroadcastMode )
     {
-        packbuf[0] = PACKET_TYPE_BROADCAST;
-        j = 1;
-        
-        if ( ( ( Player[myconnectindex].movefifoend - 1 ) & ( TIMERUPDATESIZ - 1 ) ) == 0 /* CTW REMOVED && !gTenActivated */ )
-        {
-            if ( myconnectindex == connecthead )
-            {
-                for ( i = connectpoint2[connecthead]; i >= 0; i = connectpoint2[i] )
-                {
-                    packbuf[j++] = min ( max ( Player[i].myminlag, -128 ), 127 );
-                }
-            }
-            
-            else
-            {
-                i = Player[connecthead].myminlag - otherminlag;
-                
-                if ( labs ( i ) > 2 )
-                {
-                    ////DSPRINTF(ds,"lag correction: %d,%d,%d",i,Player[connecthead].myminlag,otherminlag);
-                    //MONO_PRINT(ds);
-                    if ( labs ( i ) > 8 )
-                    {
-                        if ( i < 0 )
-                        {
-                            i++;
-                        }
-                        
-                        i >>= 1;
-                    }
-                    
-                    else
-                    {
-                        if ( i < 0 )
-                        {
-                            i = -1;
-                        }
-                        
-                        if ( i > 0 )
-                        {
-                            i = 1;
-                        }
-                    }
-                    
-                    totalclock -= synctics * i;
-                    otherminlag += i;
-                }
-            }
-            
-            for ( i = connecthead; i >= 0; i = connectpoint2[i] )
-            {
-                Player[i].myminlag = 0x7fffffff;
-            }
-        }
-        
-        pp = Player + myconnectindex;
-        #if !BIT_CODEC
-        memcpy ( &packbuf[j], &pp->inputfifo[ ( Player[myconnectindex].movefifoend - 1 ) & ( MOVEFIFOSIZ - 1 )], sizeof ( SW_PACKET ) );
-        j += sizeof ( SW_PACKET );
-        #else
-        j += EncodeBits ( &pp->inputfifo[ ( Player[myconnectindex].movefifoend - 1 ) & ( MOVEFIFOSIZ - 1 )],
-                          &pp->inputfifo[ ( Player[myconnectindex].movefifoend - 2 ) & ( MOVEFIFOSIZ - 1 )],
-                          &packbuf[j] );
-        #endif
-        #if SYNC_TEST
-        AddSyncInfoToPacket ( &j );
-        #endif
-        netbroadcastpacket ( packbuf, j );
+		// If we are the server send updates.
+		if (isServer)
+		{
+			static int64_t lastTick = 0;
+			int64_t currentTick = GetTickCount64();
+			// Only send this packet every 20ms.
+			if (currentTick - lastTick > 20)
+			{
+				BitMsg msg;
+				static char *snapShotBuffer = NULL;
+				if (snapShotBuffer == NULL)
+				{
+					snapShotBuffer = new char[sizeof(Snapshot) * 2];
+				}
+
+				msg.SetData((byte *)snapShotBuffer, sizeof(Snapshot) + 1);
+				msg.Write<byte>(PACKET_TYPE_SNAPSHOT);
+				Snapshot::CreateSnapshotPacket(msg);
+				netsendpacket(0, (char *)msg.GetBuffer(), msg.GetWrittenLength(), true);
+				lastTick = GetTickCount64();
+			}
+		}
+        //packbuf[0] = PACKET_TYPE_BROADCAST;
+        //j = 1;
+        //
+        //if ( ( ( Player[myconnectindex].movefifoend - 1 ) & ( TIMERUPDATESIZ - 1 ) ) == 0 /* CTW REMOVED && !gTenActivated */ )
+        //{
+        //    if ( myconnectindex == connecthead )
+        //    {
+        //        for ( i = connectpoint2[connecthead]; i >= 0; i = connectpoint2[i] )
+        //        {
+        //            packbuf[j++] = min ( max ( Player[i].myminlag, -128 ), 127 );
+        //        }
+        //    }
+        //    
+        //    else
+        //    {
+        //        i = Player[connecthead].myminlag - otherminlag;
+        //        
+        //        if ( labs ( i ) > 2 )
+        //        {
+        //            ////DSPRINTF(ds,"lag correction: %d,%d,%d",i,Player[connecthead].myminlag,otherminlag);
+        //            //MONO_PRINT(ds);
+        //            if ( labs ( i ) > 8 )
+        //            {
+        //                if ( i < 0 )
+        //                {
+        //                    i++;
+        //                }
+        //                
+        //                i >>= 1;
+        //            }
+        //            
+        //            else
+        //            {
+        //                if ( i < 0 )
+        //                {
+        //                    i = -1;
+        //                }
+        //                
+        //                if ( i > 0 )
+        //                {
+        //                    i = 1;
+        //                }
+        //            }
+        //            
+        //            totalclock -= synctics * i;
+        //            otherminlag += i;
+        //        }
+        //    }
+        //    
+        //    for ( i = connecthead; i >= 0; i = connectpoint2[i] )
+        //    {
+        //        Player[i].myminlag = 0x7fffffff;
+        //    }
+        //}
+        //
+        //pp = Player + myconnectindex;
+        //#if !BIT_CODEC
+        //memcpy ( &packbuf[j], &pp->inputfifo[ ( Player[myconnectindex].movefifoend - 1 ) & ( MOVEFIFOSIZ - 1 )], sizeof ( SW_PACKET ) );
+        //j += sizeof ( SW_PACKET );
+        //#else
+        //j += EncodeBits ( &pp->inputfifo[ ( Player[myconnectindex].movefifoend - 1 ) & ( MOVEFIFOSIZ - 1 )],
+        //                  &pp->inputfifo[ ( Player[myconnectindex].movefifoend - 2 ) & ( MOVEFIFOSIZ - 1 )],
+        //                  &packbuf[j] );
+        //#endif
+        //#if SYNC_TEST
+        //AddSyncInfoToPacket ( &j );
+        //#endif
+        //netbroadcastpacket ( packbuf, j );
         return;
     } // NetBroadcastMode
     
@@ -1365,72 +1405,113 @@ checkmasterslaveswitch ( VOID )
 VOID
 getpackets ( VOID )
 {
+	if (!isServer && !isClient)
+		return;
+
     long otherconnectindex, packbufleng;
     long i, j, k, l, fifoCheck, sb;
     PLAYERp pp;
     SW_PACKET tempinput;
     sampletimer();
     handleevents();
-    AudioUpdate();
+    //AudioUpdate();
     
-    if ( !CommEnabled )
+   // while ( ( packbufleng = netgetpacket ( &otherconnectindex, packbuf ) ) > 0 )
+
+	if (packbuf == NULL)
+	{
+		packbuf = new char[sizeof(Snapshot) * 2];
+	}
+
+	BitMsg msg;
+	while (networkSystem->GetNextPacket(msg))
     {
-        return;
-    }
-    
-    while ( ( packbufleng = netgetpacket ( &otherconnectindex, packbuf ) ) > 0 )
-    {
+		if (isServer)
+		{
+			otherconnectindex = 1;
+		}
+		else
+		{
+			otherconnectindex = 0;
+		}
+		packbufleng = msg.GetLength();
+		memcpy(packbuf, msg.GetBuffer(), packbufleng);
         switch ( packbuf[0] )
         {
+			case PACKET_TYPE_SNAPSHOT:
+				if (isClient)
+				{
+					net_recievedFirstPacket = true;
+					msg.Read<byte>(); // skip the opcode.
+					Snapshot::RestoreSnapshotPacket(msg);
+				}
+			break;
+
+			case PACKET_TYPE_SENDPLAYERINPUT:
+				if (isServer)
+				{
+					msg.Read<byte>(); // skip the opcode.
+					int remoteClientId = msg.Read<int>();
+					PLAYERp pp = Player + remoteClientId;
+					memcpy(&pp->input, msg.ReadData(sizeof(SW_PACKET)), sizeof(SW_PACKET));
+				}
+				break;
+
             case PACKET_TYPE_BROADCAST:
             case SERVER_GENERATED_BROADCAST:
+				if (isClient)
+				{
+					net_recievedFirstPacket = true;
+					msg.Read<byte>(); // skip the opcode.
+					Snapshot::RestoreSnapshotPacket(msg);
+				}
                 ////DSPRINTF(ds,"Receive Broadcast %d, ready2send %d",otherconnectindex, ready2send);
                 //MONO_PRINT(ds);
                 //ASSERT(ready2send);
                 //if (!ready2send)
                 //    break;
-                j = 1;
-                
-                if ( ( Player[otherconnectindex].movefifoend & ( TIMERUPDATESIZ - 1 ) ) == 0 )
-                {
-                    if ( otherconnectindex == connecthead )
-                    {
-                        for ( i = connectpoint2[connecthead]; i >= 0; i = connectpoint2[i] )
-                        {
-                            if ( i == myconnectindex )
-                            {
-                                otherminlag = ( long ) ( ( signed char ) packbuf[j] );
-                            }
-                            
-                            j++;
-                        }
-                    }
-                }
-                
-                pp = Player + otherconnectindex;
-                #if !BIT_CODEC
-                memcpy ( &pp->inputfifo[pp->movefifoend & ( MOVEFIFOSIZ - 1 )], &packbuf[j], sizeof ( SW_PACKET ) );
-                j += sizeof ( SW_PACKET );
-                #else
-                j += DecodeBits ( &pp->inputfifo[ ( pp->movefifoend ) & ( MOVEFIFOSIZ - 1 )],
-                                  &pp->inputfifo[ ( pp->movefifoend - 1 ) & ( MOVEFIFOSIZ - 1 )],
-                                  &packbuf[j] );
-                #endif
-                pp->movefifoend++;
-                
-                // Packet Duplication
-                for ( i = 1; i < MovesPerPacket; i++ )
-                {
-                    memcpy (
-                        &pp->inputfifo[pp->movefifoend & ( MOVEFIFOSIZ - 1 )],
-                        &pp->inputfifo[ ( pp->movefifoend - 1 ) & ( MOVEFIFOSIZ - 1 )],
-                        sizeof ( SW_PACKET ) );
-                    pp->movefifoend++;
-                }
-                
-                #if SYNC_TEST
-                GetSyncInfoFromPacket ( packbuf, packbufleng, &j, otherconnectindex );
-                #endif
+                //j = 1;
+                //
+                //if ( ( Player[otherconnectindex].movefifoend & ( TIMERUPDATESIZ - 1 ) ) == 0 )
+                //{
+                //    if ( otherconnectindex == connecthead )
+                //    {
+                //        for ( i = connectpoint2[connecthead]; i >= 0; i = connectpoint2[i] )
+                //        {
+                //            if ( i == myconnectindex )
+                //            {
+                //                otherminlag = ( long ) ( ( signed char ) packbuf[j] );
+                //            }
+                //            
+                //            j++;
+                //        }
+                //    }
+                //}
+                //
+                //pp = Player + otherconnectindex;
+                //#if !BIT_CODEC
+                //memcpy ( &pp->inputfifo[pp->movefifoend & ( MOVEFIFOSIZ - 1 )], &packbuf[j], sizeof ( SW_PACKET ) );
+                //j += sizeof ( SW_PACKET );
+                //#else
+                //j += DecodeBits ( &pp->inputfifo[ ( pp->movefifoend ) & ( MOVEFIFOSIZ - 1 )],
+                //                  &pp->inputfifo[ ( pp->movefifoend - 1 ) & ( MOVEFIFOSIZ - 1 )],
+                //                  &packbuf[j] );
+                //#endif
+                //pp->movefifoend++;
+                //
+                //// Packet Duplication
+                //for ( i = 1; i < MovesPerPacket; i++ )
+                //{
+                //    memcpy (
+                //        &pp->inputfifo[pp->movefifoend & ( MOVEFIFOSIZ - 1 )],
+                //        &pp->inputfifo[ ( pp->movefifoend - 1 ) & ( MOVEFIFOSIZ - 1 )],
+                //        sizeof ( SW_PACKET ) );
+                //    pp->movefifoend++;
+                //}
+                //
+                //#if SYNC_TEST
+                //GetSyncInfoFromPacket ( packbuf, packbufleng, &j, otherconnectindex );
+                //#endif
                 //DSPRINTF(ds,"Receive packet size %d",j);
                 //MONO_PRINT(ds);
                 break;
@@ -1568,7 +1649,21 @@ getpackets ( VOID )
                     adduserquote ( ds );
                     break;
                 }
-                
+			case PACKET_TYPE_SPAWNPLAYERS:
+				{
+					msg.Read<byte>(); // skip the opcode.
+					numplayers = msg.Read<int>();
+					for (pp = Player; pp < Player + numplayers; pp++)
+					{
+						pp->posx = msg.Read<int>();
+						pp->posy = msg.Read<int>();
+						pp->posz = msg.Read<int>();
+						pp->pang = msg.Read<int>();
+						pp->cursectnum = msg.Read<int>();
+					}
+
+					screenpeek = myconnectindex = 1;
+				};
             case PACKET_TYPE_RTS:
                 {
                     PACKET_RTSp p;
@@ -1603,6 +1698,8 @@ getpackets ( VOID )
                         gNet.KillLimit /= 10;
                         gNet.TimeLimit /= 2;
                     }
+
+					numplayers = p->numplayers;
                     
                     gNet.TimeLimitClock = gNet.TimeLimit;
                     gNet.MultiGameType = p->GameType + 1;
@@ -1619,7 +1716,7 @@ getpackets ( VOID )
                         gNet.NoRespawn = FALSE;
                     }
                     
-                    ExitLevel = TRUE;
+                   // ExitLevel = TRUE;
                     NewGame = TRUE;
                     // restart demo for multi-play mode
                     DemoInitOnce = FALSE;
@@ -1666,8 +1763,11 @@ getpackets ( VOID )
                     
                     // palette
                     pp->TeamColor = p->Color;
-                    pp->SpriteP->pal = PALETTE_PLAYER0 + pp->TeamColor;
-                    User[pp->SpriteP - sprite]->spal = pp->SpriteP->pal;
+					if (pp->SpriteP)
+					{
+						pp->SpriteP->pal = PALETTE_PLAYER0 + pp->TeamColor;
+						User[pp->SpriteP - sprite]->spal = pp->SpriteP->pal;
+					}
                     // names
                     strcpy ( pp->PlayerName, p->PlayerName );
                     break;

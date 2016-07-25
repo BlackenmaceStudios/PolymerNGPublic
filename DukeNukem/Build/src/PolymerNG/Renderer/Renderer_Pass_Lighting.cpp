@@ -40,6 +40,9 @@ void RendererDrawPassLighting::Draw(const BuildRenderCommand &command)
 	ShadowMap *shadowMapPool[NUM_QUEUED_SHADOW_MAPS];
 	int numShadowedLights = 0;
 
+	renderer.vlsLight = NULL;
+	renderer.vlsShadowLightMap = NULL;
+
 	rhi.SetBlendState(BLENDSTATE_ALPHA);
 	rhi.SetFaceCulling(CULL_FACE_BACK);
 	
@@ -49,6 +52,12 @@ void RendererDrawPassLighting::Draw(const BuildRenderCommand &command)
 		{
 			shadowMapPool[numShadowedLights] = renderer.RenderShadowsForLight(command.taskDrawLights.visibleLights[i], numShadowedLights);
 			numShadowedLights++;
+		}
+
+		if (command.taskDrawLights.visibleLights[i]->GetOpts()->enableVolumetricLight)
+		{
+			renderer.vlsShadowLightMap = shadowMapPool[numShadowedLights - 1];
+			renderer.vlsLight = command.taskDrawLights.visibleLights[i];
 		}
 	}
 	rhi.SetFaceCulling(CULL_FACE_NONE);
@@ -110,6 +119,8 @@ void RendererDrawPassLighting::Draw(const BuildRenderCommand &command)
 			}
 			
 		}
+
+		drawLightingBuffer.cameraposition = command.taskDrawLights.cameraposition;
 
 		drawLightingBuffer.spotDir = float4(command.taskDrawLights.visibleLights[i]->GetShadowPass(0)->spotdir, 1.0);
 		drawLightingBuffer.spotRadius = float4(command.taskDrawLights.visibleLights[i]->GetShadowPass(0)->spotRadius, 1.0);

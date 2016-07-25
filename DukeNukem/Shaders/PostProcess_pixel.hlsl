@@ -83,8 +83,9 @@ float4 main(VertexShaderOutput input) : SV_TARGET
 
 	// Grab the color from the diffuse render target. If alpha == 0(sky) then discard.
 	float4 ambient = ambientTexture.Sample(ambientTextureSampler, st);
+	ambient = max(ambient, 0.05);
 	float3 hdrLighting = lightTexture.Sample(lightTextureSampler, st).xyz;
-	float3 finalColor = color.xyz * (ambient.xyz + hdrLighting.xyz);
+	float3 finalColor = color.xyz * ((ambient.xyz * 2 ) + hdrLighting.xyz);
 
 	float2 step = 1.0 / GetColorBufferResolution();
 	float3 glowresult = GaussianBlur(glowTexture, glowTextureSampler, float2(st.x, st.y), float2(step.x*1.5, 0));
@@ -92,12 +93,12 @@ float4 main(VertexShaderOutput input) : SV_TARGET
 	finalColor = finalColor + glowresult.xyz;
 
 
-	//const float gamma = 1.2;
-	//const float exposure = 1;
-	//float3 tonedresult = float3(1.0, 1.0, 1.0) - exp(-finalColor * exposure);
-	//// also gamma correct while we're at it       
-	//tonedresult = pow(tonedresult, float3(1.0 / gamma, 1.0 / gamma, 1.0 / gamma));
+	const float gamma = 1.1;
+	const float exposure = 2;
+	float3 tonedresult = float3(1.0, 1.0, 1.0) - exp(-finalColor * exposure);
+	// also gamma correct while we're at it       
+	tonedresult = pow(tonedresult, float3(1.0 / gamma, 1.0 / gamma, 1.0 / gamma));
 
 
-	return float4(finalColor.x, finalColor.y, finalColor.z, 1);
+	return float4(tonedresult.x, tonedresult.y, tonedresult.z, 1);
 }

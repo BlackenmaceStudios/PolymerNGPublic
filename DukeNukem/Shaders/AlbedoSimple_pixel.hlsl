@@ -33,6 +33,18 @@ Texture2D glowMapTexture : register(t5);
 SamplerState glowMapSampler : register(s5);
 #endif
 
+#ifdef FAKE_TRANSPARENT
+	#ifndef ALBEDO_USE_NORMALMAP
+		Texture2D normalMapTexture : register(t3);
+		SamplerState normalMapSampler : register(s3);
+	#endif
+#endif
+
+#ifdef FAKE_TRANSPARENT
+Texture2D prevSceneMapTexture : register(t6);
+SamplerState prevSceneMapSampler : register(s6);
+#endif
+
 float CalculateFogFactor(float4 position)
 {
 	float fragDepth = position.z / position.w; 
@@ -60,6 +72,48 @@ struct AlbedoPixelOut
 	float4 ambient				: SV_Target5;
 	float4 glowColorBuffer		: SV_Target6;
 };
+
+#ifdef FAKE_TRANSPARENT
+float2 GetScreenspaceCoordinate (VertexShaderOutput input)
+{
+	float width, height, levels;
+	prevSceneMapTexture.GetDimensions(0, width, height, levels);
+	float2 st = float2(input.position.x / width, input.position.y / height);
+	return st;
+}
+#endif
+
+#ifdef FAKE_TRANSPARENT
+float4 GetRefractedColor(float4 normalMap, VertexShaderOutput input)
+{
+	float2 screenSpaceCoord = GetScreenspaceCoordinate(input);
+
+	float2 refractedUV = screenSpaceCoord + normalMap.xy * 0.01;
+	return prevSceneMapTexture.Sample(prevSceneMapSampler, refractedUV);
+}
+
+float Fresnel(float NdotL, float fresnelBias, float fresnelPow)
+{
+	float facing = (1.0 - NdotL);
+
+	return max(fresnelBias + (1.0 - fresnelBias) * pow(facing, fresnelPow), 0.0);
+}
+
+float4 GetReflectedColor(VertexShaderOutput input)
+{
+	//float4 normalMap = 2.0 * normalMapTexture.Sample(normalMapSampler, input.texcoord0.xy) - 1.0;
+	//float LdotN = dot(normalMap.xyz, input.eyeposition.xyz);
+	//
+	//half3 vReflect = 2.0 * LdotN * normalMap.xyz - input.eyeposition.xyz;
+	//
+	//float2 screenSpaceCoord = GetScreenspaceCoordinate(input);
+	//
+	//float2 refractedUV = screenSpaceCoord + normalMap.xy * 0.02;
+	//refractedUV.y = 1.0 - refractedUV.y;
+	//return prevSceneMapTexture.Sample(prevSceneMapSampler, refractedUV * 0.005);
+	return float4(1, 1, 1, 1);
+}
+#endif
 
 AlbedoPixelOut main(VertexShaderOutput input)
 {
@@ -109,7 +163,15 @@ AlbedoPixelOut main(VertexShaderOutput input)
 #endif
 	
 #ifdef FAKE_TRANSPARENT
-	albedoPixelOut.diffuseColor = float4(result.x, result.y, result.z, 0.5);
+	float4 normalMap = 2.0 * normalMapTexture.Sample(normalMapSampler, input.texcoord0.xy) - 1.0;
+	float4 refractedColor = GetRefractedColor(normalMap, input);
+
+	float NdotL = max(dot(input.eyeposition.xyz, normalMap.xyz), 0);
+	float facing = (1.0 - NdotL);
+	float fresnel = Fresnel(NdotL, 0.2, 5.0);
+
+	float4 waterResult = refractedColor * fresnel;
+	albedoPixelOut.diffuseColor = float4(waterResult.x, waterResult.y, waterResult.z, 1.0);
 #else
 	albedoPixelOut.diffuseColor = float4(result.x, result.y, result.z, alpha);
 	#ifdef GLOW

@@ -58,6 +58,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #pragma optimize( "", off )
 
+extern bool isClient;
+
 static int OverlapDraw = FALSE;
 extern BOOL QuitFlag, LocationInfo, ConPanel, SpriteInfo, PauseKeySet;
 extern BOOL Voxel;
@@ -2222,6 +2224,7 @@ void PreDrawStackedWater ( void )
     PLAYERp pp = Player + screenpeek;
     smr4 = smoothratio + ( ( ( long ) MoveSkip4 ) << 16 );
     smr2 = smoothratio + ( ( ( long ) MoveSkip2 ) << 16 );
+
     TRAVERSE_SPRITE_STAT ( headspritestat[STAT_CEILING_FLOOR_PIC_OVERRIDE], si, snexti )
     {
         TRAVERSE_SPRITE_SECT ( headspritesect[sprite[si].sectnum], i, nexti )
@@ -2389,21 +2392,28 @@ drawscreen ( PLAYERp pp )
     }
     
     DrawScreen = TRUE;
-    PreDraw();
+	if (!isClient)
+	{
+		PreDraw();
+	}
     
-    // part of newp border refresh method
-    if ( RedrawScreen )
-    {
-        RedrawCompass = TRUE;
-        RedrawScreen = FALSE;
-        // get rid of all PERM sprites!
-        flushperms();
-        // get rid of all PANF_KILL_AFTER_SHOW sprites!
-        pFlushPerms ( pp );
-        SetBorder ( pp, gs.BorderNum );
-    }
-    
-    PreUpdatePanel();
+	// This stuff should be enabled on the client!!
+	if (!isClient)
+	{
+		// part of newp border refresh method
+		if (RedrawScreen)
+		{
+			RedrawCompass = TRUE;
+			RedrawScreen = FALSE;
+			// get rid of all PERM sprites!
+			flushperms();
+			// get rid of all PANF_KILL_AFTER_SHOW sprites!
+			pFlushPerms(pp);
+			SetBorder(pp, gs.BorderNum);
+		}
+
+		PreUpdatePanel();
+	}
     smoothratio = min ( max ( ( totalclock - ototalclock ) * ( 65536 / synctics ), 0 ), 65536 );
     
     if ( !ScreenSavePic )
@@ -2433,7 +2443,7 @@ drawscreen ( PLAYERp pp )
     //ASSERT(tsectnum >= 0 && tsectnum <= MAXSECTORS);
     // if updatesectorz is to sensitive try COVERupdatesector
     //updatesectorz(tx, ty, tz, &tsectnum);
-    COVERupdatesector ( tx, ty, &tsectnum );
+	COVERupdatesector(tx, ty, &tsectnum);
     
     if ( tsectnum < 0 )
     {

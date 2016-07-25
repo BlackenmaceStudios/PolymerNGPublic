@@ -1099,7 +1099,34 @@ void   squarerotatetile(int16_t tilenume);
 void fade_screen_black(int32_t moreopaquep);
 
 int32_t   setgamemode(char davidoption, int32_t daxdim, int32_t daydim, int32_t dabpp);
-void   nextpage(void);
+
+//
+// SceneNextPageParms
+// 
+struct SceneNextPageParms
+{
+	SceneNextPageParms()
+	{
+		renderTarget = NULL;
+		shouldSkipSprites = false;
+		shouldSkipUI = false;
+		shouldSkipDOFAndAA = false;
+	}
+
+	class PolymerNGRenderTarget *renderTarget;
+	bool shouldSkipUI;
+	bool shouldSkipDOFAndAA;
+	bool shouldSkipSprites;
+
+	bool ShouldUseWindowResolution()
+	{
+		return renderTarget == NULL;
+	}
+};
+
+extern SceneNextPageParms defaultNextPageParams;
+
+void   nextpage(SceneNextPageParms nextpageParams = defaultNextPageParams);
 void   setaspect_new();
 void   setview(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
 void   setaspect(int32_t daxrange, int32_t daaspect);

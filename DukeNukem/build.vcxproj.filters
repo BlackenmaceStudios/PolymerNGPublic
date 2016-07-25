@@ -446,6 +446,9 @@
     <ClInclude Include="Build\src\PolymerNG\Renderer\Renderer_Pass_DOF.h">
       <Filter>Source Files\PolymerNG\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="Build\src\PolymerNG\Renderer\Renderer_Pass_VolumetricLightScatter.h">
+      <Filter>Source Files\PolymerNG\Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="build\src\a-c.cpp">
@@ -803,6 +806,9 @@
       <Filter>Source Files\PolymerNG\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="Build\src\PolymerNG\Renderer\Renderer_Pass_DOF.cpp">
+      <Filter>Source Files\PolymerNG\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Build\src\PolymerNG\Renderer\Renderer_Pass_VolumetricLightScatter.cpp">
       <Filter>Source Files\PolymerNG\Renderer</Filter>
     </ClCompile>
   </ItemGroup>

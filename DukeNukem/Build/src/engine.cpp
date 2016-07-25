@@ -104,6 +104,7 @@ int32_t g_loadedMapVersion = -1;  // -1: none (e.g. started new)
 usermaphack_t g_loadedMapHack;  // used only for the MD4 part
 
 BuildNGOptions buildNGOptions;
+SceneNextPageParms defaultNextPageParams;
 
 int32_t compare_usermaphacks(const void *a, const void *b)
 {
@@ -11898,7 +11899,7 @@ int32_t setgamemode(char davidoption, int32_t daxdim, int32_t daydim, int32_t da
 //
 // nextpage
 //
-void nextpage(void)
+void nextpage(SceneNextPageParms nextpageParams)
 {
     int32_t i;
     permfifotype *per;
@@ -11906,7 +11907,7 @@ void nextpage(void)
 #ifdef BUILD_D3D12
 	void sampletimer();
 	sampletimer();
-	renderer.SubmitFrame();
+	renderer.SubmitFrame(nextpageParams);
 #endif
 
     //char snotbuf[32];

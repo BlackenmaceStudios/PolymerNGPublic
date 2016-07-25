@@ -17,6 +17,11 @@ using namespace Windows::System;
 using namespace Windows::Foundation;
 using namespace Windows::Graphics::Display;
 
+bool Sys_IsWindowActive()
+{
+	return true; // UWP windows are always active.
+}
+
 // The main function is only used to initialize our IFrameworkView class.
 [Platform::MTAThread]
 int main(Platform::Array<Platform::String^>^)

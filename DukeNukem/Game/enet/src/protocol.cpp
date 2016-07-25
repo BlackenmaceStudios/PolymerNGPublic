@@ -1511,6 +1511,8 @@ enet_protocol_send_reliable_outgoing_commands (ENetHost * host, ENetPeer * peer)
  
        if (outgoingCommand -> packet != NULL)
        {
+		  // jmarshall
+		   /*
           if (! windowExceeded)
           {
              enet_uint32 windowSize = (peer -> packetThrottle * peer -> windowSize) / ENET_PEER_PACKET_THROTTLE_SCALE;
@@ -1524,6 +1526,8 @@ enet_protocol_send_reliable_outgoing_commands (ENetHost * host, ENetPeer * peer)
 
              continue;
           }
+		  */
+		   // jmarshall end
        }
 
        canPing = 0;

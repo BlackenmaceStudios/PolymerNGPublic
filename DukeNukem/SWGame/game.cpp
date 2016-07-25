@@ -91,6 +91,9 @@ Things required to make savegames work:
 
 #include "../Build/src/Input/InputSystem.h"
 
+#include "../Network/NetworkSystem.h"
+#include "../Network/BitMsg.h"
+
 #if DEBUG
     #define BETA 0
 #endif
@@ -105,6 +108,8 @@ char DemoName[15][16];
 
 int32_t lastUpdate; // CD tic counter
 int enabled = 1;
+extern bool net_recievedFirstPacket;
+
 // Stupid WallMart version!
 //#define PLOCK_VERSION TRUE
 
@@ -175,6 +180,11 @@ int BotMode = FALSE;
 short Skill = 2;
 short BetaVersion = 900;
 short TotalKillable;
+
+char hostIpAddress[256];
+bool isClient = false;
+bool isServer = false;
+int numExpectedPlayersForServer = 0;
 
 AUTO_NET Auto;
 BOOL AutoNet = FALSE;
@@ -456,6 +466,58 @@ void SW_InitMultiPsky(void)
 	defaultsky->horizfrac = 8192;
 }
 
+void WritePlayerSnapshotInfo(BitMsg &msg)
+{
+	PLAYERp pp = Player + 1;
+
+	msg.Write<int>(pp->posx);
+	msg.Write<int>(pp->posy);
+	msg.Write<int>(pp->posz);
+	msg.Write<int>(pp->oposx);
+	msg.Write<int>(pp->oposy);
+	msg.Write<int>(pp->oposz);
+	msg.Write<int>(pp->pang);
+	msg.Write<int>(pp->oang);
+	msg.Write<int>(pp->horiz);
+	msg.Write<int>(pp->ohoriz);
+	msg.Write<int>(pp->cursectnum);
+	msg.Write<int>(pp->PlayerSprite);
+}
+
+void ReadPlayerSnapshotInfo(BitMsg &msg)
+{
+	PLAYERp pp = Player + 1;
+
+	pp->posx = msg.Read<int>();
+	pp->posy = msg.Read<int>();
+	pp->posz = msg.Read<int>();
+	pp->oposx = msg.Read<int>();
+	pp->oposy = msg.Read<int>();
+	pp->oposz = msg.Read<int>();
+	pp->pang = msg.Read<int>();
+	pp->oang = msg.Read<int>();
+	pp->horiz = msg.Read<int>();
+	pp->ohoriz = msg.Read<int>();
+	pp->cursectnum = msg.Read<int>();
+	pp->PlayerSprite = msg.Read<int>();
+}
+
+// Here we just show all the players, its up to the local client to hide themselves.
+void NetModifyPlayerVisibility(SPRITETYPE *snapshotsprites)
+{
+	for (int i = 0; i < numplayers; i++)
+	{
+		PLAYERp pp = Player + i;
+
+		RESET(snapshotsprites[pp->PlayerSprite].cstat, CSTAT_SPRITE_INVISIBLE);
+	}
+}
+
+void NetHideLocalPlayer()
+{
+	PLAYERp pp = Player + myconnectindex;
+	SET(sprite[pp->PlayerSprite].cstat, CSTAT_SPRITE_INVISIBLE);
+}
 
 #if DEBUG
 BOOL
@@ -968,6 +1030,45 @@ void COVERsetbrightness ( int bright, char *pal )
     // jmarshall end
 }
 
+VOID DrawLoadLevelScreen(VOID);
+
+VOID MultiplayerWaitScreen(int numPlayers, int expectedPlayers)
+{
+	short w, h;
+	extern BOOL DemoMode;
+	extern char *MNU_LevelName[28];
+	DrawLoadLevelScreen();
+
+	sprintf(ds, "WAITING FOR PLAYERS");
+
+	MNU_MeasureString(ds, &w, &h);
+	MNU_DrawString(TEXT_TEST_COL(w), 170, ds, 1, 16);
+
+	sprintf(ds, "%d/%d", numPlayers, expectedPlayers);
+
+	MNU_MeasureString(ds, &w, &h);
+	MNU_DrawString(TEXT_TEST_COL(w), 180, ds, 1, 16);
+	nextpage();
+}
+
+VOID MultiplayerClientWaitScreen(const char *msg)
+{
+	short w, h;
+	extern BOOL DemoMode;
+	extern char *MNU_LevelName[28];
+	DrawLoadLevelScreen();
+
+	sprintf(ds, msg);
+
+	MNU_MeasureString(ds, &w, &h);
+	MNU_DrawString(TEXT_TEST_COL(w), 170, ds, 1, 16);
+
+//	sprintf(ds, "%d/%d", numPlayers, expectedPlayers);
+//
+//	MNU_MeasureString(ds, &w, &h);
+//	MNU_DrawString(TEXT_TEST_COL(w), 180, ds, 1, 16);
+	nextpage();
+}
 
 static int firstnet = 0;	// JBF
 int nextvoxid = 0;	// JBF
@@ -999,6 +1100,7 @@ InitGame ( VOID )
     memcpy ( palette_data, palette, 768 );
     InitPalette();
     // sets numplayers, connecthead, connectpoint2, myconnectindex
+
     // jmarshall - multiplayer?
     //    if (!firstnet)
     //    	initmultiplayers(0, NULL, 0, 0, 0);
@@ -1023,8 +1125,10 @@ InitGame ( VOID )
     
     MultiSharewareCheck();
     
-    if ( numplayers > 1 )
+    //if ( numplayers > 1 )
+	if (isServer)
     {
+		numplayers = numExpectedPlayersForServer;
         CommPlayers = numplayers;
         OrigCommPlayers = CommPlayers;
         CommEnabled = TRUE;
@@ -1056,6 +1160,11 @@ InitGame ( VOID )
         
         #endif
     }
+
+	if (!isClient && !isServer)
+	{
+		numplayers = 1;
+	}
     
     LoadDemoRun();
     // Save off total heap for later calculations
@@ -1119,13 +1228,51 @@ InitGame ( VOID )
     
     if ( !loaddefinitionsfile ( deffile ) ) { initprintf ( "Definitions file loaded.\n" ); }
     
+	Set_GameMode();
+
+	// -server 2
+	if (isServer)
+	{
+		networkSystem->StartServer(NET_PORT, numExpectedPlayersForServer);
+		initprintf("Waiting for players...\n");
+		while (networkSystem->IsWaitingForClients())
+		{
+			MultiplayerWaitScreen(networkSystem->GetNumConnectedPlayers() + 1, numExpectedPlayersForServer);
+		}
+	}
+	else if (isClient) // -client 127.0.0.1
+	{
+		int failedAttempts = 0;
+		NewGame = false;
+
+		MultiplayerClientWaitScreen("CONNECTING TO HOST");
+		bool connected = networkSystem->JoinServer(hostIpAddress, NET_PORT);
+		while (!connected)
+		{
+			char temp[512];
+			sprintf(temp, "CONNECTING TO HOST. ATTEMPT %d", failedAttempts + 1);
+			MultiplayerClientWaitScreen(temp);
+			failedAttempts++;
+			connected = networkSystem->JoinServer(hostIpAddress, NET_PORT);
+		}
+
+		while (NewGame == false)
+		{
+			getpackets();
+
+			MultiplayerClientWaitScreen("WAITING FOR GAME TO BEGIN");
+		}
+	}
+
     DemoModeMenuInit = TRUE;
     
     // precache as much stuff as you can
+// jmarshall - disabling preache.
+/*
     if ( UserMapName[0] == '\0' )
     {
         AnimateCacheCursor();
-        LoadLevel ( "$dozer.map" );
+        LoadLevel ("$bullet");
         AnimateCacheCursor();
         SetupPreCache();
         DoTheCache();
@@ -1139,12 +1286,32 @@ InitGame ( VOID )
         SetupPreCache();
         DoTheCache();
     }
-    
-    Set_GameMode();
+*/
+// jmarshall end
+
+    //Set_GameMode();
     GraphicsMode = TRUE;
     SetupAspectRatio();
     COVERsetbrightness ( gs.Brightness, ( char * ) palette_data );
     InitFX();	// JBF: do it down here so we get a hold of the window handle
+
+	//if (isServer)
+	//{
+	//	PACKET_NEW_GAME p;
+	//	p.PacketType = PACKET_TYPE_NEW_GAME;
+	//	p.Level = Level;
+	//	strcpy((char *)p.LevelName, UserMapName);
+	//	p.Skill = Skill;
+	//	p.GameType = gs.NetGameType;
+	//	p.AutoAim = gs.AutoAim;
+	//	p.HurtTeammate = gs.NetHurtTeammate;
+	//	p.TeamPlay = gs.NetTeamPlay;
+	//	p.SpawnMarkers = gs.NetSpawnMarkers;
+	//	p.KillLimit = gs.NetKillLimit;
+	//	p.TimeLimit = gs.NetTimeLimit;
+	//	p.Nuke = gs.NetNuke;
+	//	netbroadcastpacket((char *)(&p), sizeof(p)); // TENSW
+	//}
 }
 
 
@@ -1482,6 +1649,16 @@ InitLevel ( VOID )
     }
     
     #endif
+
+	// If this is the client lets stall here and wait until we get the world update packet.
+	if (isClient)
+	{
+		net_recievedFirstPacket = false;
+		while (net_recievedFirstPacket == false)
+		{
+			getpackets();
+		}
+	}
     
     // Put in the BOTS if called for
     if ( FakeMultiNumPlayers && BotMode )
@@ -1497,31 +1674,40 @@ InitLevel ( VOID )
             screenpeek = 0;
         }
     }
-    
-    QueueReset();
-    PreMapCombineFloors();
-    InitMultiPlayerInfo();
-    InitAllPlayerSprites();
-    //
-    // Do setup for sprite, track, panel, sector, etc
-    //
-    // Set levels up
-    InitTimingVars();
-    SpriteSetup();
-    SpriteSetupPost(); // post processing - already gone once through the loop
-    InitLighting();
-    TrackSetup();
-    PlayerPanelSetup();
-    MapSetup();
-    SectorSetup();
-    JS_InitMirrors();
-    JS_InitLockouts();   // Setup the lockout linked lists
-    JS_ToggleLockouts(); // Init lockouts on/off
-    PlaceSectorObjectsOnTracks();
-    PlaceActorsOnTracks();
-    PostSetupSectorObject();
-    SetupMirrorTiles();
-    initlava();
+
+	if (!isClient)
+	{
+		QueueReset();
+		PreMapCombineFloors();
+		InitMultiPlayerInfo();
+		InitAllPlayerSprites();
+		//
+		// Do setup for sprite, track, panel, sector, etc
+		//
+		// Set levels up
+		InitTimingVars();
+		SpriteSetup();
+		SpriteSetupPost(); // post processing - already gone once through the loop
+		InitLighting();
+		TrackSetup();
+		PlayerPanelSetup();
+		MapSetup();
+		SectorSetup();
+		JS_InitMirrors();
+		JS_InitLockouts();   // Setup the lockout linked lists
+		JS_ToggleLockouts(); // Init lockouts on/off
+		PlaceSectorObjectsOnTracks();
+		PlaceActorsOnTracks();
+		PostSetupSectorObject();
+		SetupMirrorTiles();
+		initlava();
+	}
+	else
+	{
+		VOID SpriteSetupMPClient(VOID);
+		SpriteSetupMPClient();
+	}
+	
     SongLevelNum = Level;
     
     if ( DemoMode )
@@ -1697,7 +1883,7 @@ NewLevel ( VOID )
             waitforeverybody();
         }
         
-        StatScreen ( &Player[myconnectindex] );
+		//StatScreen ( &Player[myconnectindex] );
     }
     
     if ( LoadGameFromDemo )
@@ -2254,19 +2440,19 @@ MenuLevel ( VOID )
     InMenuLevel = TRUE;
     DrawMenuLevelScreen();
     
-    if ( CommEnabled )
-    {
-        sprintf ( ds, "Lo Wang is waiting for other players..." );
-        MNU_MeasureString ( ds, &w, &h );
-        MNU_DrawString ( TEXT_TEST_COL ( w ), 170, ds, 1, 16 );
-        sprintf ( ds, "They are afraid!" );
-        MNU_MeasureString ( ds, &w, &h );
-        MNU_DrawString ( TEXT_TEST_COL ( w ), 180, ds, 1, 16 );
-    }
+    //if ( CommEnabled )
+    //{
+    //    sprintf ( ds, "Lo Wang is waiting for other players..." );
+    //    MNU_MeasureString ( ds, &w, &h );
+    //    MNU_DrawString ( TEXT_TEST_COL ( w ), 170, ds, 1, 16 );
+    //    sprintf ( ds, "They are afraid!" );
+    //    MNU_MeasureString ( ds, &w, &h );
+    //    MNU_DrawString ( TEXT_TEST_COL ( w ), 180, ds, 1, 16 );
+    //}
     
     nextpage();
     //FadeIn(0, 3);
-    waitforeverybody();
+    //waitforeverybody();
     // don't allow BorderAdjusting in these menus
     BorderAdjust = FALSE;
     ResetKeys();
@@ -3132,6 +3318,7 @@ bool G_IsGlowSprite(int idx)
 		case 2728:
 
 		// signs
+		case 2716:
 		case 5075:
 		case 5078:
 			return true;
@@ -3350,10 +3537,10 @@ VOID InitRunLevel ( VOID )
     waitforeverybody();
     StopSong();
     
-    if ( Bstrcasecmp ( CacheLastLevel, LevelName ) != 0 )
-    {
-        DoTheCache();
-    }
+    //if ( Bstrcasecmp ( CacheLastLevel, LevelName ) != 0 )
+    //{
+    //    DoTheCache();
+    //}
     
     // if (CachePrintMode)
     //     cachedebug = TRUE;
@@ -3452,7 +3639,10 @@ RunLevel ( VOID )
         if ( quitevent ) { QuitFlag = TRUE; }
         
         //MONO_PRINT("Before MoveLoop");
-        MoveLoop();
+		if (!isClient)
+		{
+			MoveLoop();
+		}
         //MONO_PRINT("After MoveLoop");
         //MONO_PRINT("Before CDAudio Update");
         CDAudio_Update();               // Keep checking to make sure the CD is ok, looping song, etc.
@@ -3751,41 +3941,41 @@ int32_t app_main ( int32_t argc, char const * const * argv )
         
         if ( *arg != '/' && *arg != '-' ) { continue; }
         
-        if ( firstnet > 0 )
-        {
-            arg++;
-            
-            switch ( arg[0] )
-            {
-                case 'n':
-                case 'N':
-                    if ( arg[1] == '0' )
-                    {
-                        NetBroadcastMode = FALSE;
-                        initprintf ( "Network mode: master/slave\n" );
-                        wm_msgbox ( "Multiplayer Option Error",
-                                    "This release unfortunately does not support a master-slave networking "
-                                    "mode because of certain bugs we have not been able to locate and fix "
-                                    "at this time. However, peer-to-peer networking has been found to be "
-                                    "playable, so we suggest attempting to use that for now. Details can be "
-                                    "found in the release notes. Sorry for the inconvenience." );
-                        return 0;
-                    }
-                    
-                    else if ( arg[1] == '1' )
-                    {
-                        NetBroadcastMode = TRUE;
-                        initprintf ( "Network mode: peer-to-peer\n" );
-                    }
-                    
-                    break;
-                    
-                default:
-                    break;
-            }
-            
-            continue;
-        }
+        //if ( firstnet > 0 )
+        //{
+        //    arg++;
+        //    
+        //    switch ( arg[0] )
+        //    {
+        //        case 'n':
+        //        case 'N':
+        //            if ( arg[1] == '0' )
+        //            {
+        //                NetBroadcastMode = FALSE;
+        //                initprintf ( "Network mode: master/slave\n" );
+        //                wm_msgbox ( "Multiplayer Option Error",
+        //                            "This release unfortunately does not support a master-slave networking "
+        //                            "mode because of certain bugs we have not been able to locate and fix "
+        //                            "at this time. However, peer-to-peer networking has been found to be "
+        //                            "playable, so we suggest attempting to use that for now. Details can be "
+        //                            "found in the release notes. Sorry for the inconvenience." );
+        //                return 0;
+        //            }
+        //            
+        //            else if ( arg[1] == '1' )
+        //            {
+        //                NetBroadcastMode = TRUE;
+        //                initprintf ( "Network mode: peer-to-peer\n" );
+        //            }
+        //            
+        //            break;
+        //            
+        //        default:
+        //            break;
+        //    }
+        //    
+        //    continue;
+        //}
         
         // Store arg in command line array!
         CON_StoreArg ( ( BYTEp ) arg );
@@ -3834,14 +4024,32 @@ int32_t app_main ( int32_t argc, char const * const * argv )
             // skip setupfile name
             cnt++;
         }
-        
-        else if ( Bstrncasecmp ( arg, "net", 3 ) == 0 )
-        {
-            if ( cnt + 1 < argc )
-            {
-                firstnet = cnt + 1;
-            }
-        }
+		// Can't do -server or UWP breaks. 
+		else if (Bstrncasecmp(arg, "startsession", 12) == 0)
+		{
+			// Passed by setup.exe
+			// skip setupfile name
+			cnt++;
+			isServer = true;
+			sscanf(argv[cnt], "%ld", &numExpectedPlayersForServer);
+		}
+
+		else if (Bstrncasecmp(arg, "client", 5) == 0)
+		{
+			// Passed by setup.exe
+			// skip setupfile name
+			cnt++;
+			isClient = true;
+			strcpy(hostIpAddress, argv[cnt]);
+		}
+      
+        //else if ( Bstrncasecmp ( arg, "net", 3 ) == 0 )
+        //{
+        //    if ( cnt + 1 < argc )
+        //    {
+        //        firstnet = cnt + 1;
+        //    }
+        //}
         
         #if DEBUG
         

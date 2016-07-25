@@ -128,6 +128,7 @@
     <ClInclude Include="Build\src\PolymerNG\Renderer\Renderer_Pass_DrawWorld.h" />
     <ClInclude Include="Build\src\PolymerNG\Renderer\Renderer_Pass_Lighting.h" />
     <ClInclude Include="Build\src\PolymerNG\Renderer\Renderer_Pass_PostProcess.h" />
+    <ClInclude Include="Build\src\PolymerNG\Renderer\Renderer_Pass_VolumetricLightScatter.h" />
     <ClInclude Include="Build\src\PolymerNG\Renderer\Renderer_Shadows.h" />
     <ClInclude Include="Build\src\PolymerNG\TextureCache\TextureCache.h" />
     <ClInclude Include="Build\src\PolymerNG\TextureCache\TextureCacheFormat.h" />
@@ -220,6 +221,7 @@
     <ClCompile Include="Build\src\PolymerNG\Renderer\Renderer_Pass_DrawWorld.cpp" />
     <ClCompile Include="Build\src\PolymerNG\Renderer\Renderer_Pass_Lighting.cpp" />
     <ClCompile Include="Build\src\PolymerNG\Renderer\Renderer_Pass_PostProcess.cpp" />
+    <ClCompile Include="Build\src\PolymerNG\Renderer\Renderer_Pass_VolumetricLightScatter.cpp" />
     <ClCompile Include="Build\src\PolymerNG\Renderer\Renderer_Shadows.cpp" />
     <ClCompile Include="Build\src\PolymerNG\TextureCache\TextureCache.cpp" />
     <ClCompile Include="build\src\polymost.cpp" />

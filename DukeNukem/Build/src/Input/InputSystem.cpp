@@ -9,6 +9,8 @@
 #include <SDL.h>
 #include "sdlkeytranslation.h"
 
+bool Sys_IsWindowActive();
+
 XBuildInputSystemPrivate xBuildInputSystemPrivate;
 XBuildInputSystem *xBuildInputSystem = &xBuildInputSystemPrivate;
 
@@ -58,7 +60,7 @@ extern "C" void readmousexy(int32_t *x, int32_t *y)
 	static int32_t lastMouseX = 0;
 	static int32_t lastMouseY = 0;
 
-	if (xBuildInputSystemPrivate.gamePad == nullptr)
+	if (xBuildInputSystemPrivate.gamePad == nullptr || !Sys_IsWindowActive())
 	{
 		*x = 0;
 		*y = 0;
@@ -89,8 +91,11 @@ extern "C" void readmousexy(int32_t *x, int32_t *y)
 
 extern "C" void readmousebstatus(int32_t *b)
 {
-	if (xBuildInputSystemPrivate.gamePad == nullptr)
+	if (xBuildInputSystemPrivate.gamePad == nullptr || !Sys_IsWindowActive())
+	{
+		b[0] = 0;
 		return;
+	}
 
 	DirectX::GamePad::State controllerState = xBuildInputSystemPrivate.gamePad->GetState(xBuildInputSystemPrivate.GetCurrentPlayerId(), DirectX::GamePad::DEAD_ZONE_CIRCULAR);
 
@@ -112,7 +117,7 @@ extern "C" void readmousebstatus(int32_t *b)
 
 void XHandleControllerMovement(int32_t *dx, int32_t *dy)
 {
-	if (xBuildInputSystemPrivate.gamePad == nullptr)
+	if (xBuildInputSystemPrivate.gamePad == nullptr || !Sys_IsWindowActive())
 	{
 		*dx = 0;
 		*dy = 0;
@@ -131,7 +136,7 @@ void XHandleControllerMovement(int32_t *dx, int32_t *dy)
 
 bool XBuildInputSystemPrivate::ControllerKeyDown(XControllerButton button)
 {
-	if (xBuildInputSystemPrivate.gamePad == nullptr)
+	if (xBuildInputSystemPrivate.gamePad == nullptr || !Sys_IsWindowActive())
 		return false;
 
 	DirectX::GamePad::State controllerState = xBuildInputSystemPrivate.gamePad->GetState(currentPlayerId, DirectX::GamePad::DEAD_ZONE_INDEPENDENT_AXES);
@@ -202,7 +207,7 @@ void XBuildInputSystemPrivate::Update()
 		}
 	}
 
-	if (xBuildInputSystemPrivate.gamePad != nullptr)
+	if (xBuildInputSystemPrivate.gamePad != nullptr || Sys_IsWindowActive())
 	{
 		try
 		{

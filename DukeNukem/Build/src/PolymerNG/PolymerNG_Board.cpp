@@ -301,10 +301,14 @@ void PolymerNGBoard::DrawRooms(int32_t daposx, int32_t daposy, int32_t daposz, i
 		currentDrawRoomsIdx = 0;
 
 	// Now render all the sprites.
+	int					    numSprites;
+	Build3DSprite			*prsprites;
 	{
 		BuildRenderCommand command;
 		command.taskId = BUILDRENDER_TASK_DRAWSPRITES;
 		DrawSprites(command, viewMatrix, projectionMatrix, horizang, daang, position);
+		numSprites = command.taskRenderSprites.numSprites;
+		prsprites = command.taskRenderSprites.prsprites;
 		renderer.AddRenderCommand(command);
 		Bmemcpy(tsprite, localtsprite, sizeof(spritetype) * spritesortcnt);
 	}
@@ -327,9 +331,10 @@ void PolymerNGBoard::DrawRooms(int32_t daposx, int32_t daposy, int32_t daposz, i
 		command.taskDrawLights.inverseModelViewMatrix = inverseModelViewProjection;
 		command.taskDrawLights.inverseViewMatrix = inverseModelViewInverse;
 		command.taskDrawLights.viewMatrix = viewMatrix;
+		command.taskDrawLights.cameraposition = float4(position.x, position.y, position.z, 1.0);
 
 		float4x4 viewMatrix_((float *)&viewMatrix);
-		FindVisibleLightsForScene(&command.taskDrawLights.visibleLights[0], command.taskDrawLights.numLights, viewMatrix_);
+		FindVisibleLightsForScene(prsprites, numSprites, &command.taskDrawLights.visibleLights[0], command.taskDrawLights.numLights, viewMatrix_);
 		renderer.AddRenderCommand(command);
 	}
 }

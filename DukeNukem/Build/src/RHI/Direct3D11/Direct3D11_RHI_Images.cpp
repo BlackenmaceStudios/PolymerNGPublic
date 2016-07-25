@@ -202,6 +202,10 @@ const BuildRHITexture* BuildRHI::LoadTextureFromMemory(const std::wstring &textu
 		else if (!isDepthStencilFormat)
 		{
 			desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+			if (InitData != NULL)
+			{
+				desc.MiscFlags |= D3D11_RESOURCE_MISC_GENERATE_MIPS;
+			}
 		}
 		else
 		{
@@ -245,6 +249,8 @@ const BuildRHITexture* BuildRHI::LoadTextureFromMemory(const std::wstring &textu
 			{
 				initprintf("Failed to create resource view");
 			}
+
+			DX::RHIGetD3DDeviceContext()->GenerateMips(textureRHI->resourceView);
 		}
 		else if(isDepthStencilFormat)
 		{

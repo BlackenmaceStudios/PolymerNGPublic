@@ -68,6 +68,7 @@ struct BuildRenderThreadTaskDrawLights
 	float4x4 inverseModelViewProjectionMatrix;
 	float4x4 inverseViewMatrix;
 	float4x4 viewMatrix;
+	float4 cameraposition;
 };
 
 //

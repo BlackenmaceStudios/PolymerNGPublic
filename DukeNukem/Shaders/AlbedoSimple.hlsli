@@ -6,4 +6,7 @@ struct VertexShaderOutput
 	float3 texcoord2 : TEXCOORD2;
 	float3 texcoord3 : TEXCOORD3;
 	float4 vDepthVS  : TEXCOORD4;
+#ifdef FAKE_TRANSPARENT
+	float4 eyeposition : TEXCOORD5;
+#endif
 };

@@ -19,8 +19,11 @@ public:
 	virtual void				Draw(const BuildRenderCommand &command);
 
 	PolymerNGRenderTarget		*GetPostProcessRenderTarget() { return renderTarget; }
+
+	BuildImage					*GetPreviousFrameImage() { return diffuseRenderBufferCopy; }
 private:
 	PS_POSTPROCESS_BUFFER		drawPostProcessBuffer;
 	BuildRHIConstantBuffer		*drawPostProcessConstantBuffer;
 	PolymerNGRenderTarget		*renderTarget;
+	BuildImage					*diffuseRenderBufferCopy;
 };

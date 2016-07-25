@@ -53,6 +53,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #include "colormap.h"
 
+#include "../Build/src/Input/InputSystem.h"
+
 //#define PLOCK_VERSION TRUE
 
 extern BOOL cdvalid, enabled;
@@ -1585,6 +1587,7 @@ MNU_StartNetGame ( void )
         p.KillLimit = gs.NetKillLimit;
         p.TimeLimit = gs.NetTimeLimit;
         p.Nuke = gs.NetNuke;
+		p.numplayers = numplayers;
         netbroadcastpacket ( ( char * ) ( &p ), sizeof ( p ) ); // TENSW
     }
     
@@ -4439,21 +4442,25 @@ void MNU_DoMenu ( CTLType type, PLAYERp pp )
         }
     }
     
-    if ( mnu_input.dir == dir_North )
+    if ( mnu_input.dir == dir_North || xBuildInputSystem->ControllerKeyDown(XB_Button_DPAD_Up))
     {
         MNU_PrevItem();
+		xBuildInputSystem->SetControllerButtonsUp();
         resetitem = TRUE;
     }
     
-    else if ( mnu_input.dir == dir_South )
+    else if ( mnu_input.dir == dir_South || xBuildInputSystem->ControllerKeyDown(XB_Button_DPAD_Down))
     {
         MNU_NextItem();
+		xBuildInputSystem->SetControllerButtonsUp();
         resetitem = TRUE;
     }
     
-    else if ( mnu_input.button0 )
+    else if ( mnu_input.button0 || xBuildInputSystem->ControllerKeyDown(XB_Button_A))
     {
         static int handle5 = 0;
+
+		xBuildInputSystem->SetControllerButtonsUp();
         
         if ( !FX_SoundActive ( handle5 ) )
         {

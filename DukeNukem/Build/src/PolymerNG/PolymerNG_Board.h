@@ -43,7 +43,7 @@ private:
 
 	void		 FindMapSky();
 
-	void		 FindVisibleLightsForScene(PolymerNGLightLocal **lights, int &numVisibleLights, float4x4 modelViewMatrix);
+	void		 FindVisibleLightsForScene(Build3DSprite *prsprites, int numSprites, PolymerNGLightLocal **lights, int &numVisibleLights, float4x4 modelViewMatrix);
 
 	Build3DBoard *board;
 

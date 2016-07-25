@@ -25,6 +25,17 @@ void RendererDrawPassPostProcess::Init()
 		diffuseRenderBuffer = new BuildImage(opts);
 		diffuseRenderBuffer->UpdateImagePost(NULL);
 	}
+	{
+		BuildImageOpts opts;
+		opts.width = globalWindowWidth;
+		opts.height = globalWindowHeight;
+		opts.format = IMAGE_FORMAT_RGBA8;
+		opts.isHighQualityImage = true;
+		opts.isRenderTargetImage = true;
+
+		diffuseRenderBufferCopy = new BuildImage(opts);
+		diffuseRenderBufferCopy->UpdateImagePost(NULL);
+	}
 	renderTarget = new PolymerNGRenderTarget(diffuseRenderBuffer, NULL, NULL);
 	drawPostProcessConstantBuffer = rhi.AllocateRHIConstantBuffer(sizeof(PS_POSTPROCESS_BUFFER), &drawPostProcessBuffer);
 }
@@ -39,7 +50,10 @@ void RendererDrawPassPostProcess::Draw(const BuildRenderCommand &command)
 	PolymerNGRenderTarget *drawWorldRenderTarget = renderer.GetWorldRenderTarget();
 	PolymerNGRenderTarget *hdrLightingBuffer = renderer.GetHDRLightingRenderTarget();
 
-	renderTarget->Bind();
+	if (!renderer.GetNextPageParms().shouldSkipDOFAndAA)
+	{
+		renderTarget->Bind();
+	}
 
 	rhi.SetShader(renderer.postProcessProgram->GetRHIShader());
 
@@ -57,5 +71,6 @@ void RendererDrawPassPostProcess::Draw(const BuildRenderCommand &command)
 	drawPostProcessConstantBuffer->UpdateBuffer(&drawPostProcessBuffer, sizeof(PS_POSTPROCESS_BUFFER), 0);
 	rhi.SetConstantBuffer(0, drawPostProcessConstantBuffer, SHADER_BIND_PIXELSHADER);
 	rhi.DrawUnoptimized2DQuad(NULL);
+	rhi.CopyDepthToAnotherImage(renderTarget->GetDiffuseImage(0)->GetRHITexture(), diffuseRenderBufferCopy->GetRHITexture());
 	PolymerNGRenderTarget::BindDeviceBuffer();
 }

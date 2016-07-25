@@ -42,6 +42,12 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #define PACKET_TYPE_NAME_CHANGE                     36
 #define PACKET_TYPE_VERSION                         38
 
+// jmarshall
+#define PACKET_TYPE_SPAWNPLAYERS					39
+#define PACKET_TYPE_SNAPSHOT						40
+#define PACKET_TYPE_SENDPLAYERINPUT					41
+// jmarshall end
+
 #define PACKET_TYPE_NULL_PACKET                     127
 #define PACKET_TYPE_PLAYER_READY                    250
 #define PACKET_TYPE_DONT_USE                        255  // old logoff
@@ -77,6 +83,7 @@ typedef struct PACKED
     BYTE FirstPlayerIndex;
     BOOL AutoAim;
     BYTE Level;
+	BYTE LevelName[256];
     BYTE Episode;
     CHAR Skill;
     BYTE GameType;
@@ -86,6 +93,7 @@ typedef struct PACKED
     BYTE KillLimit;
     BYTE TimeLimit;
     BOOL Nuke;
+	BYTE numplayers;
 } PACKET_NEW_GAME, *PACKET_NEW_GAMEp;
 
 typedef struct PACKED
@@ -136,7 +144,7 @@ void DoPrediction ( PLAYERp ppp );
 void CorrectPrediction ( long actualfifoplc );
 
 //TENSW: safe packet senders
-void netsendpacket ( int ind, char *buf, int len );
+void netsendpacket ( int ind, char *buf, int len, bool isReliable = true );
 void netbroadcastpacket ( char *buf, int len );
 long netgetpacket ( long *ind, char *buf );
 

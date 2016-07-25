@@ -121,7 +121,7 @@ float3 DirectIllumination(float3 pos, float3 norm, float3 lightposition, float l
 
 	float3 halfAngleVector = mul(TBN, (lightPos - pos) + (cameraposition - pos));
 	float3 hDotN = dot(normalize(halfAngleVector), norm);
-	float specFactor = pow(hDotN, 4.0f);
+	float specFactor = pow(hDotN, 1.0f) * inSpec;
 #if POINTLIGHT
 	float spotAttenuation = 1;
 #elif SPOTLIGHT
@@ -129,7 +129,7 @@ float3 DirectIllumination(float3 pos, float3 norm, float3 lightposition, float l
 	float spotCosAngle = dot(-lightVecScaled, D);
 	float spotAttenuation = clamp((spotCosAngle - spotRadius.x) * spotRadius.y, 0.0, 1.0);
 #endif
-	return  (lightcolor *att * (diffuseFactor + specFactor) * spotAttenuation);
+	return (lightcolor *att * (diffuseFactor) * spotAttenuation) + (lightcolor * specFactor * (att * 7) );
 }
 
 float3 DirectIlluminationSprite(float3 pos, float3 norm, float3 lightposition, float lightradius, float3 lightcolor, float inSpec)

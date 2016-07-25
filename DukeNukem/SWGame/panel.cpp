@@ -1148,6 +1148,7 @@ WeaponOperate ( PLAYERp pp )
     }
     
     // Shut that computer chick up if weapon has changed!
+
     if ( pp->WpnRocketType != 2 || pp->CurWpn != pp->Wpn[WPN_MICRO] )
     {
         pp->InitingNuke = FALSE;
@@ -7489,11 +7490,13 @@ pDisplaySprites ( PLAYERp pp )
         // initilize pal here - jack with it below
         pal = psp->pal;
         
-        if ( DrawBeforeView )
-            if ( !TEST ( psp->flags, PANF_DRAW_BEFORE_VIEW ) )
-            {
-                continue;
-            }
+		// jmarshall - removed
+        //if ( DrawBeforeView )
+        //    if ( !TEST ( psp->flags, PANF_DRAW_BEFORE_VIEW ) )
+        //    {
+        //        continue;
+        //    }
+		// jmarshall end
             
         if ( TEST ( psp->flags, PANF_SUICIDE ) )
         {
@@ -8008,11 +8011,11 @@ PreUpdatePanel ( void )
     
     DrawBeforeView = TRUE;
     //if (DrawBeforeView)
-    TRAVERSE_CONNECT ( pnum )
+    for(int i = 0; i < numplayers; i++)
     {
-        if ( dimensionmode != 2 && pnum == screenpeek )
+        if ( dimensionmode != 2 && i == screenpeek )
         {
-            pDisplaySprites ( Player + pnum );
+            pDisplaySprites ( Player + i );
         }
     }
     DrawBeforeView = FALSE;

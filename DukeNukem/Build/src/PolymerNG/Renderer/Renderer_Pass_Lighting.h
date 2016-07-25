@@ -19,7 +19,7 @@ struct PS_DRAWLIGHTING_BUFFER
 	float4x4 viewMatrix;
 	float lightposition_and_range[4];
 	float lightrangcolor[4];
-	float cameraposition[4];
+	float4 cameraposition;
 	float numLightsUnkown[4];
 	float4x4 lightViewMatrix;
 	float4x4 lightProjectionMatrix;

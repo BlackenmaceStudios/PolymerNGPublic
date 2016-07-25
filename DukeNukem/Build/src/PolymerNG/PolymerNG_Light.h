@@ -14,6 +14,7 @@ struct PolymerNGShadowOccluder
 	}
 
 	const Build3DPlane *plane;
+	Build3DSprite sprite;
 };
 
 //
@@ -46,7 +47,7 @@ class PolymerNGLightLocal : public PolymerNGLight
 public:
 	PolymerNGLightLocal(PolymerNGLightOpts opts, PolymerNGBoard *board);
 
-	void		PrepareShadows(float4x4 modelViewMatrix);
+	void		PrepareShadows(Build3DSprite *prsprites, int numSprites, float4x4 modelViewMatrix);
 
 	virtual PolymerNGLightOpts *GetOpts() { return &opts; }
 	virtual const PolymerNGLightOpts *GetOriginalOpts() { return &opts_original; }

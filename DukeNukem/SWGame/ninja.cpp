@@ -42,6 +42,9 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "ninja.h"
 #include "sprite.h"
 
+extern bool isClient;
+extern bool isServer;
+
 /*
 
  !AIC - Decision tables used in mostly ai.c DoActorActionDecide().
@@ -2177,9 +2180,13 @@ DoNinjaCeiling ( short SpriteNum )
 VOID
 InitAllPlayerSprites ( VOID )
 {
-    short i, sp_num;
-    USERp u;
-    TRAVERSE_CONNECT ( i )
+    //TRAVERSE_CONNECT ( i )
+	if (!isClient && !isServer)
+	{
+		InitPlayerSprite(Player);
+		return;
+	}
+	for(int i = 0; i < numplayers; i++)
     {
         InitPlayerSprite ( Player + i );
     }
@@ -2305,10 +2312,9 @@ PlayerPanelSetup ( VOID )
     PLAYERp pp;
     USERp u;
     // For every player setup the panel weapon stuff
-    //for (pp = Player; pp < &Player[numplayers]; pp++)
-    TRAVERSE_CONNECT ( pnum )
+    for (pp = Player; pp < &Player[numplayers]; pp++)
     {
-        pp = Player + pnum;
+    //    pp = Player + pnum;
         u = User[pp->PlayerSprite];
         ASSERT ( u != NULL );
         //u->WeaponNum = WPN_STAR;

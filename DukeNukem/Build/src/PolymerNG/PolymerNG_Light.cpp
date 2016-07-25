@@ -213,7 +213,7 @@ bool PolymerNGLightLocal::IsPlaneInFrustum(Build3DPlane *plane, float* frustum)
 PolymerNGLightLocal::PrepareShadows
 ============================
 */
-void PolymerNGLightLocal::PrepareShadows(float4x4 modelViewMatrix)
+void PolymerNGLightLocal::PrepareShadows(Build3DSprite *prsprites, int numSprites, float4x4 modelViewMatrix)
 {
 	bool smpFrame = !renderer.GetCurrentFrameNum();
 	if (opts.lightType == POLYMERNG_LIGHTTYPE_POINT)
@@ -238,9 +238,24 @@ void PolymerNGLightLocal::PrepareShadows(float4x4 modelViewMatrix)
 			shadowPasses[i].shadowOccluders[smpFrame].clear();
 			
 			// Find all sprites that this light can influence.
-			//BuildRenderCommand command;
-			//polymerNGboard->DrawSprites(command, shadowPasses[i].shadowViewMatrix, shadowPasses[i].shadowProjectionMatrix, 0, 0, lightPosition);
+			// Despite the bad naming on my part, drawsprites just agros a list of visible sprites.
 
+			for (int d = 0; d < numSprites; d++)
+			{
+				// Todo: Add wall sprite alpha support!
+				if (!prsprites[d].cacheModel)
+					continue;
+
+				PolymerNGShadowOccluder occluder;
+				occluder.sprite = prsprites[d];
+				occluder.sprite.ViewMatrix = lightMatrix;
+
+				float4x4 modelViewMatrix = lightMatrix * occluder.sprite.modelMatrix;
+				occluder.sprite.modelViewProjectionMatrix = sliceProjectionMatrix * modelViewMatrix;
+				shadowPasses[i].shadowOccluders[smpFrame].push_back(occluder);
+			}
+
+			// Find all the sectors this light can influence. 
 			for (int d = 0; d < lightVisibility.sectorInfluences.size(); d++)
 			{
 				int sectorId = lightVisibility.sectorInfluences[d];
@@ -457,7 +472,7 @@ void PolymerNGBoard::SetAmbientLightForSector(int sectorNum, int ambientNum)
 PolymerNGLightLocal::FindVisibleLightsForScene
 ============================
 */
-void PolymerNGBoard::FindVisibleLightsForScene(PolymerNGLightLocal **lights, int &numVisibleLights, float4x4 modelViewMatrix)
+void PolymerNGBoard::FindVisibleLightsForScene(Build3DSprite *prsprites, int numSprites, PolymerNGLightLocal **lights, int &numVisibleLights, float4x4 modelViewMatrix)
 {
 	// Tick all the lights
 	for (int i = 0; i < mapLights.size(); i++)
@@ -467,6 +482,32 @@ void PolymerNGBoard::FindVisibleLightsForScene(PolymerNGLightLocal **lights, int
 			if (!mapLights[i]->GetOpts()->LightTick(mapLights[i], mapLights[i]->GetOpts()))
 			{
 				RemoveLightFromCurrentBoard(mapLights[i]);
+			}
+		}
+	}
+
+	// Check to see if a light is bound to a sprite, if it is check to see if the position needs to be updated.
+	for (int i = 0; i < mapLights.size(); i++)
+	{
+		SPRITETYPE *owner = mapLights[i]->GetOpts()->spriteOwner;
+
+		if (owner)
+		{
+			// Remove the light if the owner has been deleted.
+			if (owner->statnum == MAXSTATUS)
+			{
+				RemoveLightFromCurrentBoard(mapLights[i]);
+				continue;
+			}
+
+			if (owner->x != mapLights[i]->GetOpts()->position[0] || owner->y != mapLights[i]->GetOpts()->position[1] || owner->z != mapLights[i]->GetOpts()->position[2])
+			{
+				mapLights[i]->GetOpts()->position[0] = owner->x;
+				mapLights[i]->GetOpts()->position[1] = owner->y;
+				mapLights[i]->GetOpts()->position[2] = owner->z;
+
+				// Update the light visibility.
+				mapLights[i]->CalculateLightVisibility();
 			}
 		}
 	}
@@ -497,7 +538,7 @@ void PolymerNGBoard::FindVisibleLightsForScene(PolymerNGLightLocal **lights, int
 
 		if (lights[numVisibleLights]->GetOpts()->castShadows)
 		{
-			lights[numVisibleLights]->PrepareShadows(modelViewMatrix);
+			lights[numVisibleLights]->PrepareShadows(prsprites, numSprites, modelViewMatrix);
 		}
 
 		numVisibleLights++;

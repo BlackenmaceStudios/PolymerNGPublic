@@ -122,18 +122,23 @@ ShadowMap *Renderer::RenderShadowsForLight(PolymerNGLightLocal *light, int shado
 		drawShadowPointLightBuffer.mWorldView = lightShadowPass->shadowViewProjectionMatrix;
 		drawShadowPointLightBuffer.light_position_and_range = lightposition;
 		drawShadowPointLightBuffer.light_position_and_range.w = light->GetOpts()->radius;
+		drawShadowPointLightBuffer.mModelMatrix = float4x4Identity();
 		drawShadowPointLightConstantBuffer->UpdateBuffer(&drawShadowPointLightBuffer, sizeof(VS_SHADOW_POINT_CONSTANT_BUFFER), 0);
 		rhi.SetConstantBuffer(0, drawShadowPointLightConstantBuffer, SHADER_BIND_VERTEXSHADER);
 
+		// Render the sectors first.
 		for (int d = 0; d < light->GetShadowPass(i)->shadowOccluders[shadowOccluderFrame].size(); d++)
 		{
+			if (!light->GetShadowPass(i)->shadowOccluders[shadowOccluderFrame][d].plane)
+				continue;
+
 			const Build3DPlane *plane = lightShadowPass->shadowOccluders[shadowOccluderFrame][d].plane;
 			PolymerNGMaterial *material = static_cast<PolymerNGMaterial *>(plane->renderMaterialHandle);
 
 			BuildRHIShader *shader = NULL; 
 			if (light->GetOpts()->lightType == POLYMERNG_LIGHTTYPE_SPOT)
 			{
-				if (plane->isMaskWall)
+				if (plane->isMaskWall || material->GetGlowMap() != NULL)
 				{
 					shader = spotlightShadowAlphaMapProgram->GetRHIShader();
 				}
@@ -144,7 +149,7 @@ ShadowMap *Renderer::RenderShadowsForLight(PolymerNGLightLocal *light, int shado
 			}
 			else if (light->GetOpts()->lightType == POLYMERNG_LIGHTTYPE_POINT)
 			{
-				if (plane->isMaskWall)
+				if (plane->isMaskWall || (material && material->GetGlowMap() != NULL))
 				{
 					shader = cubemapShadowAlphaMapProgram->GetRHIShader();
 				}
@@ -155,10 +160,15 @@ ShadowMap *Renderer::RenderShadowsForLight(PolymerNGLightLocal *light, int shado
 
 			}
 
-			if (plane->isMaskWall)
+			if ((material && material->GetGlowMap() && material->GetGlowMap()->GetRHITexture() != NULL))
 			{
 				rhi.SetFaceCulling(CULL_FACE_NONE);
-				rhi.SetImageForContext(0, material->GetDiffuseTexture()->GetRHITexture());
+				rhi.SetImageForContext(0, material->GetGlowMap()->GetRHITexture(), true);
+			}
+			else if (plane->isMaskWall)
+			{
+				rhi.SetFaceCulling(CULL_FACE_NONE);
+				rhi.SetImageForContext(0, material->GetDiffuseTexture()->GetRHITexture(), true);
 			}
 			else
 			{
@@ -173,8 +183,39 @@ ShadowMap *Renderer::RenderShadowsForLight(PolymerNGLightLocal *light, int shado
 			{
 				rhi.DrawUnoptimizedQuad(shader, light->GetRHIMesh(), plane->vbo_offset, plane->vertcount);
 			}
+		}
 
+		rhi.SetFaceCulling(CULL_FACE_NONE);
 
+		// Render the sprites next
+		for (int d = 0; d < light->GetShadowPass(i)->shadowOccluders[shadowOccluderFrame].size(); d++)
+		{
+			const Build3DSprite *sprite = &light->GetShadowPass(i)->shadowOccluders[shadowOccluderFrame][d].sprite;
+
+			if (!sprite->cacheModel)
+				continue;
+
+			drawShadowPointLightBuffer.mModelMatrix = sprite->modelMatrix;
+			drawShadowPointLightBuffer.mWorldView = sprite->modelViewProjectionMatrix;
+			drawShadowPointLightBuffer.light_position_and_range = lightposition;
+			drawShadowPointLightBuffer.light_position_and_range.w = light->GetOpts()->radius;
+			drawShadowPointLightConstantBuffer->UpdateBuffer(&drawShadowPointLightBuffer, sizeof(VS_SHADOW_POINT_CONSTANT_BUFFER), 0);
+			rhi.SetConstantBuffer(0, drawShadowPointLightConstantBuffer, SHADER_BIND_VERTEXSHADER);
+
+			for (int f = 0; f < sprite->cacheModel->GetNumSurfaces(); f++)
+			{
+				CacheModelSurface *surface = sprite->cacheModel->GetCacheSurface(f);
+
+				if (sprite->cacheModel->GetBaseModel() == NULL)
+					continue;
+
+				BuildRHIShader *shader = NULL;
+				if (light->GetOpts()->lightType == POLYMERNG_LIGHTTYPE_POINT)
+				{
+					shader = cubemapShadowMapProgram->GetRHIShader();
+				}
+				rhi.DrawIndexedQuad(shader, sprite->cacheModel->GetBaseModel()->rhiVertexBufferStatic, 0, surface->startIndex, surface->numIndexes);
+			}
 		}
 	}
 

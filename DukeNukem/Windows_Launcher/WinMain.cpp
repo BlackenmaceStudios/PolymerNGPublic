@@ -459,6 +459,12 @@ void DrawFrame(GraphicsContext &fakeContext)
 	DX::g_swapChain->Present(0, 0);
 }
 
+bool Sys_IsWindowActive()
+{
+	HWND activeWindow = GetForegroundWindow();
+	return activeWindow == g_hwnd;
+}
+
 int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nShowCmd)
 {
 	GraphicsContext fakeContext;
